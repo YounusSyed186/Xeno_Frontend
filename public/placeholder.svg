@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#141915"/>
+      <stop offset="100%" stop-color="#080a09"/>
+    </radialGradient>
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5ef046"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <circle cx="400" cy="400" r="280" fill="none" stroke="#263129" stroke-width="2" stroke-dasharray="8 8"/>
+  <g transform="translate(300, 280)">
+    <!-- T-Shirt/Apparel silhouette -->
+    <path d="M60 0 L140 0 L170 40 L200 20 L230 70 L185 95 L185 240 L15 240 L15 95 L-30 70 L0 20 L30 40 Z" 
+          fill="#1c251e" stroke="url(#primaryGrad)" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M60 0 C70 30 130 30 140 0" fill="none" stroke="url(#primaryGrad)" stroke-width="3"/>
+  </g>
+  <text x="400" y="580" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#9ca3af" text-anchor="middle" letter-spacing="4">
+    XENO CRAFT APPAREL
+  </text>
+  <text x="400" y="615" font-family="system-ui, sans-serif" font-size="14" font-weight="500" fill="#5ef046" text-anchor="middle" letter-spacing="2">
+    CUSTOM PRINT PREVIEW
+  </text>
+</svg>
