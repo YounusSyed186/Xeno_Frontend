@@ -9,6 +9,7 @@ import { useCart } from "@/hooks/useCart";
 import { Product } from "@/types/product";
 import { CustomizationOption, PrintingMethod } from "@/types/product";
 import { toast } from "sonner";
+import { PhotorealisticStage } from "./PhotorealisticStage";
 
 interface ConfiguratorProps {
   products: Product[];
@@ -225,7 +226,7 @@ export function Configurator({
       />
 
       <Reveal>
-        <div className="mt-14 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
+        <div className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.15fr] items-start">
           {/* controls */}
           <div className="rounded-3xl hairline bg-card p-6 sm:p-8">
             {/* Product Selector */}
@@ -399,58 +400,47 @@ export function Configurator({
             </Field>
           </div>
 
-          {/* preview */}
-          <div className="relative flex flex-col overflow-hidden rounded-3xl hairline bg-surface p-6 sm:p-8">
-            <span aria-hidden="true" className="absolute -right-16 -top-16 size-56 rounded-full bg-primary/15 blur-3xl" />
-            <span className="text-xs uppercase tracking-[0.22em] text-subtle">Live preview</span>
+          {/* Photorealistic 3D Live Studio Stage & Summary */}
+          <div className="flex flex-col gap-6">
+            <PhotorealisticStage
+              product={product}
+              selectedColor={selectedColor}
+              selectedPrintMethod={selectedPrintMethod}
+              artworkFiles={artworkFiles}
+              customText={selectedOptions['custom_text'] || ''}
+            />
 
-            <div className="relative mt-6 flex flex-1 items-center justify-center rounded-2xl hairline bg-background p-10">
-              {selectedColor && (
-                <svg viewBox="0 0 200 200" className="h-48 w-48" role="img" aria-label={`${selectedColor.name} ${product?.name} preview`}>
-                  <path
-                    d="M60 30 L80 22 Q100 40 120 22 L140 30 L160 55 L142 70 L140 175 L60 175 L58 70 L40 55 Z"
-                    fill={selectedColor.hex || selectedColor.css || "#000"}
-                    stroke="oklch(1 0 0 / 0.14)"
-                    strokeWidth="1.5"
-                  />
-                  <rect
-                    x="78"
-                    y="78"
-                    width="44"
-                    height="44"
-                    rx="6"
-                    fill="var(--primary)"
-                    opacity={selectedPrintMethod?.name === "Embroidery" ? 0.85 : 1}
-                  />
-                </svg>
-              )}
-            </div>
+            {/* Spec Details & Order Actions */}
+            <div className="relative flex flex-col overflow-hidden rounded-3xl hairline bg-surface p-6 sm:p-8">
+              <span className="text-xs uppercase tracking-[0.22em] text-subtle">Configuration Summary</span>
 
-            <dl className="mt-6 space-y-2.5 text-sm">
-              <Row k="Product" v={product?.name || "—"} />
-              <Row k="Variant" v={`${selectedColor?.name || "—"} · ${selectedSize?.name || "—"} · ${selectedMaterial?.name || "—"}`} />
-              <Row k="Print" v={selectedPrintMethod?.name || "—"} />
-              <Row k="Unit price" v={inr(unitPrice)} />
-            </dl>
+              <dl className="mt-4 space-y-2.5 text-sm">
+                <Row k="Product" v={product?.name || "—"} />
+                <Row k="Variant" v={`${selectedColor?.name || "—"} · ${selectedSize?.name || "—"} · ${selectedMaterial?.name || "—"}`} />
+                <Row k="Print Method" v={selectedPrintMethod?.name || "—"} />
+                <Row k="Unit Price" v={inr(unitPrice)} />
+                <Row k="Quantity" v={`${qty} units`} />
+              </dl>
 
-            <div className="mt-5 flex items-end justify-between border-t border-border pt-5">
-              <div>
-                <span className="text-xs uppercase tracking-[0.2em] text-subtle">Estimated total</span>
-                <p className="font-display text-3xl font-extrabold text-gradient">{inr(totalPrice)}</p>
+              <div className="mt-5 flex items-end justify-between border-t border-border pt-5">
+                <div>
+                  <span className="text-xs uppercase tracking-[0.2em] text-subtle">Estimated total</span>
+                  <p className="font-display text-3xl font-extrabold text-gradient">{inr(totalPrice)}</p>
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              disabled={isAdding || isPricing || !product || !selectedVariant || !selectedPrintMethod}
-              onClick={handleAddToCart}
-              className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isAdding ? "Adding to Cart..." : isPricing ? "Calculating Price..." : "Add Customized Spec to Cart"}
-            </button>
-            <p className="mt-3 text-xs text-subtle">
-              Authoritative total verified at checkout. Final quote confirmed after artwork review.
-            </p>
+              <button
+                type="button"
+                disabled={isAdding || isPricing || !product || !selectedVariant || !selectedPrintMethod}
+                onClick={handleAddToCart}
+                className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-lg shadow-primary/20 cursor-pointer"
+              >
+                {isAdding ? "Adding to Cart..." : isPricing ? "Calculating Price..." : "Add Customized Spec to Cart"}
+              </button>
+              <p className="mt-3 text-xs text-subtle">
+                Authoritative total verified at checkout. Final quote confirmed after artwork review.
+              </p>
+            </div>
           </div>
         </div>
       </Reveal>
