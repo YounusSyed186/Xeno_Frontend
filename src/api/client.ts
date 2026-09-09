@@ -1,4 +1,7 @@
 import { ApiResponse, ApiError } from '../types/api';
+import { normalizeApiError, AppError } from '../lib/errors';
+
+export { AppError, normalizeApiError } from '../lib/errors';
 
 const BASE_URL = (import.meta.env as Record<string, string>)['VITE_API_URL'] || 'http://localhost:8000/api/v1';
 
@@ -86,33 +89,28 @@ export async function apiClient<T = any>(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      const error: ApiError = {
-        success: false,
-        message: data.message || `Request failed with status ${response.status}`,
-        errors: data.errors || {},
-        code: data.code || 'HTTP_ERROR',
-        status: response.status,
-      };
-
       if (response.status === 401) {
         setAuthToken(null);
       }
 
-      throw error;
+      const normalized = normalizeApiError({
+        success: false,
+        message: data.message,
+        errors: data.errors,
+        code: data.code,
+        status: response.status,
+      });
+
+      throw normalized;
     }
 
     return data as ApiResponse<T>;
   } catch (err: any) {
-    if (err.success === false) {
+    if (err instanceof AppError) {
       throw err;
     }
 
-    const networkError: ApiError = {
-      success: false,
-      message: err.message || 'Network connection failed. Please check your connection.',
-      code: 'NETWORK_ERROR',
-      status: 0,
-    };
-    throw networkError;
+    const normalized = normalizeApiError(err);
+    throw normalized;
   }
 }

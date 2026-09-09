@@ -20,5 +20,6 @@ export interface AuthState {
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  fetchCurrentUser: () => Promise<void>;
   setUser: (user: User | null) => void;
 }

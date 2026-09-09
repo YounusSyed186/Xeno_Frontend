@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/stores/auth.store';
 import { OtpVerificationModal } from '@/components/auth/OtpVerificationModal';
 import { otpApi } from '@/api/otp.api';
+import { normalizeApiError, showErrorToast, AppError } from '@/lib/errors';
+import { InlineFieldError } from '@/components/feedback/InlineFieldError';
+import { Sparkles, ArrowRight, CheckCircle, AlertCircle, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
-import { Sparkles, ArrowRight, CheckCircle, ShieldCheck } from 'lucide-react';
 
 export const Route = createFileRoute('/register')({
   component: RegisterComponent,
@@ -19,6 +21,14 @@ function RegisterComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [topError, setTopError] = useState<{ title: string; message: string; action?: { label: string; to: string } } | null>(null);
+
+  // Input refs for focus management
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   // OTP Verification State
   const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
@@ -36,13 +46,14 @@ function RegisterComponent() {
 
   const handleSendOtp = async () => {
     if (!phone || phone.trim().length < 10) {
-      toast.error('Please enter a valid 10-digit mobile number');
+      setFieldErrors((prev) => ({ ...prev, phone: 'Please enter a valid 10-digit mobile number' }));
+      phoneRef.current?.focus();
       return;
     }
 
     setIsSendingOtp(true);
+    setFieldErrors((prev) => ({ ...prev, phone: '' }));
     try {
-      console.log('[Register] Sending OTP for phone:', phone.trim());
       const res = await otpApi.sendOtp({
         phone: phone.trim(),
         purpose: 'signup',
@@ -51,18 +62,20 @@ function RegisterComponent() {
       if (res.data?.session_token) {
         setOtpSessionToken(res.data.session_token);
         setIsOtpModalOpen(true);
-        toast.success(res.message || 'Verification code sent to your mobile');
+        toast.success('Verification code sent to your mobile');
       }
     } catch (err: any) {
-      console.error('[Register] OTP send error:', err);
-      toast.error(err.message || 'Failed to send verification code');
+      const normalized = normalizeApiError(err, 'Failed to send verification code');
+      showErrorToast(normalized);
+      if (normalized.fieldErrors.phone) {
+        setFieldErrors((prev) => ({ ...prev, phone: normalized.fieldErrors.phone }));
+      }
     } finally {
       setIsSendingOtp(false);
     }
   };
 
   const handleOtpVerified = (sessionToken: string) => {
-    console.log('[Register] OTP verified successfully. Session token acquired.');
     setOtpSessionToken(sessionToken);
     setIsPhoneVerified(true);
     toast.success('Mobile verified successfully!');
@@ -71,6 +84,7 @@ function RegisterComponent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFieldErrors({});
+    setTopError(null);
 
     const errors: Record<string, string> = {};
 
@@ -80,6 +94,8 @@ function RegisterComponent() {
 
     if (!email.trim()) {
       errors.email = 'Email address is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      errors.email = 'Please enter a valid email address.';
     }
 
     if (password.length < 8) {
@@ -92,12 +108,14 @@ function RegisterComponent() {
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      toast.error('Please fix the validation errors below.');
+      if (errors.name) nameRef.current?.focus();
+      else if (errors.email) emailRef.current?.focus();
+      else if (errors.password) passwordRef.current?.focus();
+      else if (errors.password_confirmation) confirmPasswordRef.current?.focus();
       return;
     }
 
     setIsSubmitting(true);
-    console.log('[Register] Submitting registration form for:', { name, email, phone: phone.trim() || undefined });
 
     try {
       await register({
@@ -108,25 +126,45 @@ function RegisterComponent() {
         password,
         password_confirmation: passwordConfirmation,
       });
-      console.log('[Register] Registration successful!');
-      toast.success('Account created successfully!');
+
+      toast.success('Account created successfully! Welcome to Xeno Craft.');
       navigate({ to: '/' });
     } catch (err: any) {
-      console.error('[Register] Registration error:', err);
+      const normalized: AppError = normalizeApiError(err, 'Failed to create account. Please try again.');
 
-      if (err.errors && typeof err.errors === 'object') {
-        const backendErrors: Record<string, string> = {};
-        for (const [key, msgs] of Object.entries(err.errors)) {
-          if (Array.isArray(msgs) && msgs.length > 0) {
-            backendErrors[key] = String(msgs[0]);
-          } else if (typeof msgs === 'string') {
-            backendErrors[key] = msgs;
-          }
-        }
-        setFieldErrors(backendErrors);
-        toast.error(err.message || 'Validation failed. Please check the highlighted fields.');
+      if (normalized.code === 'EMAIL_ALREADY_EXISTS') {
+        setFieldErrors({
+          email: 'This email is already registered.',
+        });
+        setTopError({
+          title: 'Email already registered',
+          message: 'An account with this email already exists. Please sign in or use a different email address.',
+          action: { label: 'Sign in instead', to: '/login' },
+        });
+        emailRef.current?.focus();
+        showErrorToast(normalized);
+      } else if (Object.keys(normalized.fieldErrors).length > 0) {
+        setFieldErrors(normalized.fieldErrors);
+        setTopError({
+          title: 'Please check the highlighted fields',
+          message: normalized.message,
+        });
+
+        // Focus first invalid field
+        if (normalized.fieldErrors.name) nameRef.current?.focus();
+        else if (normalized.fieldErrors.email) emailRef.current?.focus();
+        else if (normalized.fieldErrors.phone) phoneRef.current?.focus();
+        else if (normalized.fieldErrors.password) passwordRef.current?.focus();
+        else if (normalized.fieldErrors.password_confirmation) confirmPasswordRef.current?.focus();
+
+        showErrorToast(normalized);
       } else {
-        toast.error(err.message || 'Failed to create account. Please try again.');
+        setTopError({
+          title: normalized.title || 'Registration failed',
+          message: normalized.message,
+          action: normalized.action ? { label: normalized.action.label, to: normalized.action.to || '/login' } : undefined,
+        });
+        showErrorToast(normalized);
       }
     } finally {
       setIsSubmitting(false);
@@ -144,12 +182,43 @@ function RegisterComponent() {
           <p className="text-xs text-muted-foreground">Join Xeno Craft for live 3D custom apparel configuration and bulk discounts</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+        {/* Top-Level Contextual Error Alert */}
+        {topError && (
+          <div
+            role="alert"
+            className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-xs text-foreground space-y-2 animate-in fade-in-0 duration-200"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="size-4 text-destructive shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold text-destructive">{topError.title}</p>
+                <p className="text-muted-foreground leading-relaxed">{topError.message}</p>
+              </div>
+            </div>
+            {topError.action && (
+              <div className="pt-1 pl-6.5">
+                <Link
+                  to={topError.action.to}
+                  className="inline-flex items-center gap-1 font-bold text-primary hover:underline text-xs"
+                >
+                  <LogIn className="size-3.5" />
+                  {topError.action.label}
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2" noValidate>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Full Name *</label>
+            <label htmlFor="reg-name" className="block text-xs font-semibold text-muted-foreground mb-1.5">Full Name *</label>
             <input
+              id="reg-name"
+              ref={nameRef}
               type="text"
               required
+              aria-invalid={!!fieldErrors.name}
+              aria-describedby={fieldErrors.name ? 'reg-name-error' : undefined}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
@@ -158,16 +227,18 @@ function RegisterComponent() {
               className={`w-full rounded-xl border ${fieldErrors.name ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="Your full name"
             />
-            {fieldErrors.name && (
-              <p className="mt-1 text-xs text-destructive font-medium">{fieldErrors.name}</p>
-            )}
+            <InlineFieldError id="reg-name-error" error={fieldErrors.name} />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Email Address *</label>
+            <label htmlFor="reg-email" className="block text-xs font-semibold text-muted-foreground mb-1.5">Email Address *</label>
             <input
+              id="reg-email"
+              ref={emailRef}
               type="email"
               required
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'reg-email-error' : undefined}
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -176,14 +247,12 @@ function RegisterComponent() {
               className={`w-full rounded-xl border ${fieldErrors.email ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="name@company.com"
             />
-            {fieldErrors.email && (
-              <p className="mt-1 text-xs text-destructive font-medium">{fieldErrors.email}</p>
-            )}
+            <InlineFieldError id="reg-email-error" error={fieldErrors.email} />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-muted-foreground">Mobile Number (Optional)</label>
+              <label htmlFor="reg-phone" className="block text-xs font-semibold text-muted-foreground">Mobile Number (Optional)</label>
               {isPhoneVerified && (
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-500">
                   <CheckCircle className="size-3" /> Verified
@@ -192,7 +261,11 @@ function RegisterComponent() {
             </div>
             <div className="relative flex items-center">
               <input
+                id="reg-phone"
+                ref={phoneRef}
                 type="tel"
+                aria-invalid={!!fieldErrors.phone}
+                aria-describedby={fieldErrors.phone ? 'reg-phone-error' : undefined}
                 value={phone}
                 onChange={(e) => {
                   setPhone(e.target.value);
@@ -207,23 +280,25 @@ function RegisterComponent() {
                   type="button"
                   onClick={handleSendOtp}
                   disabled={isSendingOtp}
-                  className="absolute right-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-bold transition-colors"
+                  className="absolute right-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer"
                 >
                   {isSendingOtp ? 'Sending...' : 'Verify OTP'}
                 </button>
               )}
             </div>
-            {fieldErrors.phone && (
-              <p className="mt-1 text-xs text-destructive font-medium">{fieldErrors.phone}</p>
-            )}
+            <InlineFieldError id="reg-phone-error" error={fieldErrors.phone} />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Password *</label>
+            <label htmlFor="reg-password" className="block text-xs font-semibold text-muted-foreground mb-1.5">Password *</label>
             <input
+              id="reg-password"
+              ref={passwordRef}
               type="password"
               required
               minLength={8}
+              aria-invalid={!!fieldErrors.password}
+              aria-describedby={fieldErrors.password ? 'reg-password-error' : undefined}
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -232,16 +307,18 @@ function RegisterComponent() {
               className={`w-full rounded-xl border ${fieldErrors.password ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="At least 8 characters"
             />
-            {fieldErrors.password && (
-              <p className="mt-1 text-xs text-destructive font-medium">{fieldErrors.password}</p>
-            )}
+            <InlineFieldError id="reg-password-error" error={fieldErrors.password} />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Confirm Password *</label>
+            <label htmlFor="reg-confirm-password" className="block text-xs font-semibold text-muted-foreground mb-1.5">Confirm Password *</label>
             <input
+              id="reg-confirm-password"
+              ref={confirmPasswordRef}
               type="password"
               required
+              aria-invalid={!!fieldErrors.password_confirmation}
+              aria-describedby={fieldErrors.password_confirmation ? 'reg-confirm-password-error' : undefined}
               value={passwordConfirmation}
               onChange={(e) => {
                 setPasswordConfirmation(e.target.value);
@@ -250,9 +327,7 @@ function RegisterComponent() {
               className={`w-full rounded-xl border ${fieldErrors.password_confirmation ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="Repeat password"
             />
-            {fieldErrors.password_confirmation && (
-              <p className="mt-1 text-xs text-destructive font-medium">{fieldErrors.password_confirmation}</p>
-            )}
+            <InlineFieldError id="reg-confirm-password-error" error={fieldErrors.password_confirmation} />
           </div>
 
           <button

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/stores/auth.store';
-import { X, Lock, Mail, User as UserIcon, Phone, ShieldCheck, ArrowRight } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, Phone, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
+import { normalizeApiError, showErrorToast } from '@/lib/errors';
+import { InlineFieldError } from '@/components/feedback/InlineFieldError';
 import { toast } from 'sonner';
 
 export function AuthModal() {
@@ -20,6 +22,7 @@ export function AuthModal() {
   // Login form state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [loginFieldErrors, setLoginFieldErrors] = useState<Record<string, string>>({});
 
   // Register form state
   const [regName, setRegName] = useState('');
@@ -27,10 +30,20 @@ export function AuthModal() {
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [regFieldErrors, setRegFieldErrors] = useState<Record<string, string>>({});
+  const [modalError, setModalError] = useState<{ title: string; message: string; action?: { label: string; onClick: () => void } } | null>(null);
+
+  // Focus refs
+  const loginEmailRef = useRef<HTMLInputElement>(null);
+  const loginPasswordRef = useRef<HTMLInputElement>(null);
+  const regEmailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setTab(authModalTab);
-  }, [authModalTab]);
+    setModalError(null);
+    setLoginFieldErrors({});
+    setRegFieldErrors({});
+  }, [authModalTab, authModalOpen]);
 
   useEffect(() => {
     if (isAuthenticated && authModalOpen) {
@@ -42,18 +55,36 @@ export function AuthModal() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail || !loginPassword) {
-      toast.error('Please enter both email and password');
+    setLoginFieldErrors({});
+    setModalError(null);
+
+    const errors: Record<string, string> = {};
+    if (!loginEmail.trim()) errors.email = 'Email address is required.';
+    if (!loginPassword) errors.password = 'Password is required.';
+
+    if (Object.keys(errors).length > 0) {
+      setLoginFieldErrors(errors);
+      if (errors.email) loginEmailRef.current?.focus();
+      else if (errors.password) loginPasswordRef.current?.focus();
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await login({ email: loginEmail, password: loginPassword });
+      await login({ email: loginEmail.trim().toLowerCase(), password: loginPassword });
       toast.success('Successfully signed in!');
       closeAuthModal();
     } catch (err: any) {
-      toast.error(err.message || 'Invalid login credentials');
+      const normalized = normalizeApiError(err, 'Invalid login credentials');
+      if (normalized.code === 'INVALID_CREDENTIALS') {
+        setLoginFieldErrors({ email: 'Incorrect email or password.' });
+        loginPasswordRef.current?.focus();
+      }
+      setModalError({
+        title: normalized.title || 'Login Failed',
+        message: normalized.message,
+      });
+      showErrorToast(normalized);
     } finally {
       setIsSubmitting(false);
     }
@@ -61,24 +92,62 @@ export function AuthModal() {
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (regPassword !== regConfirmPassword) {
-      toast.error('Passwords do not match');
+    setRegFieldErrors({});
+    setModalError(null);
+
+    const errors: Record<string, string> = {};
+    if (!regName.trim()) errors.name = 'Full name is required.';
+    if (!regEmail.trim()) errors.email = 'Email address is required.';
+    if (regPassword.length < 8) errors.password = 'Password must be at least 8 characters.';
+    if (regPassword !== regConfirmPassword) errors.password_confirmation = 'Passwords do not match.';
+
+    if (Object.keys(errors).length > 0) {
+      setRegFieldErrors(errors);
       return;
     }
 
     setIsSubmitting(true);
     try {
       await register({
-        name: regName,
-        email: regEmail,
-        phone: regPhone,
+        name: regName.trim(),
+        email: regEmail.trim().toLowerCase(),
+        phone: regPhone.trim() || undefined,
         password: regPassword,
         password_confirmation: regConfirmPassword,
       });
       toast.success('Account created successfully!');
       closeAuthModal();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to create account');
+      const normalized = normalizeApiError(err, 'Failed to create account');
+
+      if (normalized.code === 'EMAIL_ALREADY_EXISTS') {
+        setRegFieldErrors({ email: 'This email is already registered.' });
+        setModalError({
+          title: 'Email already registered',
+          message: 'An account with this email already exists. Please sign in instead.',
+          action: {
+            label: 'Switch to Sign In',
+            onClick: () => {
+              setLoginEmail(regEmail);
+              setTab('login');
+              setModalError(null);
+            },
+          },
+        });
+        regEmailRef.current?.focus();
+      } else if (Object.keys(normalized.fieldErrors).length > 0) {
+        setRegFieldErrors(normalized.fieldErrors);
+        setModalError({
+          title: 'Validation failed',
+          message: normalized.message,
+        });
+      } else {
+        setModalError({
+          title: normalized.title || 'Registration failed',
+          message: normalized.message,
+        });
+      }
+      showErrorToast(normalized);
     } finally {
       setIsSubmitting(false);
     }
@@ -131,6 +200,33 @@ export function AuthModal() {
           </button>
         </div>
 
+        {/* Top-Level Contextual Error Alert */}
+        {modalError && (
+          <div
+            role="alert"
+            className="mb-4 rounded-2xl border border-red-500/30 bg-red-950/40 p-3.5 text-xs text-zinc-200 space-y-2 animate-in fade-in-0 duration-200"
+          >
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-bold text-red-400">{modalError.title}</p>
+                <p className="text-zinc-300 leading-relaxed text-[11px]">{modalError.message}</p>
+              </div>
+            </div>
+            {modalError.action && (
+              <div className="pt-1 pl-6.5">
+                <button
+                  type="button"
+                  onClick={modalError.action.onClick}
+                  className="font-bold text-[#5ef046] hover:underline text-xs cursor-pointer"
+                >
+                  {modalError.action.label} →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         {tab === 'login' ? (
           /* Sign In Form */
           <div className="space-y-5">
@@ -141,39 +237,53 @@ export function AuthModal() {
               </p>
             </div>
 
-            <form onSubmit={handleLoginSubmit} className="space-y-4 pt-1">
+            <form onSubmit={handleLoginSubmit} className="space-y-4 pt-1" noValidate>
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                <label htmlFor="modal-login-email" className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
                   <Mail className="size-3.5 text-zinc-400" /> Email Address
                 </label>
                 <input
+                  id="modal-login-email"
+                  ref={loginEmailRef}
                   type="email"
                   required
+                  aria-invalid={!!loginFieldErrors.email}
                   value={loginEmail}
-                  onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                  onChange={(e) => {
+                    setLoginEmail(e.target.value);
+                    if (loginFieldErrors.email) setLoginFieldErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                  className={`w-full rounded-2xl border ${loginFieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="name@company.com"
                 />
+                <InlineFieldError error={loginFieldErrors.email} />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
+                <label htmlFor="modal-login-password" className="block text-xs font-medium text-zinc-300 mb-1.5 flex items-center gap-1.5">
                   <Lock className="size-3.5 text-zinc-400" /> Password
                 </label>
                 <input
+                  id="modal-login-password"
+                  ref={loginPasswordRef}
                   type="password"
                   required
+                  aria-invalid={!!loginFieldErrors.password}
                   value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                  onChange={(e) => {
+                    setLoginPassword(e.target.value);
+                    if (loginFieldErrors.password) setLoginFieldErrors((prev) => ({ ...prev, password: '' }));
+                  }}
+                  className={`w-full rounded-2xl border ${loginFieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="••••••••"
                 />
+                <InlineFieldError error={loginFieldErrors.password} />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-2 w-full flex items-center justify-center gap-2 rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 disabled:opacity-50"
+                className="mt-2 w-full flex items-center justify-center gap-2 rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
                 {!isSubmitting && <ArrowRight className="size-4" />}
@@ -185,7 +295,7 @@ export function AuthModal() {
               <button
                 type="button"
                 onClick={() => setTab('register')}
-                className="font-bold text-[#5ef046] hover:underline"
+                className="font-bold text-[#5ef046] hover:underline cursor-pointer"
               >
                 Create one now
               </button>
@@ -201,40 +311,54 @@ export function AuthModal() {
               </p>
             </div>
 
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5 pt-1">
+            <form onSubmit={handleRegisterSubmit} className="space-y-3.5 pt-1" noValidate>
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+                <label htmlFor="modal-reg-name" className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
                   <UserIcon className="size-3.5 text-zinc-400" /> Full Name
                 </label>
                 <input
+                  id="modal-reg-name"
                   type="text"
                   required
+                  aria-invalid={!!regFieldErrors.name}
                   value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                  onChange={(e) => {
+                    setRegName(e.target.value);
+                    if (regFieldErrors.name) setRegFieldErrors((prev) => ({ ...prev, name: '' }));
+                  }}
+                  className={`w-full rounded-2xl border ${regFieldErrors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="John Doe"
                 />
+                <InlineFieldError error={regFieldErrors.name} />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+                <label htmlFor="modal-reg-email" className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
                   <Mail className="size-3.5 text-zinc-400" /> Email Address
                 </label>
                 <input
+                  id="modal-reg-email"
+                  ref={regEmailRef}
                   type="email"
                   required
+                  aria-invalid={!!regFieldErrors.email}
                   value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  className="w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                  onChange={(e) => {
+                    setRegEmail(e.target.value);
+                    if (regFieldErrors.email) setRegFieldErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                  className={`w-full rounded-2xl border ${regFieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="john@example.com"
                 />
+                <InlineFieldError error={regFieldErrors.email} />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+                <label htmlFor="modal-reg-phone" className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
                   <Phone className="size-3.5 text-zinc-400" /> Phone Number (Optional)
                 </label>
                 <input
+                  id="modal-reg-phone"
                   type="tel"
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
@@ -245,34 +369,46 @@ export function AuthModal() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-300 mb-1">Password</label>
+                  <label htmlFor="modal-reg-password" className="block text-xs font-medium text-zinc-300 mb-1">Password</label>
                   <input
+                    id="modal-reg-password"
                     type="password"
                     required
                     minLength={8}
+                    aria-invalid={!!regFieldErrors.password}
                     value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    className="w-full rounded-2xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                    onChange={(e) => {
+                      setRegPassword(e.target.value);
+                      if (regFieldErrors.password) setRegFieldErrors((prev) => ({ ...prev, password: '' }));
+                    }}
+                    className={`w-full rounded-2xl border ${regFieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                     placeholder="Min 8 chars"
                   />
+                  <InlineFieldError error={regFieldErrors.password} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-300 mb-1">Confirm Password</label>
+                  <label htmlFor="modal-reg-confirm" className="block text-xs font-medium text-zinc-300 mb-1">Confirm Password</label>
                   <input
+                    id="modal-reg-confirm"
                     type="password"
                     required
+                    aria-invalid={!!regFieldErrors.password_confirmation}
                     value={regConfirmPassword}
-                    onChange={(e) => setRegConfirmPassword(e.target.value)}
-                    className="w-full rounded-2xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-[#5ef046] focus:outline-none focus:ring-1 focus:ring-[#5ef046]"
+                    onChange={(e) => {
+                      setRegConfirmPassword(e.target.value);
+                      if (regFieldErrors.password_confirmation) setRegFieldErrors((prev) => ({ ...prev, password_confirmation: '' }));
+                    }}
+                    className={`w-full rounded-2xl border ${regFieldErrors.password_confirmation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                     placeholder="Repeat"
                   />
+                  <InlineFieldError error={regFieldErrors.password_confirmation} />
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-2 w-full flex items-center justify-center gap-2 rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 disabled:opacity-50"
+                className="mt-2 w-full flex items-center justify-center gap-2 rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? 'Creating account...' : 'Create Account'}
                 {!isSubmitting && <ShieldCheck className="size-4" />}
@@ -284,7 +420,7 @@ export function AuthModal() {
               <button
                 type="button"
                 onClick={() => setTab('login')}
-                className="font-bold text-[#5ef046] hover:underline"
+                className="font-bold text-[#5ef046] hover:underline cursor-pointer"
               >
                 Sign in here
               </button>

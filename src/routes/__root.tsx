@@ -53,12 +53,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
-      <div className="max-w-xl w-full text-center glass-panel rounded-3xl p-8 border border-border/40 space-y-4">
-        <h1 className="text-xl font-bold tracking-tight text-foreground">
-          Navigation or Page Error
+      <div className="max-w-xl w-full text-center glass-panel rounded-3xl p-8 border border-border/40 space-y-4 shadow-xl backdrop-blur-md">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-destructive/10 text-destructive border border-destructive/20">
+          <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h1 className="text-xl font-bold tracking-tight text-foreground font-display">
+          Unable to display page
         </h1>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          {error?.message || "An unexpected error occurred while rendering this view."}
+          We encountered an unexpected issue loading this section. Please try reloading or return home.
         </p>
 
         {isDev && error?.stack && (
@@ -71,20 +76,21 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
         <div className="mt-6 flex flex-wrap justify-center gap-2 pt-2">
           <button
+            type="button"
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 shadow-md"
+            className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 shadow-md cursor-pointer"
           >
-            Retry Loading
+            Try Again
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="inline-flex items-center justify-center rounded-xl border border-input bg-background/50 px-5 py-2.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
           >
             Go to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -92,59 +98,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Xeno Craft — Premium Custom Merchandise" },
-      {
-        name: "description",
-        content:
-          "Premium custom merchandise, apparel and corporate branding products. Bulk printing with pan India delivery.",
-      },
-      { name: "author", content: "Xeno Craft" },
-      { name: "theme-color", content: "#050505" },
-      { property: "og:site_name", content: "Xeno Craft" },
-      { property: "og:title", content: "Xeno Craft — Premium Custom Merchandise" },
-      {
-        property: "og:description",
-        content:
-          "Premium custom merchandise, apparel and corporate branding products. Bulk printing with pan India delivery.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Inter:wght@400;500;600&display=swap",
-      },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
-    ],
-  }),
-
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

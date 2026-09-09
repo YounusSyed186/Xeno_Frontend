@@ -154,6 +154,10 @@ const authStoreCore = (set: any, get: any) => ({
     }
   },
 
+  fetchCurrentUser: async () => {
+    await get().refreshUser();
+  },
+
   login: async (payload: LoginPayload) => {
     set({ status: 'loading' });
     console.log('[AuthStore:Login] Submitting credentials for:', payload.email);
