@@ -3,6 +3,7 @@ import { useAuthContext } from '@/stores/auth.store';
 import { X, Lock, Mail, User as UserIcon, Phone, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 import { normalizeApiError, showErrorToast } from '@/lib/errors';
 import { InlineFieldError } from '@/components/feedback/InlineFieldError';
+import { Logo } from '@/components/xeno/Logo';
 import { toast } from 'sonner';
 
 export function AuthModal() {
@@ -173,6 +174,11 @@ export function AuthModal() {
         >
           <X className="size-4" />
         </button>
+
+        {/* Logo Branding */}
+        <div className="flex flex-col items-center justify-center mb-6 pt-2">
+          <Logo variant="gradient" size="md" glow={true} />
+        </div>
 
         {/* Header Tabs */}
         <div className="mb-6 flex rounded-full bg-white/5 p-1 border border-white/10">

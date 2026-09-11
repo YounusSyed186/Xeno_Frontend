@@ -6,6 +6,7 @@ import { otpApi } from '@/api/otp.api';
 import { normalizeApiError, showErrorToast, AppError } from '@/lib/errors';
 import { InlineFieldError } from '@/components/feedback/InlineFieldError';
 import { Sparkles, ArrowRight, CheckCircle, AlertCircle, LogIn } from 'lucide-react';
+import { Logo } from '@/components/xeno/Logo';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/register')({
@@ -174,9 +175,9 @@ function RegisterComponent() {
   return (
     <div className="flex min-h-[90vh] items-center justify-center px-4 pt-28 sm:pt-36 pb-20">
       <div className="w-full max-w-md space-y-6 rounded-3xl border border-border/40 bg-card/70 p-8 shadow-xl backdrop-blur-md">
-        <div className="text-center space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-2">
-            <Sparkles className="size-3.5" /> Start Customising
+        <div className="text-center space-y-2">
+          <div className="flex justify-center mb-1">
+            <Logo variant="gradient" size="lg" glow={true} />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">Create Account</h1>
           <p className="text-xs text-muted-foreground">Join Xeno Craft for live 3D custom apparel configuration and bulk discounts</p>

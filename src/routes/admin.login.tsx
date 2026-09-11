@@ -47,8 +47,13 @@ function AdminLoginComponent() {
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Console Header */}
         <div className="text-center space-y-2">
-          <div className="size-12 rounded-2xl bg-gradient-to-br from-primary to-primary-soft text-primary-foreground font-black text-lg flex items-center justify-center mx-auto shadow-lg shadow-primary/20">
-            XC
+          <div className="relative inline-flex items-center justify-center mx-auto mb-1">
+            <div className="absolute -inset-2 rounded-full bg-[#5ef046]/25 blur-lg opacity-80" aria-hidden="true" />
+            <img
+              src="/favicon.png"
+              alt="Xeno Craft"
+              className="relative size-16 rounded-2xl object-contain drop-shadow-[0_0_15px_rgba(94,240,70,0.5)]"
+            />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground uppercase">
             Xeno Craft Operations

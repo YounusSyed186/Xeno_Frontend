@@ -59,8 +59,8 @@ export function SiteFooter() {
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
           <div>
-            <Link to="/" className="inline-block">
-              <Logo />
+            <Link to="/" className="inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
+              <Logo size="lg" glow={true} />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Premium custom merchandise, apparel and corporate branding products —

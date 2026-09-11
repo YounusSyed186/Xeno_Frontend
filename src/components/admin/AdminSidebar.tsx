@@ -162,9 +162,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           onClick={onCloseMobileDrawer}
           className="flex items-center gap-2.5 overflow-hidden"
         >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-soft text-primary-foreground font-black text-xs shadow-md">
-            XC
-          </div>
+          <img
+            src="/favicon.png"
+            alt="Xeno Craft"
+            className="size-8 shrink-0 rounded-lg object-contain drop-shadow-[0_0_8px_rgba(94,240,70,0.4)]"
+          />
           {(!isCollapsed || isMobileDrawer) && (
             <div className="flex flex-col">
               <span className="text-xs font-bold tracking-wider text-foreground uppercase">

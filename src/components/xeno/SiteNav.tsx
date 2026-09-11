@@ -64,7 +64,7 @@ export function SiteNav() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden items-center gap-1.5 xl:flex">
+          <ul className="hidden items-center gap-1.5 lg:flex">
             {links.map((l) => (
               <li key={l.label} onMouseEnter={() => setMega(l.to === "/products")}>
                 <Link
@@ -165,7 +165,7 @@ export function SiteNav() {
               onClick={() => setOpen((v) => !v)}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white xl:hidden"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white lg:hidden"
             >
               {open ? <X className="size-4" /> : <Menu className="size-4" />}
             </button>
@@ -175,7 +175,7 @@ export function SiteNav() {
         {/* Mega menu - now uses real products from API */}
         <div
           className={cn(
-            "glass-panel mt-2 hidden origin-top rounded-3xl p-6 transition-all duration-300 pointer-events-auto xl:block bg-black/90 border border-white/10 backdrop-blur-xl",
+            "glass-panel mt-2 hidden origin-top rounded-3xl p-6 transition-all duration-300 pointer-events-auto lg:block bg-black/90 border border-white/10 backdrop-blur-xl",
             mega ? "scale-100 opacity-100" : "-translate-y-2 scale-[0.99] opacity-0 pointer-events-none",
           )}
           aria-hidden={!mega}
@@ -283,7 +283,7 @@ export function SiteNav() {
         </div>
 
         {open ? (
-          <div className="glass-panel mt-2 max-h-[75vh] overflow-y-auto rounded-3xl p-4 pointer-events-auto xl:hidden bg-black/90 border border-white/10 backdrop-blur-xl">
+          <div className="glass-panel mt-2 max-h-[75vh] overflow-y-auto rounded-3xl p-4 pointer-events-auto lg:hidden bg-black/90 border border-white/10 backdrop-blur-xl">
             <ul className="grid gap-1">
               {links.map((l) => (
                 <li key={l.label}>

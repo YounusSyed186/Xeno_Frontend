@@ -38,6 +38,18 @@ type PlacementPreset = "center" | "left_chest" | "right_chest" | "full_back" | "
 
 const DEFAULT_LOGOS = [
   {
+    name: "Xeno Craft (Gradient)",
+    url: "/logos/Xeno craft trasparent green gradient.png",
+  },
+  {
+    name: "Xeno Craft (White)",
+    url: "/logos/Xeno craft trasparent white.png",
+  },
+  {
+    name: "Xeno Craft Emblem",
+    url: "/logos/Xeno craft Green.png",
+  },
+  {
     name: "Geometric Wolf",
     url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
   },
