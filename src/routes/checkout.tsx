@@ -120,13 +120,49 @@ function CheckoutComponent() {
       const paymentIntent = res.data.payment_intent;
 
       if (paymentMethod === 'razorpay' && paymentIntent?.order_id) {
+        const isMock = Boolean(
+          paymentIntent.mock ||
+          (typeof paymentIntent.order_id === 'string' && paymentIntent.order_id.startsWith('order_mock_'))
+        );
+        const paymentId = (orderData as any).payments?.[0]?.id || (res.data as any).payment?.id || orderData.id;
+
+        if (isMock) {
+          toast.info('Test Environment: Completing simulated payment...');
+          try {
+            const verifyRes = await checkoutApi.verifyPayment(paymentId, {
+              order_id: orderData.id,
+              gateway: 'razorpay',
+              razorpay_payment_id: 'pay_mock_' + Math.random().toString(36).substring(2, 12),
+              razorpay_order_id: paymentIntent.order_id,
+              razorpay_signature: 'sig_mock_verified',
+            });
+
+            if (verifyRes.success) {
+              toast.success('Payment confirmed! Your order is in production pipeline.');
+              if (typeof refreshCart === 'function') {
+                refreshCart();
+              }
+              navigate({ to: '/orders' });
+            } else {
+              toast.error('Payment verification failed.');
+            }
+          } catch (vErr: any) {
+            toast.error(vErr.message || 'Payment verification encountered an error.');
+          }
+          return;
+        }
+
         const loaded = await loadRazorpayScript();
         if (!loaded) {
           toast.error('Failed to load Razorpay SDK. Please check your internet connection.');
           return;
         }
 
-        const rzpKey = (import.meta.env as Record<string, string>)['VITE_RAZORPAY_KEY'] || 'rzp_test_placeholder';
+        const rzpKey =
+          paymentIntent?.key_id ||
+          (res.data as any)?.payment_data?.key_id ||
+          (import.meta.env as Record<string, string>)['VITE_RAZORPAY_KEY'] ||
+          'rzp_test_TSYMqlKTLTRNMn';
 
         const options = {
           key: rzpKey,
@@ -137,7 +173,6 @@ function CheckoutComponent() {
           order_id: paymentIntent.order_id,
           handler: async function (response: any) {
             try {
-              const paymentId = (orderData as any).payments?.[0]?.id || (res.data as any).payment?.id || orderData.id;
               const verifyRes = await checkoutApi.verifyPayment(paymentId, {
                 order_id: orderData.id,
                 gateway: 'razorpay',
@@ -170,6 +205,10 @@ function CheckoutComponent() {
         };
 
         const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (resp: any) {
+          console.error('Razorpay payment failed:', resp.error);
+          toast.error(resp.error?.description || 'Payment was unsuccessful or cancelled.');
+        });
         rzp.open();
       } else if (paymentMethod === 'stripe' && paymentIntent?.client_secret) {
         toast.info('Stripe Test Intent created. Redirecting to order summary...');
