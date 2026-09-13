@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
-import { Reveal, SectionHeading } from "./Reveal";
-import { MagneticButton } from "./MagneticButton";
-import { cn } from "@/lib/utils";
+import React, { useState, useEffect, useMemo } from "react";
+import { Product, PrintingMethod, CustomizationOption } from "@/types/product";
 import { useCustomizationOptions, usePreviewPrice } from "@/hooks/useCustomization";
 import { useCart } from "@/hooks/useCart";
-import { Product } from "@/types/product";
-import { CustomizationOption, PrintingMethod } from "@/types/product";
 import { toast } from "sonner";
-import { PhotorealisticStage } from "./PhotorealisticStage";
+import { StudioTopBar } from "./studio/StudioTopBar";
+import { StudioToolbar, StudioToolTab } from "./studio/StudioToolbar";
+import { StudioToolPanel, DesignTemplate } from "./studio/StudioToolPanel";
+import { StudioCanvas, PlacementPreset } from "./studio/StudioCanvas";
+import { StudioOrderSummary } from "./studio/StudioOrderSummary";
+import { StudioPreviewModal } from "./studio/StudioPreviewModal";
+import { StudioMobileLayout } from "./studio/StudioMobileLayout";
 
 interface ConfiguratorProps {
   products: Product[];
@@ -26,11 +28,14 @@ export function Configurator({
   initialProductSlug,
   initialVariantId,
 }: ConfiguratorProps) {
-  const { data: optionsData } = useCustomizationOptions();
   const { mutate: previewPrice, data: priceData, isPending: isPricing } = usePreviewPrice();
   const { addItem, isAdding } = useCart();
 
-  // Product state with deep-link resolution
+  // Active Tool state (Default to "colors" or "templates")
+  const [activeTab, setActiveTab] = useState<StudioToolTab | null>("colors");
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  // Active Product Selection with deep-link resolution
   const [product, setProduct] = useState<Product | null>(() => {
     if (initialProductSlug && products.length > 0) {
       const matched = products.find(
@@ -40,19 +45,49 @@ export function Configurator({
     }
     return products[0] || null;
   });
-  
-  // Selected variant (color + size + material)
+
+  // Selected Variant (Color + Size + Material)
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
-  
-  // Customization selections
-  const [selectedPrintMethod, setSelectedPrintMethod] = useState<PrintingMethod | null>(printingMethods[0] || null);
+
+  // Customization Selections
+  const [selectedPrintMethod, setSelectedPrintMethod] = useState<PrintingMethod | null>(
+    printingMethods[0] || null
+  );
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [qty, setQty] = useState(50);
-  
-  // Artwork uploads
-  const [artworkFiles, setArtworkFiles] = useState<File[]>([]);
 
-  // Sync initial product if changed or loaded asynchronously
+  // Artwork & Typography States
+  const [artworkFiles, setArtworkFiles] = useState<File[]>([]);
+  const [customArtworkUrl, setCustomArtworkUrl] = useState<string | null>(null);
+
+  const [showText, setShowText] = useState(true);
+  const [textVal, setTextVal] = useState("XENO CRAFT");
+  const [fontFamily, setFontFamily] = useState("Inter, sans-serif");
+  const [textColor, setTextColor] = useState("#ffffff");
+  const [textSize, setTextSize] = useState(24);
+  const [letterSpacing, setLetterSpacing] = useState(2);
+
+  // Placement & Transform States
+  const [placement, setPlacement] = useState<PlacementPreset>("center");
+  const [posX, setPosX] = useState(50);
+  const [posY, setPosY] = useState(42);
+  const [scale, setScale] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [opacity, setOpacity] = useState(0.95);
+
+  // Responsive Breakpoint check (Mobile vs Desktop)
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Sync initial product if changed asynchronously
   useEffect(() => {
     if (initialProductSlug && products.length > 0) {
       const matched = products.find(
@@ -64,10 +99,9 @@ export function Configurator({
     }
   }, [initialProductSlug, products]);
 
-  // Get available variants for current product
+  // Extract variants, colors, sizes, materials
   const variants = product?.variants || [];
-  
-  // Get unique colors, sizes, materials from variants
+
   const colors = useMemo(() => {
     const colorMap = new Map();
     variants.forEach((v: any) => {
@@ -98,7 +132,7 @@ export function Configurator({
     return Array.from(materialMap.values());
   }, [variants]);
 
-  // Auto-select first variant when product changes or match initialVariantId
+  // Auto-select first variant or match initialVariantId
   useEffect(() => {
     if (product && variants.length > 0) {
       if (initialVariantId) {
@@ -112,70 +146,131 @@ export function Configurator({
     }
   }, [product, variants, initialVariantId]);
 
-  // Calculate price tiers from product
+  // Calculate Price Tiers
   const tiers = useMemo(() => {
     const priceTiers = product?.price_tiers || [];
     if (priceTiers.length > 0) {
       return priceTiers.map((t: any) => t.min_quantity).sort((a: number, b: number) => a - b);
     }
-    // Fallback to standard tiers if no price tiers
-    return [25, 50, 100, 250, 500, 1000];
+    return [10, 25, 50, 100, 250, 500];
   }, [product]);
 
-  // Auto-adjust qty to nearest valid tier
+  // Ensure initial MOQ is respected
   useEffect(() => {
-    if (tiers.length > 0 && !tiers.includes(qty)) {
-      const nearest = tiers.reduce((prev, curr) => 
-        Math.abs(curr - qty) < Math.abs(prev - qty) ? curr : prev
-      );
-      setQty(nearest);
+    const moq = product?.moq || 1;
+    if (qty < moq) {
+      setQty(moq);
     }
-  }, [tiers, qty]);
+  }, [product, qty]);
 
-  // Fetch live price from backend
+  // Sync live price from backend
   useEffect(() => {
     if (!product || !selectedVariant || !selectedPrintMethod) return;
-    
-    const payload = {
+
+    previewPrice({
       product_id: product.id,
       variant_id: selectedVariant.id,
       printing_method_id: selectedPrintMethod.id,
       quantity: qty,
-    };
-    
-    previewPrice(payload);
+    });
   }, [product, selectedVariant, selectedPrintMethod, qty, previewPrice]);
 
-  // Handle variant selection (color + size + material combo)
+  // Sync artwork object URL
+  useEffect(() => {
+    if (artworkFiles && artworkFiles.length > 0) {
+      const file = artworkFiles[artworkFiles.length - 1];
+      if (file) {
+        const objUrl = URL.createObjectURL(file);
+        setCustomArtworkUrl(objUrl);
+        return () => URL.revokeObjectURL(objUrl);
+      }
+    }
+    return undefined;
+  }, [artworkFiles]);
+
+  // Handle Variant Selection
   const handleVariantSelect = (colorId: number, sizeId: number, materialId: number) => {
-    const variant = variants.find((v: any) => 
-      v.color_id === colorId && v.size_id === sizeId && v.material_id === materialId
+    const variant = variants.find(
+      (v: any) =>
+        (colorId === undefined || v.color_id === colorId) &&
+        (sizeId === undefined || v.size_id === sizeId) &&
+        (materialId === undefined || v.material_id === materialId)
     );
     if (variant) {
       setSelectedVariant(variant);
+    } else {
+      // Fallback matching color
+      const fallback = variants.find((v: any) => v.color_id === colorId) || variants[0];
+      if (fallback) setSelectedVariant(fallback);
     }
   };
 
-  // Handle customization option change
-  const handleOptionChange = (optionCode: string, value: string) => {
-    setSelectedOptions(prev => ({ ...prev, [optionCode]: value }));
+  // Placement Change handler
+  const handlePlacementChange = (newPlacement: PlacementPreset) => {
+    setPlacement(newPlacement);
+    switch (newPlacement) {
+      case "center":
+        setPosX(50);
+        setPosY(42);
+        setScale(1);
+        break;
+      case "left_chest":
+        setPosX(62);
+        setPosY(34);
+        setScale(0.55);
+        break;
+      case "right_chest":
+        setPosX(38);
+        setPosY(34);
+        setScale(0.55);
+        break;
+      case "full_back":
+        setPosX(50);
+        setPosY(44);
+        setScale(1.25);
+        break;
+      case "bottom_hem":
+        setPosX(50);
+        setPosY(72);
+        setScale(0.65);
+        break;
+    }
   };
 
-  // Handle artwork upload
-  const handleArtworkUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setArtworkFiles(prev => [...prev, ...files]);
+  // Apply Template Preset
+  const handleApplyTemplate = (template: DesignTemplate) => {
+    setCustomArtworkUrl(template.previewUrl);
+    setTextVal(template.text);
+    setFontFamily(template.fontFamily);
+    setTextColor(template.textColor);
+    handlePlacementChange(template.placement);
+    setScale(template.scale);
+    setShowText(true);
   };
 
-  // Remove artwork
-  const removeArtwork = (index: number) => {
-    setArtworkFiles(prev => prev.filter((_, i) => i !== index));
+  // Upload & Remove Artwork
+  const handleUploadArtwork = (files: File[]) => {
+    setArtworkFiles((prev) => [...prev, ...files]);
   };
 
-  // Add to cart
+  const handleRemoveArtwork = (index: number) => {
+    setArtworkFiles((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      if (next.length === 0) setCustomArtworkUrl(null);
+      return next;
+    });
+  };
+
+  // Add To Cart Dispatch
   const handleAddToCart = () => {
     if (!product || !selectedVariant || !selectedPrintMethod) {
-      toast.error("Please complete all selections");
+      toast.error("Please complete all product and customization selections");
+      return;
+    }
+
+    const moq = product.moq || 1;
+    if (qty < moq) {
+      toast.error(`Minimum order quantity for this item is ${moq} units.`);
       return;
     }
 
@@ -186,312 +281,246 @@ export function Configurator({
         quantity: qty,
         customization: {
           product: product.name,
-          variant: `${selectedVariant.color?.name || ''} / ${selectedVariant.size?.name || ''}`,
+          variant: `${selectedVariant.color?.name || ""} / ${selectedVariant.size?.name || ""}`,
           print_method: selectedPrintMethod.name,
           color: selectedVariant.color?.name,
           size: selectedVariant.size?.name,
           material: selectedVariant.material?.name,
           options: selectedOptions,
           artwork_count: artworkFiles.length,
+          custom_text: showText ? textVal : undefined,
+          placement: placement,
+          scale: scale,
+          rotation: rotation,
         },
       },
       {
         onSuccess: () => {
-          toast.success(`Customised ${qty} × ${product.name} added to cart!`);
+          toast.success(`Customized ${qty} × ${product.name} added to cart!`);
         },
         onError: (err: any) => {
-          toast.error(err?.message || "Failed to add customised item to cart");
+          toast.error(err?.message || "Failed to add customized item to cart");
         },
       }
     );
   };
 
-  const pricing = (priceData as any)?.data || (priceData as any);
-  const unitPrice = pricing?.unit_price || product?.base_price || 0;
-  const totalPrice = pricing?.line_total || (unitPrice * qty);
-
-  const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-
-  // Get selected color/size/material for display
   const selectedColor = selectedVariant?.color;
   const selectedSize = selectedVariant?.size;
   const selectedMaterial = selectedVariant?.material;
 
+  // Render Mobile Layout on small screens
+  if (isMobile) {
+    return (
+      <StudioMobileLayout
+        products={products}
+        currentProduct={product}
+        onSelectProduct={(p) => setProduct(p)}
+        selectedVariant={selectedVariant}
+        selectedColor={selectedColor}
+        selectedSize={selectedSize}
+        selectedMaterial={selectedMaterial}
+        colors={colors}
+        sizes={sizes}
+        materials={materials}
+        onSelectVariant={handleVariantSelect}
+        printingMethods={printingMethods}
+        selectedPrintMethod={selectedPrintMethod}
+        onSelectPrintMethod={setSelectedPrintMethod}
+        customizationOptions={customizationOptions}
+        selectedOptions={selectedOptions}
+        onOptionChange={(code, val) =>
+          setSelectedOptions((prev) => ({ ...prev, [code]: val }))
+        }
+        artworkFiles={artworkFiles}
+        onUploadArtwork={handleUploadArtwork}
+        onRemoveArtwork={handleRemoveArtwork}
+        customArtworkUrl={customArtworkUrl}
+        onSelectSampleGraphic={(url) => setCustomArtworkUrl(url)}
+        onClearArtwork={() => setCustomArtworkUrl(null)}
+        textVal={textVal}
+        setTextVal={setTextVal}
+        fontFamily={fontFamily}
+        setFontFamily={setFontFamily}
+        textColor={textColor}
+        setTextColor={setTextColor}
+        textSize={textSize}
+        setTextSize={setTextSize}
+        letterSpacing={letterSpacing}
+        setLetterSpacing={setLetterSpacing}
+        showText={showText}
+        setShowText={setShowText}
+        placement={placement}
+        onPlacementChange={handlePlacementChange}
+        posX={posX}
+        setPosX={setPosX}
+        posY={posY}
+        setPosY={setPosY}
+        scale={scale}
+        setScale={setScale}
+        rotation={rotation}
+        setRotation={setRotation}
+        opacity={opacity}
+        setOpacity={setOpacity}
+        onApplyTemplate={handleApplyTemplate}
+        qty={qty}
+        setQty={setQty}
+        tiers={tiers}
+        priceData={priceData}
+        isPricing={isPricing}
+        isAdding={isAdding}
+        onAddToCart={handleAddToCart}
+      />
+    );
+  }
+
+  // Desktop 3-Column Professional Studio Layout
   return (
-    <section id="configurator" className="relative mx-auto w-full max-w-7xl px-4 py-24 sm:px-6 lg:py-32">
-      <SectionHeading
-        eyebrow="Configurator"
-        title={<>Build it, <span className="text-gradient">price it, instantly</span></>}
-        copy="Pick your spec and see a live preview with an indicative quote before you talk to us."
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-background text-foreground select-none">
+      {/* Top Bar */}
+      <StudioTopBar
+        products={products}
+        currentProduct={product}
+        onSelectProduct={(p) => setProduct(p)}
+        onOpenPreview={() => setShowPreviewModal(true)}
+        saveStatus="saved"
       />
 
-      <Reveal>
-        <div className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.15fr] items-start">
-          {/* controls */}
-          <div className="rounded-3xl hairline bg-card p-6 sm:p-8">
-            {/* Product Selector */}
-            <Field label="Product">
-              <div className="flex flex-wrap gap-2">
-                {products.map((p) => (
-                  <Chip
-                    key={p.id}
-                    active={product?.id === p.id}
-                    onClick={() => setProduct(p)}
-                  >
-                    {p.name}
-                  </Chip>
-                ))}
-              </div>
-            </Field>
+      {/* Main Workspace (3-Column Layout: Left Tools 20%, Center Canvas 60%, Right Summary 20%) */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Toolbar (Icons) */}
+        <StudioToolbar
+          activeTab={activeTab}
+          onSelectTab={(tab) => setActiveTab(activeTab === tab ? null : tab)}
+          artworkCount={artworkFiles.length}
+        />
 
-            {/* Variant Selector - Color, Size, Material */}
-            {variants.length > 0 && (
-              <>
-                <Field label="Colour">
-                  <div className="flex flex-wrap gap-3">
-                    {colors.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        aria-label={c.name}
-                        aria-pressed={selectedColor?.id === c.id}
-                        onClick={() => handleVariantSelect(c.id, selectedSize?.id, selectedMaterial?.id)}
-                        className={cn(
-                          "size-11 rounded-full border transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          selectedColor?.id === c.id
-                            ? "border-primary shadow-[var(--glow-accent)]"
-                            : "border-border hover:border-primary/40",
-                        )}
-                        style={{ background: c.hex || c.css || "#000" }}
-                      />
-                    ))}
-                  </div>
-                </Field>
+        {/* Left Contextual Tool Controls Panel (Collapsible) */}
+        <StudioToolPanel
+          activeTab={activeTab}
+          onClose={() => setActiveTab(null)}
+          product={product}
+          selectedColor={selectedColor}
+          selectedSize={selectedSize}
+          selectedMaterial={selectedMaterial}
+          colors={colors}
+          sizes={sizes}
+          materials={materials}
+          onSelectVariant={handleVariantSelect}
+          printingMethods={printingMethods}
+          selectedPrintMethod={selectedPrintMethod}
+          onSelectPrintMethod={setSelectedPrintMethod}
+          customizationOptions={customizationOptions}
+          selectedOptions={selectedOptions}
+          onOptionChange={(code, val) =>
+            setSelectedOptions((prev) => ({ ...prev, [code]: val }))
+          }
+          artworkFiles={artworkFiles}
+          onUploadArtwork={handleUploadArtwork}
+          onRemoveArtwork={handleRemoveArtwork}
+          customArtworkUrl={customArtworkUrl}
+          onSelectSampleGraphic={(url) => setCustomArtworkUrl(url)}
+          textVal={textVal}
+          setTextVal={setTextVal}
+          fontFamily={fontFamily}
+          setFontFamily={setFontFamily}
+          textColor={textColor}
+          setTextColor={setTextColor}
+          textSize={textSize}
+          setTextSize={setTextSize}
+          letterSpacing={letterSpacing}
+          setLetterSpacing={setLetterSpacing}
+          showText={showText}
+          setShowText={setShowText}
+          placement={placement}
+          onPlacementChange={handlePlacementChange}
+          posX={posX}
+          setPosX={setPosX}
+          posY={posY}
+          setPosY={setPosY}
+          scale={scale}
+          setScale={setScale}
+          rotation={rotation}
+          setRotation={setRotation}
+          opacity={opacity}
+          setOpacity={setOpacity}
+          onApplyTemplate={handleApplyTemplate}
+        />
 
-                <Field label="Size">
-                  <div className="flex flex-wrap gap-2">
-                    {sizes.map((s) => (
-                      <Chip
-                        key={s.id}
-                        active={selectedSize?.id === s.id}
-                        onClick={() => handleVariantSelect(selectedColor?.id, s.id, selectedMaterial?.id)}
-                      >
-                        {s.name}
-                      </Chip>
-                    ))}
-                  </div>
-                </Field>
+        {/* Center Hero Canvas (60% dominant visual workspace) */}
+        <StudioCanvas
+          product={product}
+          selectedColor={selectedColor}
+          selectedPrintMethod={selectedPrintMethod}
+          customArtworkUrl={customArtworkUrl}
+          onClearArtwork={() => setCustomArtworkUrl(null)}
+          showText={showText}
+          textVal={textVal}
+          fontFamily={fontFamily}
+          textColor={textColor}
+          textSize={textSize}
+          letterSpacing={letterSpacing}
+          placement={placement}
+          onPlacementChange={handlePlacementChange}
+          posX={posX}
+          setPosX={setPosX}
+          posY={posY}
+          setPosY={setPosY}
+          scale={scale}
+          setScale={setScale}
+          rotation={rotation}
+          setRotation={setRotation}
+          opacity={opacity}
+          setOpacity={setOpacity}
+          onOpenPreview={() => setShowPreviewModal(true)}
+        />
 
-                <Field label="Material / Fabric">
-                  <div className="flex flex-wrap gap-2">
-                    {materials.map((m) => (
-                      <Chip
-                        key={m.id}
-                        active={selectedMaterial?.id === m.id}
-                        onClick={() => handleVariantSelect(selectedColor?.id, selectedSize?.id, m.id)}
-                      >
-                        {m.name}
-                      </Chip>
-                    ))}
-                  </div>
-                </Field>
-              </>
-            )}
+        {/* Right Design Summary & Bulk Order Configuration (20%) */}
+        <StudioOrderSummary
+          product={product}
+          selectedVariant={selectedVariant}
+          selectedColor={selectedColor}
+          selectedSize={selectedSize}
+          selectedMaterial={selectedMaterial}
+          selectedPrintMethod={selectedPrintMethod}
+          artworkFiles={artworkFiles}
+          customArtworkUrl={customArtworkUrl}
+          showText={showText}
+          textVal={textVal}
+          qty={qty}
+          setQty={setQty}
+          tiers={tiers}
+          priceData={priceData}
+          isPricing={isPricing}
+          isAdding={isAdding}
+          onAddToCart={handleAddToCart}
+        />
+      </div>
 
-            {/* Print Method */}
-            <Field label="Print Type">
-              <div className="flex flex-wrap gap-2">
-                {printingMethods.map((p) => (
-                  <Chip
-                    key={p.id}
-                    active={selectedPrintMethod?.id === p.id}
-                    onClick={() => setSelectedPrintMethod(p)}
-                  >
-                    {p.name}
-                  </Chip>
-                ))}
-              </div>
-            </Field>
-
-            {/* Customization Options */}
-            {customizationOptions.length > 0 && (
-              <Field label="Custom Options">
-                <div className="space-y-3">
-                  {customizationOptions.map((opt) => (
-                    <div key={opt.id} className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">{opt.name}</label>
-                      {opt.type === "select" && (opt as any).values && (
-                        <select
-                          value={selectedOptions[opt.code] || ""}
-                          onChange={(e) => handleOptionChange(opt.code, e.target.value)}
-                          className="w-full rounded-xl border border-border/40 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                        >
-                          <option value="">Select...</option>
-                          {(opt as any).values.map((v: any) => (
-                            <option key={v.value || v} value={v.value || v}>{v.label || v.value || v}</option>
-                          ))}
-                        </select>
-                      )}
-                      {opt.type === "text" && (
-                        <input
-                          type="text"
-                          value={selectedOptions[opt.code] || ""}
-                          onChange={(e) => handleOptionChange(opt.code, e.target.value)}
-                          placeholder={(opt as any).description || `Enter ${opt.name}`}
-                          className="w-full rounded-xl border border-border/40 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                        />
-                      )}
-                      {opt.type === "boolean" && (
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={selectedOptions[opt.code] === "true"}
-                            onChange={(e) => handleOptionChange(opt.code, e.target.checked ? "true" : "false")}
-                            className="rounded border-border/40 text-primary focus:ring-primary"
-                          />
-                          <span className="text-sm text-foreground">Enable</span>
-                        </label>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </Field>
-            )}
-
-            {/* Artwork Upload */}
-            <Field label="Artwork / Logo">
-              <div className="space-y-3">
-                <input
-                  type="file"
-                  multiple
-                  accept=".png,.jpg,.jpeg,.svg,.pdf,.ai,.eps"
-                  onChange={handleArtworkUpload}
-                  className="w-full rounded-xl border border-border/40 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-                {artworkFiles.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {artworkFiles.map((file, i) => (
-                      <div key={i} className="flex items-center gap-2 rounded-lg bg-surface px-3 py-1.5 text-xs">
-                        <span className="truncate max-w-[150px]">{file.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeArtwork(i)}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <p className="text-xs text-subtle">PNG, JPG, SVG, PDF, AI, EPS • Max 10MB each</p>
-              </div>
-            </Field>
-
-            {/* Quantity */}
-            <Field label={`Quantity — ${qty} units`}>
-              <div className="flex flex-wrap gap-2">
-                {tiers.map((t) => (
-                  <Chip key={t} active={t === qty} onClick={() => setQty(t)}>
-                    {t}
-                  </Chip>
-                ))}
-              </div>
-            </Field>
-          </div>
-
-          {/* Photorealistic 3D Live Studio Stage & Summary */}
-          <div className="flex flex-col gap-6">
-            <PhotorealisticStage
-              product={product}
-              selectedColor={selectedColor}
-              selectedPrintMethod={selectedPrintMethod}
-              artworkFiles={artworkFiles}
-              customText={selectedOptions['custom_text'] || ''}
-            />
-
-            {/* Spec Details & Order Actions */}
-            <div className="relative flex flex-col overflow-hidden rounded-3xl hairline bg-surface p-6 sm:p-8">
-              <span className="text-xs uppercase tracking-[0.22em] text-subtle">Configuration Summary</span>
-
-              <dl className="mt-4 space-y-2.5 text-sm">
-                <Row k="Product" v={product?.name || "—"} />
-                <Row k="Variant" v={`${selectedColor?.name || "—"} · ${selectedSize?.name || "—"} · ${selectedMaterial?.name || "—"}`} />
-                <Row k="Print Method" v={selectedPrintMethod?.name || "—"} />
-                <Row k="Unit Price" v={inr(unitPrice)} />
-                <Row k="Quantity" v={`${qty} units`} />
-              </dl>
-
-              <div className="mt-5 flex items-end justify-between border-t border-border pt-5">
-                <div>
-                  <span className="text-xs uppercase tracking-[0.2em] text-subtle">Estimated total</span>
-                  <p className="font-display text-3xl font-extrabold text-gradient">{inr(totalPrice)}</p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                disabled={isAdding || isPricing || !product || !selectedVariant || !selectedPrintMethod}
-                onClick={handleAddToCart}
-                className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-lg shadow-primary/20 cursor-pointer"
-              >
-                {isAdding ? "Adding to Cart..." : isPricing ? "Calculating Price..." : "Add Customized Spec to Cart"}
-              </button>
-              <p className="mt-3 text-xs text-subtle">
-                Authoritative total verified at checkout. Final quote confirmed after artwork review.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Reveal>
-    </section>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <fieldset className="mb-7 last:mb-0">
-      <legend className="mb-3 text-xs uppercase tracking-[0.22em] text-subtle">{label}</legend>
-      {children}
-    </fieldset>
-  );
-}
-
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        "min-h-11 rounded-full px-4 text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        active
-          ? "bg-accent-gradient font-semibold text-primary-foreground"
-          : "hairline bg-surface text-muted-foreground hover:border-primary/40 hover:text-foreground",
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Row({ k, v }: { k: string; v: string }) {
-  return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-subtle">{k}</dt>
-      <dd className="text-right text-foreground">{v}</dd>
+      {/* Fullscreen Preview Modal */}
+      <StudioPreviewModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        product={product}
+        selectedColor={selectedColor}
+        selectedSize={selectedSize}
+        selectedMaterial={selectedMaterial}
+        selectedPrintMethod={selectedPrintMethod}
+        customArtworkUrl={customArtworkUrl}
+        showText={showText}
+        textVal={textVal}
+        fontFamily={fontFamily}
+        textColor={textColor}
+        textSize={textSize}
+        letterSpacing={letterSpacing}
+        posX={posX}
+        posY={posY}
+        scale={scale}
+        rotation={rotation}
+        opacity={opacity}
+        onDownloadRender={() => {}}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
-}
-
-function inr(n: number) {
-  return `₹${n.toLocaleString("en-IN")}`;
 }

@@ -112,13 +112,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdminRoute = pathname.startsWith('/admin');
+  const isStudioRoute = pathname.startsWith('/studio');
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AuthModal />
         <Toaster position="bottom-right" richColors />
-        {isAdminRoute ? (
+        {isAdminRoute || isStudioRoute ? (
           <Outlet />
         ) : (
           <>

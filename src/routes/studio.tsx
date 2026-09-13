@@ -36,14 +36,9 @@ export const Route = createFileRoute("/studio")({
 
 function StudioPage() {
   return (
-    <>
-      <PageHero
-        eyebrow="Design Studio"
-        title={<>Build it here. <span className="text-gradient">We will make it real.</span></>}
-        copy="Configure the product, colour and print placements, watch the preview update, then add to cart directly."
-      />
+    <div className="min-h-screen w-full bg-background text-foreground flex flex-col">
       <ConfiguratorWrapper />
-    </>
+    </div>
   );
 }
 
@@ -54,11 +49,15 @@ function ConfiguratorWrapper() {
 
   if (productsLoading || customizationLoading) {
     return (
-      <section className="relative mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => <SkeletonCard key={i} />)}
+      <div className="flex flex-col h-screen w-full items-center justify-center bg-background px-4">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="size-10 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center animate-pulse">
+            <span className="size-3 rounded-full bg-primary animate-ping" />
+          </div>
+          <h2 className="text-base font-semibold text-foreground tracking-tight">Loading XenoCraft Studio...</h2>
+          <p className="text-xs text-muted-foreground">Initializing 3D photorealistic workspace and apparel catalog</p>
         </div>
-      </section>
+      </div>
     );
   }
 
