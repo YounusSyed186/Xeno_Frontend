@@ -49,7 +49,7 @@ function ProductPage() {
 
   const [selectedVariantId, setSelectedVariantId] = useState<number | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const [userQuantity, setUserQuantity] = useState<number | null>(null);
 
   if (isLoading) {
     return (
@@ -81,6 +81,10 @@ function ProductPage() {
     );
   }
 
+  const moq = Math.max(1, p.moq || 1);
+  const quantity = userQuantity !== null ? Math.max(moq, userQuantity) : moq;
+  const setQuantity = (q: number) => setUserQuantity(Math.max(moq, q));
+
   const images = p.images && p.images.length > 0 ? p.images : [{ url: '/placeholder.png' }];
   const activeImage = images[selectedImageIndex] || images[0];
 
@@ -106,8 +110,23 @@ function ProductPage() {
     }
   };
 
-  const unitPrice = Number(p.base_price) + Number(currentVariant?.price_adjustment || 0);
+  // Dynamic Tier Pricing Engine Calculation
+  const tiers = p.price_tiers || [];
+  const activeTier = tiers.find(
+    (t: any) =>
+      t.is_active &&
+      quantity >= t.min_quantity &&
+      (t.max_quantity == null || quantity <= t.max_quantity)
+  );
+  const effectiveBasePrice = activeTier ? Number(activeTier.unit_price) : Number(p.base_price);
+  const unitPrice = effectiveBasePrice + Number(currentVariant?.price_adjustment || 0);
   const totalPrice = unitPrice * quantity;
+
+  // Next tier calculation for motivation
+  const sortedTiers = [...tiers].filter((t: any) => t.is_active).sort((a: any, b: any) => a.min_quantity - b.min_quantity);
+  const nextTier = sortedTiers.find((t: any) => t.min_quantity > quantity);
+  const unitsToNextTier = nextTier ? nextTier.min_quantity - quantity : null;
+  const potentialSavings = nextTier ? unitPrice - Number(nextTier.unit_price) : 0;
 
   // Extract unique colors and sizes from variants
   const colorOptions = Array.from(
@@ -244,7 +263,14 @@ function ProductPage() {
           <div className="rounded-2xl border border-border/30 bg-background/50 p-4">
             <div className="flex items-baseline justify-between">
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Unit Price</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-xs text-muted-foreground">Unit Price</p>
+                  {activeTier && (
+                    <span className="rounded-full bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-bold text-primary">
+                      Tier: {activeTier.name || `${activeTier.min_quantity}+ units`}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-baseline gap-2">
                   <span className="font-display text-3xl font-black text-gradient">
                     ₹{unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -256,15 +282,33 @@ function ProductPage() {
                   )}
                 </div>
               </div>
-              {p.price_tiers && p.price_tiers.length > 0 && (
-                <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[11px] font-bold text-primary">
-                  Bulk Discounts Available
+              {tiers.length > 0 ? (
+                <div className="text-right">
+                  <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[11px] font-bold text-primary">
+                    Bulk Discounts Active
+                  </span>
+                  {moq > 1 && (
+                    <p className="text-[11px] font-semibold text-amber-400 mt-1">
+                      Min. Order: {moq} units
+                    </p>
+                  )}
+                </div>
+              ) : moq > 1 ? (
+                <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-[11px] font-bold text-amber-300">
+                  Min. Order: {moq} units
                 </span>
-              )}
+              ) : null}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              Inclusive of all standard customisation options. GST calculated at checkout.
-            </p>
+            {nextTier && unitsToNextTier && potentialSavings > 0 ? (
+              <div className="mt-3 rounded-xl bg-primary/10 border border-primary/25 px-3 py-2 text-xs flex items-center justify-between text-primary">
+                <span>Unlock Next Tier ({nextTier.min_quantity}+ units @ ₹{Number(nextTier.unit_price).toLocaleString('en-IN')}/ea)</span>
+                <span className="font-bold font-mono">+ {unitsToNextTier} more to save ₹{potentialSavings.toFixed(0)}/ea</span>
+              </div>
+            ) : (
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Inclusive of all standard customisation options. GST calculated at checkout.
+              </p>
+            )}
           </div>
 
           {/* Variant Selector: Colors & Sizes */}
@@ -333,28 +377,46 @@ function ProductPage() {
 
           {/* Quantity Stepper & Line Total */}
           <div className="pt-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-              Quantity
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Quantity
+              </label>
+              {moq > 1 && (
+                <span className="rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                  Minimum order: {moq} units
+                </span>
+              )}
+            </div>
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center rounded-xl border border-border/60 bg-surface/60 p-1">
                 <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
+                  type="button"
+                  disabled={quantity <= moq}
+                  onClick={() => setQuantity(Math.max(moq, quantity - 1))}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  title={quantity <= moq ? `Minimum order quantity is ${moq}` : "Decrease quantity"}
                 >
                   <Minus className="size-3.5" />
                 </button>
                 <input
                   type="number"
-                  min={1}
-                  max={999}
+                  min={moq}
+                  max={9999}
                   value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-                  className="w-14 text-center bg-transparent text-sm font-bold text-foreground focus:outline-none"
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val)) setQuantity(val);
+                  }}
+                  onBlur={() => {
+                    if (quantity < moq) setQuantity(moq);
+                  }}
+                  className="w-16 text-center bg-transparent text-sm font-bold text-foreground focus:outline-none"
                 />
                 <button
+                  type="button"
                   onClick={() => setQuantity(quantity + 1)}
                   className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
+                  title="Increase quantity"
                 >
                   <Plus className="size-3.5" />
                 </button>
@@ -422,17 +484,36 @@ function ProductPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {p.price_tiers.map((tier: any) => (
-                <div key={tier.id} className="rounded-2xl border border-border/40 bg-background/50 p-5 space-y-2">
-                  <span className="text-xs font-semibold text-primary uppercase">{tier.name || 'Tier'}</span>
-                  <p className="text-2xl font-black text-foreground">
-                    ₹{Number(tier.unit_price).toLocaleString('en-IN')}
-                    <span className="text-xs font-normal text-muted-foreground"> / unit</span>
-                  </p>
-                  <p className="text-xs text-muted-foreground">{tier.min_quantity}+ units</p>
-                  {tier.note && <p className="text-[11px] text-muted-foreground/80 pt-2 border-t border-border/20">{tier.note}</p>}
-                </div>
-              ))}
+              {p.price_tiers.map((tier: any) => {
+                const isActive = activeTier?.id === tier.id;
+                return (
+                  <div
+                    key={tier.id}
+                    className={`relative rounded-2xl border p-5 space-y-2 transition-all ${
+                      isActive
+                        ? 'border-primary bg-primary/10 ring-1 ring-primary shadow-[0_0_15px_rgba(94,240,70,0.2)]'
+                        : 'border-border/40 bg-background/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-primary uppercase">{tier.name || 'Tier'}</span>
+                      {isActive && (
+                        <span className="rounded-full bg-[#5ef046] px-2 py-0.5 text-[9px] font-extrabold text-black uppercase">
+                          Active Tier
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-2xl font-black text-foreground">
+                      ₹{Number(tier.unit_price).toLocaleString('en-IN')}
+                      <span className="text-xs font-normal text-muted-foreground"> / unit</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {tier.max_quantity ? `${tier.min_quantity} – ${tier.max_quantity} units` : `${tier.min_quantity}+ units`}
+                    </p>
+                    {tier.note && <p className="text-[11px] text-muted-foreground/80 pt-2 border-t border-border/20">{tier.note}</p>}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

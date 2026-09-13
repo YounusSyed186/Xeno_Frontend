@@ -48,7 +48,7 @@ function CheckoutComponent() {
 
   useEffect(() => {
     if (initialized && status === 'unauthenticated') {
-      navigate({ to: '/login' });
+      navigate({ to: '/login', search: { redirect: '/checkout' } });
       return;
     }
 

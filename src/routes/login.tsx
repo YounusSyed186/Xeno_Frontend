@@ -8,10 +8,14 @@ import { Sparkles, ArrowRight, Smartphone, Mail, KeyRound } from 'lucide-react';
 import { Logo } from '@/components/xeno/Logo';
 
 export const Route = createFileRoute('/login')({
+  validateSearch: (search: Record<string, unknown>): { redirect?: string | undefined } => ({
+    redirect: typeof search['redirect'] === 'string' ? (search['redirect'] as string) : undefined,
+  }),
   component: LoginComponent,
 });
 
 function LoginComponent() {
+  const search = Route.useSearch();
   const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,11 +30,13 @@ function LoginComponent() {
   const { login, isAuthenticated, isAdmin, fetchCurrentUser } = useAuthStore();
   const navigate = useNavigate();
 
+  const targetRedirect = search.redirect || (isAdmin ? '/admin/dashboard' : '/');
+
   useEffect(() => {
     if (isAuthenticated) {
-      navigate({ to: isAdmin ? '/admin/dashboard' : '/' });
+      navigate({ to: targetRedirect as any });
     }
-  }, [isAuthenticated, isAdmin, navigate]);
+  }, [isAuthenticated, targetRedirect, navigate]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +51,7 @@ function LoginComponent() {
       await login({ email, password });
       console.log('[Login:Password] Login successful! Navigating...');
       toast.success('Successfully logged in!');
-      navigate({ to: '/' });
+      navigate({ to: targetRedirect as any });
     } catch (err: any) {
       console.error('[Login:Password] Login failed:', err);
       toast.error(err.message || 'Invalid login credentials');
@@ -93,7 +99,7 @@ function LoginComponent() {
         console.log('[Login:OTP] OTP login successful for user:', res.data.user.email);
         await fetchCurrentUser();
         toast.success('Signed in successfully with Mobile OTP!');
-        navigate({ to: '/' });
+        navigate({ to: targetRedirect as any });
       }
     } catch (err: any) {
       console.error('[Login:OTP] Final sign-in failed:', err);

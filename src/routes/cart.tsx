@@ -92,9 +92,16 @@ function CartComponent() {
                       Customised Item
                     </span>
                   )}
-                  <p className="mt-1 text-sm font-medium text-foreground">
-                    ₹{Number(item.unit_price).toFixed(2)} each
-                  </p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground">
+                      ₹{Number(item.unit_price).toFixed(2)} each
+                    </p>
+                    {(item.product?.moq || 1) > 1 && (
+                      <span className="rounded bg-amber-500/10 border border-amber-500/25 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+                        MOQ: {item.product.moq}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -103,9 +110,10 @@ function CartComponent() {
                 <div className="flex items-center rounded-xl border border-border/60 bg-surface/60 p-0.5">
                   <button
                     type="button"
-                    disabled={isUpdating || item.quantity <= 1}
-                    onClick={() => updateItem({ id: item.id, quantity: Math.max(1, item.quantity - 1) })}
+                    disabled={isUpdating || item.quantity <= (item.product?.moq || 1)}
+                    onClick={() => updateItem({ id: item.id, quantity: Math.max(item.product?.moq || 1, item.quantity - 1) })}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={item.quantity <= (item.product?.moq || 1) ? `Minimum order quantity is ${item.product?.moq || 1}` : "Decrease quantity"}
                   >
                     <Minus className="size-3.5" />
                   </button>
@@ -115,6 +123,7 @@ function CartComponent() {
                     disabled={isUpdating}
                     onClick={() => updateItem({ id: item.id, quantity: item.quantity + 1 })}
                     className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    title="Increase quantity"
                   >
                     <Plus className="size-3.5" />
                   </button>

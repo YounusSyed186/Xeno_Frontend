@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone, Instagram, Linkedin, Twitter, MessageCircle, Arrow
 import { Reveal } from "./Reveal";
 import { MagneticButton, MagneticLink } from "./MagneticButton";
 import { Logo } from "./Logo";
-import { megaMenu, productBySlug } from "@/content/site";
+import { useProducts } from "@/hooks/useProducts";
 
 export function FinalCta() {
   return (
@@ -52,8 +52,21 @@ const resources = [
   { label: "Customer Account", to: "/account" },
 ] as const;
 
+const DEFAULT_FEATURED = [
+  { name: "Heavyweight Boxy Tee", slug: "oversized-boxy-heavyweight-tee" },
+  { name: "Dry-Fit Athletic Tee", slug: "performance-dry-fit-athletic-tee" },
+  { name: "Corporate Polo Shirt", slug: "pique-knit-corporate-polo-shirt" },
+  { name: "French Terry Sweatshirt", slug: "french-terry-crewneck-sweatshirt" },
+  { name: "Acid Wash Vintage Tee", slug: "acid-wash-vintage-mineral-tee" },
+  { name: "Structured Snapback Cap", slug: "structured-snapback-cap" },
+];
+
 export function SiteFooter() {
-  const featured = [...(megaMenu[0]?.items ?? []), ...(megaMenu[2]?.items ?? []).slice(0, 2)];
+  const { data: productsData } = useProducts({ per_page: 6 });
+  const liveFeatured = productsData?.products && productsData.products.length > 0
+    ? productsData.products.slice(0, 6).map((p: any) => ({ name: p.name, slug: p.slug }))
+    : DEFAULT_FEATURED;
+
   return (
     <footer className="border-t border-border bg-surface/50">
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
@@ -73,7 +86,7 @@ export function SiteFooter() {
               </li>
               <li className="flex gap-3">
                 <Phone className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                <a href="tel:+919000000000" className="hover:text-foreground">+91 90000 00000</a>
+                <a href="tel:+914040008888" className="hover:text-foreground">+91 40 4000 8888</a>
               </li>
               <li className="flex gap-3">
                 <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
@@ -86,14 +99,14 @@ export function SiteFooter() {
             <div>
               <h3 className="text-sm uppercase tracking-[0.2em] text-subtle">Products</h3>
               <ul className="mt-5 space-y-3">
-                {featured.map((slug) => (
-                  <li key={slug}>
+                {liveFeatured.map((item: any) => (
+                  <li key={item.slug}>
                     <Link
                       to="/products/$slug"
-                      params={{ slug }}
+                      params={{ slug: item.slug }}
                       className="text-sm text-muted-foreground transition-colors hover:text-primary"
                     >
-                      {productBySlug(slug)?.name}
+                      {item.name}
                     </Link>
                   </li>
                 ))}

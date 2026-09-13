@@ -141,11 +141,11 @@ export function SiteNav() {
               </button>
             )}
 
-            {/* Primary Neon Action Button */}
+            {/* Primary Neon Action Button (hidden on xs screens to prevent navbar overflow) */}
             {isAuthenticated ? (
               <Link
                 to="/studio"
-                className="inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap"
+                className="hidden sm:inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap"
               >
                 Design Studio
               </Link>
@@ -153,7 +153,7 @@ export function SiteNav() {
               <button
                 type="button"
                 onClick={() => openAuthModal('register')}
-                className="inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap cursor-pointer"
+                className="hidden sm:inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap cursor-pointer"
               >
                 Sign Up
               </button>
@@ -289,27 +289,78 @@ export function SiteNav() {
                 <li key={l.label}>
                   <Link
                     to={l.to}
+                    onClick={() => setOpen(false)}
                     className="block rounded-2xl px-4 py-3 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
                   >
                     {l.label}
                   </Link>
                 </li>
               ))}
-              <li className="pt-2">
-                {isAuthenticated ? (
-                  <Link to="/studio" className="inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black">
-                    Design Studio
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => { setOpen(false); openAuthModal('register'); }}
-                    className="inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black cursor-pointer"
-                  >
-                    Sign Up
-                  </button>
-                )}
-              </li>
+
+              <li className="my-2 border-t border-white/10" />
+
+              {isAuthenticated ? (
+                <>
+                  <li>
+                    <Link
+                      to={isAdmin ? "/admin" : "/account"}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
+                    >
+                      <User className="size-4 text-zinc-400" />
+                      <span>{isAdmin ? "Admin Portal" : "My Account"}</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/orders"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
+                    >
+                      <ShoppingBag className="size-4 text-zinc-400" />
+                      <span>My Orders</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => { setOpen(false); logout(); }}
+                      className="flex w-full items-center gap-2 rounded-2xl px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 cursor-pointer"
+                    >
+                      <LogOut className="size-4" />
+                      <span>Logout</span>
+                    </button>
+                  </li>
+                  <li className="pt-2">
+                    <Link
+                      to="/studio"
+                      onClick={() => setOpen(false)}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black"
+                    >
+                      Design Studio
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="grid grid-cols-2 gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => { setOpen(false); openAuthModal('login'); }}
+                      className="inline-flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 py-2.5 text-sm font-semibold text-white hover:bg-white/10 cursor-pointer"
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setOpen(false); openAuthModal('register'); }}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] py-2.5 text-sm font-extrabold text-black hover:bg-[#4de035] cursor-pointer"
+                    >
+                      Sign Up
+                    </button>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         ) : null}

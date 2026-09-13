@@ -36,6 +36,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     )
   );
 
+  const moq = product.moq && product.moq > 1 ? product.moq : null;
+  const lowestTierPrice = product.price_tiers && product.price_tiers.length > 0
+    ? Math.min(...product.price_tiers.map((t) => Number(t.unit_price)))
+    : null;
+  const colorHexes = Array.from(
+    new Set(
+      (product.variants || [])
+        .map((v) => (v.color as any)?.hex || v.color?.hex_code)
+        .filter((hex): hex is string => Boolean(hex))
+    )
+  ).slice(0, 5);
+
   if (variant === 'compact') {
     return (
       <Link
@@ -95,8 +107,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </div>
             )}
             {product.is_featured && (
-              <div className="absolute top-3 left-3">
+              <div className="absolute top-3 left-3 z-10">
                 <StatusBadge status="info" label="Featured" className="text-xs" />
+              </div>
+            )}
+            {moq && (
+              <div className="absolute top-3 right-3 z-10">
+                <span className="rounded-full bg-black/75 backdrop-blur-md border border-white/20 px-2.5 py-0.5 text-[10px] font-bold text-zinc-100 shadow-sm">
+                  MOQ: {moq}
+                </span>
               </div>
             )}
           </Link>
@@ -115,13 +134,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground line-clamp-2">{product.short_description}</p>
             <div className="mt-auto pt-4 border-t border-border/20">
               <div className="flex items-center justify-between mb-4">
-                <p className="font-display text-2xl font-extrabold text-gradient">
-                  ₹{Number(product.base_price).toLocaleString()}
-                </p>
-                <StatusBadge
-                  status={inStock ? 'in_stock' : 'out_of_stock'}
-                  label={inStock ? 'In Stock' : 'Out of Stock'}
-                />
+                <div>
+                  <p className="font-display text-2xl font-extrabold text-gradient">
+                    ₹{Number(product.base_price).toLocaleString()}
+                  </p>
+                  {lowestTierPrice && lowestTierPrice < Number(product.base_price) && (
+                    <span className="text-[11px] font-semibold text-primary block mt-0.5">
+                      From ₹{lowestTierPrice.toLocaleString()} in bulk
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1.5">
+                  <StatusBadge
+                    status={inStock ? 'in_stock' : 'out_of_stock'}
+                    label={inStock ? 'In Stock' : 'Out of Stock'}
+                  />
+                  {colorHexes.length > 0 && (
+                    <div className="flex items-center gap-1 mt-0.5" title="Available colors">
+                      {colorHexes.map((hex, i) => (
+                        <span
+                          key={i}
+                          className="size-2.5 rounded-full border border-white/30 shadow-xs"
+                          style={{ backgroundColor: hex }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {isCustomizable ? (
