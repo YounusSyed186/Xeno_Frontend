@@ -137,12 +137,13 @@ function CheckoutComponent() {
           order_id: paymentIntent.order_id,
           handler: async function (response: any) {
             try {
-              const paymentId = (orderData as any).payments?.[0]?.id || orderData.id;
+              const paymentId = (orderData as any).payments?.[0]?.id || (res.data as any).payment?.id || orderData.id;
               const verifyRes = await checkoutApi.verifyPayment(paymentId, {
                 order_id: orderData.id,
                 gateway: 'razorpay',
-                payment_id: response.razorpay_payment_id,
-                signature: response.razorpay_signature,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id || paymentIntent.order_id,
+                razorpay_signature: response.razorpay_signature,
               });
 
               if (verifyRes.success) {

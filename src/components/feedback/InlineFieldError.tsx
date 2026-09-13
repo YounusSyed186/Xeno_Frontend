@@ -1,10 +1,10 @@
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 
-interface InlineFieldErrorProps {
-  error?: string | null;
-  id?: string;
-  className?: string;
+export interface InlineFieldErrorProps {
+  error?: string | null | undefined;
+  id?: string | undefined;
+  className?: string | undefined;
 }
 
 export const InlineFieldError: React.FC<InlineFieldErrorProps> = ({

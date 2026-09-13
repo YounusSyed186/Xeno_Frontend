@@ -6,14 +6,14 @@ import { toast } from 'sonner';
 
 export interface UploadedMediaItem {
   url: string;
-  public_id?: string;
-  cloudinary_public_id?: string;
-  width?: number;
-  height?: number;
-  format?: string;
-  bytes?: number;
-  alt_text?: string;
-  is_primary?: boolean;
+  public_id?: string | undefined;
+  cloudinary_public_id?: string | undefined;
+  width?: number | undefined;
+  height?: number | undefined;
+  format?: string | undefined;
+  bytes?: number | undefined;
+  alt_text?: string | undefined;
+  is_primary?: boolean | undefined;
 }
 
 interface CloudinaryImageUploadProps {
@@ -106,6 +106,7 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        if (!file) continue;
         console.log(`[CloudinaryImageUpload] Uploading file ${i + 1}/${files.length}: ${file.name} to folder "${folder}"...`);
         const res = await uploadsApi.uploadFile(file, folder);
 

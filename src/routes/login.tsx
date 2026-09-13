@@ -83,11 +83,12 @@ function LoginComponent() {
     }
   };
 
-  const handleOtpVerified = async (sessionToken: string, verifiedPhone: string) => {
+  const handleOtpVerified = async (sessionToken: string, verifiedPhone?: string) => {
+    const targetPhone = verifiedPhone || phone;
     setIsSubmitting(true);
     console.log('[Login:OTP] OTP verified. Logging into user account with session:', sessionToken);
     try {
-      const res = await otpApi.loginWithOtp(verifiedPhone, sessionToken);
+      const res = await otpApi.loginWithOtp(targetPhone, sessionToken);
       if (res.data?.user) {
         console.log('[Login:OTP] OTP login successful for user:', res.data.user.email);
         await fetchCurrentUser();

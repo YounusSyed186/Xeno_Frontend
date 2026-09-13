@@ -110,10 +110,13 @@ export function PhotorealisticStage({
   useEffect(() => {
     if (artworkFiles && artworkFiles.length > 0) {
       const file = artworkFiles[artworkFiles.length - 1];
-      const objUrl = URL.createObjectURL(file);
-      setCustomArtworkUrl(objUrl);
-      return () => URL.revokeObjectURL(objUrl);
+      if (file) {
+        const objUrl = URL.createObjectURL(file);
+        setCustomArtworkUrl(objUrl);
+        return () => URL.revokeObjectURL(objUrl);
+      }
     }
+    return undefined;
   }, [artworkFiles]);
 
   // Sync customText if parent prop changes

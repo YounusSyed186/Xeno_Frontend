@@ -2,20 +2,20 @@ import { toast } from 'sonner';
 
 export interface ErrorAction {
   label: string;
-  to?: string;
-  onClick?: () => void;
+  to?: string | undefined;
+  onClick?: (() => void) | undefined;
 }
 
 export interface ErrorMapping {
   title: string;
   message: string;
-  action?: ErrorAction;
+  action?: ErrorAction | undefined;
 }
 
 /**
  * Standardized machine-readable error dictionary for Xeno Craft.
  */
-export const ERROR_MAPPINGS: Record<string, ErrorMapping> = {
+export const ERROR_MAPPINGS = {
   EMAIL_ALREADY_EXISTS: {
     title: 'Email already registered',
     message: 'An account with this email already exists. Please sign in or use a different email address.',
@@ -158,7 +158,7 @@ export const ERROR_MAPPINGS: Record<string, ErrorMapping> = {
     title: 'Please check your input',
     message: 'Please correct the highlighted fields below.',
   },
-};
+} satisfies Record<string, ErrorMapping>;
 
 /**
  * Normalized application error class.
@@ -168,18 +168,18 @@ export class AppError extends Error {
   public readonly fieldErrors: Record<string, string>;
   public readonly status: number;
   public readonly retryable: boolean;
-  public readonly title?: string;
-  public readonly action?: ErrorAction;
+  public readonly title?: string | undefined;
+  public readonly action?: ErrorAction | undefined;
   public readonly raw?: any;
 
   constructor(params: {
     message: string;
-    code?: string;
-    fieldErrors?: Record<string, string>;
-    status?: number;
-    retryable?: boolean;
-    title?: string;
-    action?: ErrorAction;
+    code?: string | undefined;
+    fieldErrors?: Record<string, string> | undefined;
+    status?: number | undefined;
+    retryable?: boolean | undefined;
+    title?: string | undefined;
+    action?: ErrorAction | undefined;
     raw?: any;
   }) {
     super(params.message);
@@ -225,11 +225,11 @@ export function normalizeApiError(err: unknown, fallbackMessage?: string): AppEr
   }
 
   // Detect email duplicate in field errors if code wasn't explicitly set
-  if (fieldErrors.email) {
-    const emailMsg = fieldErrors.email.toLowerCase();
+  if (fieldErrors['email']) {
+    const emailMsg = fieldErrors['email'].toLowerCase();
     if (emailMsg.includes('already') || emailMsg.includes('taken') || emailMsg.includes('exists')) {
       code = 'EMAIL_ALREADY_EXISTS';
-      fieldErrors.email = 'This email is already registered.';
+      fieldErrors['email'] = 'This email is already registered.';
     }
   }
 
@@ -246,7 +246,7 @@ export function normalizeApiError(err: unknown, fallbackMessage?: string): AppEr
   }
 
   // Map known machine-readable code
-  const mapping = ERROR_MAPPINGS[code];
+  const mapping = (ERROR_MAPPINGS as Record<string, ErrorMapping | undefined>)[code];
 
   // Resolve message with fallback priority:
   // 1. Known error code mapping

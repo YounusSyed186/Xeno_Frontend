@@ -11,7 +11,7 @@ export const Route = createFileRoute('/cart')({
 });
 
 function CartComponent() {
-  const { cart, breakdown, items, itemCount, isLoading, updateItem, removeItem, applyCoupon, removeCoupon, isApplyingCoupon } = useCart();
+  const { cart, breakdown, items, itemCount, isLoading, updateItem, isUpdating, removeItem, isRemoving, applyCoupon, removeCoupon, isApplyingCoupon } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const navigate = useNavigate();
 
@@ -103,16 +103,18 @@ function CartComponent() {
                 <div className="flex items-center rounded-xl border border-border/60 bg-surface/60 p-0.5">
                   <button
                     type="button"
+                    disabled={isUpdating || item.quantity <= 1}
                     onClick={() => updateItem({ id: item.id, quantity: Math.max(1, item.quantity - 1) })}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Minus className="size-3.5" />
                   </button>
                   <span className="px-3 text-xs font-bold text-foreground">{item.quantity}</span>
                   <button
                     type="button"
+                    disabled={isUpdating}
                     onClick={() => updateItem({ id: item.id, quantity: item.quantity + 1 })}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Plus className="size-3.5" />
                   </button>
@@ -126,8 +128,9 @@ function CartComponent() {
 
                 <button
                   type="button"
+                  disabled={isRemoving}
                   onClick={() => removeItem(item.id)}
-                  className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-lg hover:bg-destructive/10"
+                  className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-40 disabled:cursor-not-allowed"
                   title="Remove item"
                 >
                   <Trash2 className="size-4" />

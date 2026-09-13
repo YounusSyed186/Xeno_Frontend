@@ -22,7 +22,7 @@ function RegisterComponent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [topError, setTopError] = useState<{ title: string; message: string; action?: { label: string; to: string } } | null>(null);
+  const [topError, setTopError] = useState<{ title: string; message: string; action?: { label: string; to: string } | undefined } | null>(null);
 
   // Input refs for focus management
   const nameRef = useRef<HTMLInputElement>(null);
@@ -68,8 +68,9 @@ function RegisterComponent() {
     } catch (err: any) {
       const normalized = normalizeApiError(err, 'Failed to send verification code');
       showErrorToast(normalized);
-      if (normalized.fieldErrors.phone) {
-        setFieldErrors((prev) => ({ ...prev, phone: normalized.fieldErrors.phone }));
+      const phoneErr = normalized.fieldErrors['phone'];
+      if (phoneErr) {
+        setFieldErrors((prev) => ({ ...prev, phone: phoneErr }));
       }
     } finally {
       setIsSendingOtp(false);
@@ -90,29 +91,29 @@ function RegisterComponent() {
     const errors: Record<string, string> = {};
 
     if (!name.trim()) {
-      errors.name = 'Full name is required.';
+      errors['name'] = 'Full name is required.';
     }
 
     if (!email.trim()) {
-      errors.email = 'Email address is required.';
+      errors['email'] = 'Email address is required.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      errors.email = 'Please enter a valid email address.';
+      errors['email'] = 'Please enter a valid email address.';
     }
 
     if (password.length < 8) {
-      errors.password = 'Password must be at least 8 characters long.';
+      errors['password'] = 'Password must be at least 8 characters long.';
     }
 
     if (password !== passwordConfirmation) {
-      errors.password_confirmation = 'Passwords do not match.';
+      errors['password_confirmation'] = 'Passwords do not match.';
     }
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      if (errors.name) nameRef.current?.focus();
-      else if (errors.email) emailRef.current?.focus();
-      else if (errors.password) passwordRef.current?.focus();
-      else if (errors.password_confirmation) confirmPasswordRef.current?.focus();
+      if (errors['name']) nameRef.current?.focus();
+      else if (errors['email']) emailRef.current?.focus();
+      else if (errors['password']) passwordRef.current?.focus();
+      else if (errors['password_confirmation']) confirmPasswordRef.current?.focus();
       return;
     }
 
@@ -152,11 +153,11 @@ function RegisterComponent() {
         });
 
         // Focus first invalid field
-        if (normalized.fieldErrors.name) nameRef.current?.focus();
-        else if (normalized.fieldErrors.email) emailRef.current?.focus();
-        else if (normalized.fieldErrors.phone) phoneRef.current?.focus();
-        else if (normalized.fieldErrors.password) passwordRef.current?.focus();
-        else if (normalized.fieldErrors.password_confirmation) confirmPasswordRef.current?.focus();
+        if (normalized.fieldErrors['name']) nameRef.current?.focus();
+        else if (normalized.fieldErrors['email']) emailRef.current?.focus();
+        else if (normalized.fieldErrors['phone']) phoneRef.current?.focus();
+        else if (normalized.fieldErrors['password']) passwordRef.current?.focus();
+        else if (normalized.fieldErrors['password_confirmation']) confirmPasswordRef.current?.focus();
 
         showErrorToast(normalized);
       } else {
@@ -218,17 +219,17 @@ function RegisterComponent() {
               ref={nameRef}
               type="text"
               required
-              aria-invalid={!!fieldErrors.name}
-              aria-describedby={fieldErrors.name ? 'reg-name-error' : undefined}
+              aria-invalid={!!fieldErrors['name']}
+              aria-describedby={fieldErrors['name'] ? 'reg-name-error' : undefined}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
-                if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: '' }));
+                if (fieldErrors['name']) setFieldErrors((prev) => ({ ...prev, name: '' }));
               }}
-              className={`w-full rounded-xl border ${fieldErrors.name ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
+              className={`w-full rounded-xl border ${fieldErrors['name'] ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="Your full name"
             />
-            <InlineFieldError id="reg-name-error" error={fieldErrors.name} />
+            <InlineFieldError id="reg-name-error" error={fieldErrors['name']} />
           </div>
 
           <div>
@@ -238,17 +239,17 @@ function RegisterComponent() {
               ref={emailRef}
               type="email"
               required
-              aria-invalid={!!fieldErrors.email}
-              aria-describedby={fieldErrors.email ? 'reg-email-error' : undefined}
+              aria-invalid={!!fieldErrors['email']}
+              aria-describedby={fieldErrors['email'] ? 'reg-email-error' : undefined}
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: '' }));
+                if (fieldErrors['email']) setFieldErrors((prev) => ({ ...prev, email: '' }));
               }}
-              className={`w-full rounded-xl border ${fieldErrors.email ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
+              className={`w-full rounded-xl border ${fieldErrors['email'] ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="name@company.com"
             />
-            <InlineFieldError id="reg-email-error" error={fieldErrors.email} />
+            <InlineFieldError id="reg-email-error" error={fieldErrors['email']} />
           </div>
 
           <div>
@@ -265,15 +266,15 @@ function RegisterComponent() {
                 id="reg-phone"
                 ref={phoneRef}
                 type="tel"
-                aria-invalid={!!fieldErrors.phone}
-                aria-describedby={fieldErrors.phone ? 'reg-phone-error' : undefined}
+                aria-invalid={!!fieldErrors['phone']}
+                aria-describedby={fieldErrors['phone'] ? 'reg-phone-error' : undefined}
                 value={phone}
                 onChange={(e) => {
                   setPhone(e.target.value);
                   setIsPhoneVerified(false);
-                  if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: '' }));
+                  if (fieldErrors['phone']) setFieldErrors((prev) => ({ ...prev, phone: '' }));
                 }}
-                className={`w-full rounded-xl border ${fieldErrors.phone ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11 pr-24`}
+                className={`w-full rounded-xl border ${fieldErrors['phone'] ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11 pr-24`}
                 placeholder="+91 98765 43210"
               />
               {phone.trim().length >= 10 && !isPhoneVerified && (
@@ -287,7 +288,7 @@ function RegisterComponent() {
                 </button>
               )}
             </div>
-            <InlineFieldError id="reg-phone-error" error={fieldErrors.phone} />
+            <InlineFieldError id="reg-phone-error" error={fieldErrors['phone']} />
           </div>
 
           <div>
@@ -298,17 +299,17 @@ function RegisterComponent() {
               type="password"
               required
               minLength={8}
-              aria-invalid={!!fieldErrors.password}
-              aria-describedby={fieldErrors.password ? 'reg-password-error' : undefined}
+              aria-invalid={!!fieldErrors['password']}
+              aria-describedby={fieldErrors['password'] ? 'reg-password-error' : undefined}
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: '' }));
+                if (fieldErrors['password']) setFieldErrors((prev) => ({ ...prev, password: '' }));
               }}
-              className={`w-full rounded-xl border ${fieldErrors.password ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
+              className={`w-full rounded-xl border ${fieldErrors['password'] ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="At least 8 characters"
             />
-            <InlineFieldError id="reg-password-error" error={fieldErrors.password} />
+            <InlineFieldError id="reg-password-error" error={fieldErrors['password']} />
           </div>
 
           <div>
@@ -318,17 +319,17 @@ function RegisterComponent() {
               ref={confirmPasswordRef}
               type="password"
               required
-              aria-invalid={!!fieldErrors.password_confirmation}
-              aria-describedby={fieldErrors.password_confirmation ? 'reg-confirm-password-error' : undefined}
+              aria-invalid={!!fieldErrors['password_confirmation']}
+              aria-describedby={fieldErrors['password_confirmation'] ? 'reg-confirm-password-error' : undefined}
               value={passwordConfirmation}
               onChange={(e) => {
                 setPasswordConfirmation(e.target.value);
-                if (fieldErrors.password_confirmation) setFieldErrors((prev) => ({ ...prev, password_confirmation: '' }));
+                if (fieldErrors['password_confirmation']) setFieldErrors((prev) => ({ ...prev, password_confirmation: '' }));
               }}
-              className={`w-full rounded-xl border ${fieldErrors.password_confirmation ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
+              className={`w-full rounded-xl border ${fieldErrors['password_confirmation'] ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'} bg-background/60 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-11`}
               placeholder="Repeat password"
             />
-            <InlineFieldError id="reg-confirm-password-error" error={fieldErrors.password_confirmation} />
+            <InlineFieldError id="reg-confirm-password-error" error={fieldErrors['password_confirmation']} />
           </div>
 
           <button

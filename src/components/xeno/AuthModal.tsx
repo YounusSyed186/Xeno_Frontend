@@ -60,13 +60,13 @@ export function AuthModal() {
     setModalError(null);
 
     const errors: Record<string, string> = {};
-    if (!loginEmail.trim()) errors.email = 'Email address is required.';
-    if (!loginPassword) errors.password = 'Password is required.';
+    if (!loginEmail.trim()) errors['email'] = 'Email address is required.';
+    if (!loginPassword) errors['password'] = 'Password is required.';
 
     if (Object.keys(errors).length > 0) {
       setLoginFieldErrors(errors);
-      if (errors.email) loginEmailRef.current?.focus();
-      else if (errors.password) loginPasswordRef.current?.focus();
+      if (errors['email']) loginEmailRef.current?.focus();
+      else if (errors['password']) loginPasswordRef.current?.focus();
       return;
     }
 
@@ -97,10 +97,10 @@ export function AuthModal() {
     setModalError(null);
 
     const errors: Record<string, string> = {};
-    if (!regName.trim()) errors.name = 'Full name is required.';
-    if (!regEmail.trim()) errors.email = 'Email address is required.';
-    if (regPassword.length < 8) errors.password = 'Password must be at least 8 characters.';
-    if (regPassword !== regConfirmPassword) errors.password_confirmation = 'Passwords do not match.';
+    if (!regName.trim()) errors['name'] = 'Full name is required.';
+    if (!regEmail.trim()) errors['email'] = 'Email address is required.';
+    if (regPassword.length < 8) errors['password'] = 'Password must be at least 8 characters.';
+    if (regPassword !== regConfirmPassword) errors['password_confirmation'] = 'Passwords do not match.';
 
     if (Object.keys(errors).length > 0) {
       setRegFieldErrors(errors);
@@ -253,16 +253,16 @@ export function AuthModal() {
                   ref={loginEmailRef}
                   type="email"
                   required
-                  aria-invalid={!!loginFieldErrors.email}
+                  aria-invalid={!!loginFieldErrors['email']}
                   value={loginEmail}
                   onChange={(e) => {
                     setLoginEmail(e.target.value);
-                    if (loginFieldErrors.email) setLoginFieldErrors((prev) => ({ ...prev, email: '' }));
+                    if (loginFieldErrors['email']) setLoginFieldErrors((prev) => ({ ...prev, email: '' }));
                   }}
-                  className={`w-full rounded-2xl border ${loginFieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                  className={`w-full rounded-2xl border ${loginFieldErrors['email'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="name@company.com"
                 />
-                <InlineFieldError error={loginFieldErrors.email} />
+                <InlineFieldError error={loginFieldErrors['email']} />
               </div>
 
               <div>
@@ -274,16 +274,16 @@ export function AuthModal() {
                   ref={loginPasswordRef}
                   type="password"
                   required
-                  aria-invalid={!!loginFieldErrors.password}
+                  aria-invalid={!!loginFieldErrors['password']}
                   value={loginPassword}
                   onChange={(e) => {
                     setLoginPassword(e.target.value);
-                    if (loginFieldErrors.password) setLoginFieldErrors((prev) => ({ ...prev, password: '' }));
+                    if (loginFieldErrors['password']) setLoginFieldErrors((prev) => ({ ...prev, password: '' }));
                   }}
-                  className={`w-full rounded-2xl border ${loginFieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                  className={`w-full rounded-2xl border ${loginFieldErrors['password'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="••••••••"
                 />
-                <InlineFieldError error={loginFieldErrors.password} />
+                <InlineFieldError error={loginFieldErrors['password']} />
               </div>
 
               <button
@@ -326,16 +326,16 @@ export function AuthModal() {
                   id="modal-reg-name"
                   type="text"
                   required
-                  aria-invalid={!!regFieldErrors.name}
+                  aria-invalid={!!regFieldErrors['name']}
                   value={regName}
                   onChange={(e) => {
                     setRegName(e.target.value);
-                    if (regFieldErrors.name) setRegFieldErrors((prev) => ({ ...prev, name: '' }));
+                    if (regFieldErrors['name']) setRegFieldErrors((prev) => ({ ...prev, name: '' }));
                   }}
-                  className={`w-full rounded-2xl border ${regFieldErrors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                  className={`w-full rounded-2xl border ${regFieldErrors['name'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="John Doe"
                 />
-                <InlineFieldError error={regFieldErrors.name} />
+                <InlineFieldError error={regFieldErrors['name']} />
               </div>
 
               <div>
@@ -347,16 +347,16 @@ export function AuthModal() {
                   ref={regEmailRef}
                   type="email"
                   required
-                  aria-invalid={!!regFieldErrors.email}
+                  aria-invalid={!!regFieldErrors['email']}
                   value={regEmail}
                   onChange={(e) => {
                     setRegEmail(e.target.value);
-                    if (regFieldErrors.email) setRegFieldErrors((prev) => ({ ...prev, email: '' }));
+                    if (regFieldErrors['email']) setRegFieldErrors((prev) => ({ ...prev, email: '' }));
                   }}
-                  className={`w-full rounded-2xl border ${regFieldErrors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                  className={`w-full rounded-2xl border ${regFieldErrors['email'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                   placeholder="john@example.com"
                 />
-                <InlineFieldError error={regFieldErrors.email} />
+                <InlineFieldError error={regFieldErrors['email']} />
               </div>
 
               <div>
@@ -381,16 +381,16 @@ export function AuthModal() {
                     type="password"
                     required
                     minLength={8}
-                    aria-invalid={!!regFieldErrors.password}
+                    aria-invalid={!!regFieldErrors['password']}
                     value={regPassword}
                     onChange={(e) => {
                       setRegPassword(e.target.value);
-                      if (regFieldErrors.password) setRegFieldErrors((prev) => ({ ...prev, password: '' }));
+                      if (regFieldErrors['password']) setRegFieldErrors((prev) => ({ ...prev, password: '' }));
                     }}
-                    className={`w-full rounded-2xl border ${regFieldErrors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                    className={`w-full rounded-2xl border ${regFieldErrors['password'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                     placeholder="Min 8 chars"
                   />
-                  <InlineFieldError error={regFieldErrors.password} />
+                  <InlineFieldError error={regFieldErrors['password']} />
                 </div>
                 <div>
                   <label htmlFor="modal-reg-confirm" className="block text-xs font-medium text-zinc-300 mb-1">Confirm Password</label>
@@ -398,16 +398,16 @@ export function AuthModal() {
                     id="modal-reg-confirm"
                     type="password"
                     required
-                    aria-invalid={!!regFieldErrors.password_confirmation}
+                    aria-invalid={!!regFieldErrors['password_confirmation']}
                     value={regConfirmPassword}
                     onChange={(e) => {
                       setRegConfirmPassword(e.target.value);
-                      if (regFieldErrors.password_confirmation) setRegFieldErrors((prev) => ({ ...prev, password_confirmation: '' }));
+                      if (regFieldErrors['password_confirmation']) setRegFieldErrors((prev) => ({ ...prev, password_confirmation: '' }));
                     }}
-                    className={`w-full rounded-2xl border ${regFieldErrors.password_confirmation ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
+                    className={`w-full rounded-2xl border ${regFieldErrors['password_confirmation'] ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-white/15 focus:border-[#5ef046] focus:ring-[#5ef046]'} bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1`}
                     placeholder="Repeat"
                   />
-                  <InlineFieldError error={regFieldErrors.password_confirmation} />
+                  <InlineFieldError error={regFieldErrors['password_confirmation']} />
                 </div>
               </div>
 

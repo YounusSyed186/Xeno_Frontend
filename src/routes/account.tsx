@@ -158,13 +158,14 @@ function AccountComponent() {
     }
   };
 
-  const handlePhoneOtpVerified = async (sessionToken: string, verifiedPhone: string) => {
-    console.log('[Account:Phone] Verified OTP for phone:', verifiedPhone);
+  const handlePhoneOtpVerified = async (sessionToken: string, verifiedPhone?: string) => {
+    const targetPhone = verifiedPhone || profilePhone;
+    console.log('[Account:Phone] Verified OTP for phone:', targetPhone);
     try {
       await apiClient('/users/me', {
         method: 'PATCH',
         body: {
-          phone: verifiedPhone,
+          phone: targetPhone,
         },
       });
       await fetchCurrentUser();

@@ -2,12 +2,12 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  phone?: string | null;
-  phone_verified_at?: string | null;
-  avatar?: string | null;
-  avatar_public_id?: string | null;
+  phone?: string | null | undefined;
+  phone_verified_at?: string | null | undefined;
+  avatar?: string | null | undefined;
+  avatar_public_id?: string | null | undefined;
   role: 'customer' | 'admin' | 'staff';
-  email_verified_at?: string | null;
+  email_verified_at?: string | null | undefined;
   status: 'active' | 'suspended';
   created_at: string;
   updated_at: string;
@@ -32,6 +32,6 @@ export interface RegisterPayload {
   email: string;
   password: string;
   password_confirmation: string;
-  phone?: string;
-  otp_session_token?: string;
+  phone?: string | undefined;
+  otp_session_token?: string | undefined;
 }

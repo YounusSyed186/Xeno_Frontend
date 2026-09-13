@@ -4,7 +4,7 @@ import { User } from '../types/auth';
 
 export interface SendOtpPayload {
   phone: string;
-  purpose?: 'signup' | 'login' | 'phone_change' | 'checkout';
+  purpose?: 'signup' | 'login' | 'phone_change' | 'checkout' | undefined;
 }
 
 export interface SendOtpResponse {
@@ -17,7 +17,7 @@ export interface SendOtpResponse {
 export interface VerifyOtpPayload {
   phone: string;
   otp: string;
-  session_token?: string;
+  session_token?: string | undefined;
 }
 
 export interface VerifyOtpResponse {
@@ -28,8 +28,8 @@ export interface VerifyOtpResponse {
 
 export interface ResendOtpPayload {
   phone: string;
-  retry_type?: 'text' | 'voice';
-  session_token?: string;
+  retry_type?: 'text' | 'voice' | undefined;
+  session_token?: string | undefined;
 }
 
 export const otpApi = {

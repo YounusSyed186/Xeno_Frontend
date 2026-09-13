@@ -21,10 +21,10 @@ interface OtpVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   phone: string;
-  purpose?: 'signup' | 'login' | 'phone_change' | 'checkout';
-  onVerified: (sessionToken: string, phone: string) => void;
-  initialSessionToken?: string;
-  initialCooldown?: number;
+  purpose?: 'signup' | 'login' | 'phone_change' | 'checkout' | undefined;
+  onVerified: (sessionToken: string, phone?: string) => void | Promise<void>;
+  initialSessionToken?: string | undefined;
+  initialCooldown?: number | undefined;
 }
 
 export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({

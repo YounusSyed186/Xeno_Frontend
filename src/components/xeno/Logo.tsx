@@ -2,9 +2,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 export interface LogoProps {
-  className?: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
-  glow?: boolean;
+  className?: string | undefined;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | undefined;
+  glow?: boolean | undefined;
+  variant?: string | undefined;
 }
 
 /**
@@ -15,9 +16,10 @@ export function LogoMark({
   size = "md",
   glow = true,
 }: {
-  className?: string;
-  size?: "xs" | "sm" | "md" | "lg" | "xl";
-  glow?: boolean;
+  className?: string | undefined;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | undefined;
+  glow?: boolean | undefined;
+  variant?: string | undefined;
 }) {
   const sizeClasses = {
     xs: "size-6",
