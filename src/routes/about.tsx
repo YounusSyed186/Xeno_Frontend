@@ -1,13 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Sparkles, Heart, Shirt, Image as ImageIcon, ArrowRight, ShieldCheck, PenTool, Users } from "lucide-react";
 import { PageHero, Section } from "@/components/xeno/ui";
 import { SectionHeading, Reveal } from "@/components/xeno/Reveal";
-import { StoryTimeline, StatsBand, PrintTechnologies } from "@/components/xeno/Story";
-import { FinalCta } from "@/components/xeno/SiteFooter";
-import { team } from "@/content/site";
 import { images } from "@/components/xeno/data";
 
-const T = "About Xeno Craft — In-House Merchandise Manufacturing in Hyderabad";
-const D = "From one heat press in 2016 to an 18,000 sq ft facility. Our story, manufacturing process, quality checks and the team behind Xeno Craft.";
+const T = "About Xeno Craft — Custom T-Shirts, Wedding Cards & Stickers";
+const D = "Xeno Craft is a customisation-focused brand creating custom T-shirts, personalised wedding invitations and creative sticker collections in Hyderabad, India.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -23,95 +21,176 @@ export const Route = createFileRoute("/about")({
   component: AboutPage,
 });
 
-const checks = [
-  { title: "Fabric inspection", copy: "Every roll is checked for GSM, shade and knitting faults before cutting." },
-  { title: "Cure logging", copy: "Temperature and dwell time recorded per print batch — the reason prints do not crack." },
-  { title: "Wash testing", copy: "Sample garments run through 40 domestic and 50 industrial wash cycles." },
-  { title: "Final visual QC", copy: "Piece-by-piece inspection against the approved mockup before packing." },
+const corePillars = [
+  {
+    icon: Sparkles,
+    title: "Customisation That Matters",
+    desc: "From event T-shirts to wedding invitations, we create around your requirements rather than giving you a one-size-fits-all solution.",
+  },
+  {
+    icon: Users,
+    title: "Individual & Bulk Requirements",
+    desc: "Whether it's a personal requirement, a team event or a larger organisational order, we can customise accordingly.",
+  },
+  {
+    icon: PenTool,
+    title: "Design Support",
+    desc: "Have an idea but not a finished design? Our creative team can help bring it together.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Quality Focus",
+    desc: "Attention to materials, printing and the final finish on every piece.",
+  },
+];
+
+const offerings = [
+  {
+    icon: Shirt,
+    title: "Custom T-Shirts",
+    desc: "Customised for events, corporate requirements, sports events, college fests, corporate gifting, teams, communities, celebrations and individual requirements.",
+    link: "/custom-t-shirts",
+    cta: "Explore Custom T-Shirts",
+    image: images.tshirt,
+  },
+  {
+    icon: Heart,
+    title: "Wedding Cards / Wedding Invitations",
+    desc: "Customised according to the customer's wedding requirements, theme and preferences.",
+    link: "/wedding-cards",
+    cta: "Explore Wedding Cards",
+    image: images.weddingcards,
+  },
+  {
+    icon: ImageIcon,
+    title: "Stickers",
+    desc: "Existing sticker collections available for purchase exclusively through Amazon.",
+    link: "/stickers",
+    cta: "Shop on Amazon",
+    image: images.stickers,
+    external: true,
+  },
 ];
 
 export function AboutPage() {
   return (
     <>
       <PageHero
-        eyebrow="About"
-        title={<>Ten years of <span className="text-gradient">getting the details right</span></>}
-        copy="Xeno Craft is a manufacturer, not a reseller. Cutting, printing, embroidery, quality control and packing all happen under one roof — which is the only way to promise a shade will match next year."
-        image={images.uniform}
+        eyebrow="About Xeno Craft"
+        title={<>Made Personal. <span className="text-gradient">Made for You.</span></>}
+        copy="Xeno Craft is a customisation-focused brand creating products for people, teams, events and celebrations."
+        image={images.tshirt}
       />
 
+      {/* 23. CORE ABOUT COPY */}
       <Section>
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="mx-auto max-w-4xl text-center space-y-6">
           <Reveal>
-            <div className="h-full rounded-3xl hairline bg-card p-8">
-              <h2 className="text-2xl">Mission</h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                To make branded merchandise that people genuinely want to keep — replacing throwaway giveaways with products that earn their place in someone's wardrobe or on their desk.
-              </p>
-            </div>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#5ef046]">Our Mission</span>
           </Reveal>
           <Reveal delay={0.08}>
-            <div className="h-full rounded-3xl hairline bg-card/50 p-8">
-              <h2 className="text-2xl">Vision</h2>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                To be India's most trusted merchandise partner for brands that treat their identity seriously — measured by reorders, not by first orders.
-              </p>
-            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-snug">
+              From event T-shirts to wedding cards, we focus on making everyday products <span className="text-gradient">feel more personal</span>.
+            </h2>
+          </Reveal>
+          <Reveal delay={0.14}>
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Our approach is simple — understand what you're looking for, help bring the idea together and create something that feels like yours.
+            </p>
           </Reveal>
         </div>
       </Section>
 
+      {/* THREE OFFERINGS OVERVIEW */}
       <Section>
-        <SectionHeading eyebrow="Timeline" title={<>How we <span className="text-gradient">got here</span></>} />
-        <StoryTimeline />
-      </Section>
+        <SectionHeading
+          eyebrow="Our Focus"
+          title={<>Three Core <span className="text-gradient">Offerings</span></>}
+          copy="We do fewer things, and do them exceptionally well."
+        />
 
-      <PrintTechnologies />
-
-      <Section>
-        <SectionHeading eyebrow="Quality Checks" title={<>Four gates before <span className="text-gradient">anything ships</span></>} />
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {checks.map((c, i) => (
-            <Reveal key={c.title} delay={i * 0.06}>
-              <div className="h-full rounded-3xl hairline bg-card/50 p-7">
-                <h3 className="text-lg">{c.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{c.copy}</p>
+        <div className="mt-12 grid gap-8 lg:grid-cols-3">
+          {offerings.map((offering, i) => (
+            <Reveal key={offering.title} delay={i * 0.08}>
+              <div className="group flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
+                <div>
+                  <div className="relative aspect-video overflow-hidden rounded-2xl bg-zinc-950 mb-5">
+                    <img
+                      src={offering.image}
+                      alt={offering.title}
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">{offering.title}</h3>
+                  <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{offering.desc}</p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-white/10">
+                  {offering.external ? (
+                    <a
+                      href="https://www.amazon.in"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                    >
+                      {offering.cta} <ArrowRight className="size-3.5" />
+                    </a>
+                  ) : (
+                    <Link
+                      to={offering.link as any}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                    >
+                      {offering.cta} <ArrowRight className="size-3.5" />
+                    </Link>
+                  )}
+                </div>
               </div>
             </Reveal>
           ))}
         </div>
       </Section>
 
+      {/* CORE VALUES / PILLARS */}
       <Section>
-        <SectionHeading eyebrow="Meet the Team" title={<>The people on <span className="text-gradient">the floor</span></>} />
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {team.map((m, i) => (
-            <Reveal key={m.name} delay={i * 0.06}>
-              <div className="h-full rounded-3xl hairline bg-card/50 p-7">
-                <p className="font-display text-lg font-extrabold">{m.name}</p>
-                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-primary">{m.role}</p>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{m.bio}</p>
+        <SectionHeading
+          eyebrow="Why Us"
+          title={<>Made Around <span className="text-gradient">Your Ideas</span></>}
+        />
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {corePillars.map((p, i) => (
+            <Reveal key={p.title} delay={i * 0.06}>
+              <div className="rounded-3xl border border-white/10 bg-card/50 p-7 h-full">
+                <p.icon className="size-7 text-[#5ef046] mb-4" />
+                <h3 className="text-lg font-bold text-white">{p.title}</h3>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{p.desc}</p>
               </div>
             </Reveal>
           ))}
         </div>
       </Section>
 
+      {/* FINAL CTA */}
       <Section>
-        <SectionHeading eyebrow="Behind the Scenes" title={<>Inside the <span className="text-gradient">facility</span></>} />
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {[images.tshirt, images.jersey, images.welcomekit, images.stickers, images.cap, images.uniform].map((src, i) => (
-            <Reveal key={i} delay={(i % 3) * 0.06}>
-              <div className="overflow-hidden rounded-3xl hairline">
-                <img src={src} alt="Xeno Craft factory" loading="lazy" width={800} height={800} className="aspect-square w-full object-cover transition-transform duration-[900ms] hover:scale-105" />
-              </div>
-            </Reveal>
-          ))}
+        <div className="rounded-[2.5rem] border border-[#5ef046]/30 bg-gradient-to-br from-card via-black to-[#5ef046]/10 p-8 sm:p-12 text-center">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Have a Project in Mind?</h2>
+          <p className="mt-3 text-sm text-muted-foreground max-w-xl mx-auto">
+            Whether you need custom team T-shirts, unique wedding stationery, or want to explore our stickers.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              to="/custom-t-shirts"
+              className="inline-flex items-center gap-2 rounded-full bg-[#5ef046] px-7 py-3.5 text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-md"
+            >
+              Explore T-Shirts
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-7 py-3.5 text-xs font-bold text-white hover:bg-white/10 transition-all"
+            >
+              Contact Us
+            </Link>
+          </div>
         </div>
       </Section>
-
-      <StatsBand />
-      <FinalCta />
     </>
   );
 }

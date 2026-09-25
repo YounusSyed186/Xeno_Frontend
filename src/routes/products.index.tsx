@@ -1,40 +1,20 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState, useEffect } from 'react';
 import { PageContainer } from "@/components/ui";
-import { ProductCard, DataTable, FilterBar, Pagination, EmptyState, Skeleton } from "@/components";
-import { useProducts, useCategories, useBrands, useCollections, useColors, useSizes, useMaterials } from "@/hooks/useProducts";
-import { StatusBadge } from "@/components/data-display/StatusBadge";
+import { ProductCard, FilterBar, Pagination, EmptyState, Skeleton } from "@/components";
+import { useProducts, useCategories, useColors, useSizes } from "@/hooks/useProducts";
 import { Product } from "@/types/product";
-import { Sparkles, ArrowRight, Shirt, Flame, Check } from "lucide-react";
+import { Sparkles, ArrowRight, ArrowUpRight, Shirt, Heart, Image as ImageIcon } from "lucide-react";
+import { images } from "@/components/xeno/data";
 
-const T = "Products — Custom Apparel, Stickers & Corporate Merchandise | Xeno Craft";
-const D = "Explore fifteen product families: custom t-shirts, jerseys, hoodies, uniforms, caps, stickers, welcome kits, gift boxes and packaging.";
-
-const defaultFilters = {
-  search: '',
-  category: '',
-  collection: '',
-  brand: '',
-  color: '',
-  size: '',
-  material: '',
-  sort: 'newest',
-  min_price: '',
-  max_price: '',
-  in_stock: '',
-  featured: '',
-  page: 1,
-  per_page: 12,
-};
+const T = "Explore Xeno Craft — Custom T-Shirts, Wedding Cards & Stickers";
+const D = "Custom T-shirts, personalised wedding invitations and creative stickers — created for your events, celebrations and ideas.";
 
 export interface ProductCatalogSearch {
   search?: string | undefined;
   category?: string | undefined;
-  collection?: string | undefined;
-  brand?: string | undefined;
   color?: string | undefined;
   size?: string | undefined;
-  material?: string | undefined;
   sort?: string | undefined;
   min_price?: number | undefined;
   max_price?: number | undefined;
@@ -49,11 +29,8 @@ export const Route = createFileRoute("/products/")({
     const q: ProductCatalogSearch = {};
     if (typeof search['search'] === 'string') q.search = search['search'];
     if (typeof search['category'] === 'string') q.category = search['category'];
-    if (typeof search['collection'] === 'string') q.collection = search['collection'];
-    if (typeof search['brand'] === 'string') q.brand = search['brand'];
     if (typeof search['color'] === 'string') q.color = search['color'];
     if (typeof search['size'] === 'string') q.size = search['size'];
-    if (typeof search['material'] === 'string') q.material = search['material'];
     if (typeof search['sort'] === 'string') q.sort = search['sort'];
     if (search['min_price']) q.min_price = Number(search['min_price']);
     if (search['max_price']) q.max_price = Number(search['max_price']);
@@ -76,57 +53,67 @@ export const Route = createFileRoute("/products/")({
   component: ProductsPage,
 });
 
+const threeCategories = [
+  {
+    title: "Custom T-Shirts",
+    copy: "For events, teams, organisations, gifting and personal requirements.",
+    image: images.tshirt,
+    link: "/custom-t-shirts",
+    cta: "Explore T-Shirts",
+    icon: Shirt,
+  },
+  {
+    title: "Wedding Cards",
+    copy: "Custom invitations created around your wedding.",
+    image: images.weddingcards,
+    link: "/wedding-cards",
+    cta: "Explore Wedding Cards",
+    icon: Heart,
+  },
+  {
+    title: "Stickers",
+    copy: "Creative sticker collections available exclusively through Amazon.",
+    image: images.stickers,
+    link: "/stickers",
+    cta: "Shop on Amazon",
+    icon: ImageIcon,
+    external: true,
+  },
+];
+
 function ProductsPage() {
   const search = useSearch({ from: "/products/" });
   const navigate = useNavigate();
   const [activeFilters, setActiveFilters] = useState<ProductCatalogSearch>(search);
 
-  // Sync search params with activeFilters
   useEffect(() => {
     setActiveFilters(search);
   }, [search]);
 
   const { data, isLoading, isError, error, refetch } = useProducts(activeFilters as any);
   const { data: categories } = useCategories();
-  const { data: brands } = useBrands();
-  const { data: collections } = useCollections();
   const { data: colors } = useColors();
   const { data: sizes } = useSizes();
-  const { data: materials } = useMaterials();
 
   const products = data?.products || [];
   const pagination = data?.pagination;
 
+  // Filter options simplified to T-Shirt Types, Sizes, Colors (Section 18)
   const filterOptions = [
     {
       key: 'category',
-      label: 'Category',
-      options: [{ value: '', label: 'All Categories' }, ...(categories?.map((c: any) => ({ value: c.slug, label: c.name })) || [])],
-    },
-    {
-      key: 'collection',
-      label: 'Collection',
-      options: [{ value: '', label: 'All Collections' }, ...(collections?.map((c: any) => ({ value: c.slug, label: c.name })) || [])],
-    },
-    {
-      key: 'brand',
-      label: 'Brand',
-      options: [{ value: '', label: 'All Brands' }, ...(brands?.map((b: any) => ({ value: b.slug, label: b.name })) || [])],
+      label: 'T-Shirt Type',
+      options: [{ value: '', label: 'All Types' }, ...(categories?.map((c: any) => ({ value: c.slug, label: c.name })) || [])],
     },
     {
       key: 'color',
-      label: 'Color',
-      options: [{ value: '', label: 'All Colors' }, ...(colors?.map((c: any) => ({ value: c.code, label: c.name })) || [])],
+      label: 'Colour',
+      options: [{ value: '', label: 'All Colours' }, ...(colors?.map((c: any) => ({ value: c.code, label: c.name })) || [])],
     },
     {
       key: 'size',
       label: 'Size',
       options: [{ value: '', label: 'All Sizes' }, ...(sizes?.map((s: any) => ({ value: s.code, label: s.name })) || [])],
-    },
-    {
-      key: 'material',
-      label: 'Material',
-      options: [{ value: '', label: 'All Materials' }, ...(materials?.map((m: any) => ({ value: m.code, label: m.name })) || [])],
     },
   ];
 
@@ -153,183 +140,147 @@ function ProductsPage() {
     updateFiltersAndNavigate({ ...activeFilters, page });
   };
 
-  const handleSortChange = (sort: string) => {
-    updateFiltersAndNavigate({ ...activeFilters, sort, page: 1 });
-  };
-
   const handlePerPageChange = (per_page: number) => {
     updateFiltersAndNavigate({ ...activeFilters, per_page, page: 1 });
   };
 
-  // Derive apparel quick chips
-  const categoryList = (categories as any[]) || [];
-  const apparelSlugs = ['t-shirts', 'hoodies', 'jerseys', 'sports-jerseys', 'corporate-polos', 'polos', 'caps', 'uniforms', 'apparel'];
-  const quickCategories = [
-    { label: 'All Catalog', slug: '' },
-    ...categoryList
-      .filter((c: any) => apparelSlugs.some(s => c.slug?.toLowerCase().includes(s) || s.includes(c.slug?.toLowerCase())))
-      .map((c: any) => ({ label: c.name, slug: c.slug })),
-  ];
-
   const filterRecord: Record<string, string> = {
     category: activeFilters.category || '',
-    collection: activeFilters.collection || '',
-    brand: activeFilters.brand || '',
     color: activeFilters.color || '',
     size: activeFilters.size || '',
-    material: activeFilters.material || '',
   };
 
   return (
     <PageContainer
-      breadcrumbs={[{ label: "Home", to: "/" }, { label: "Products" }]}
-      title="Product Catalog"
-      description="Browse our complete collection of custom apparel, merchandise, and promotional products"
-      actions={
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
-            <input
-              type="checkbox"
-              checked={Boolean(activeFilters.in_stock)}
-              onChange={(e) => updateFiltersAndNavigate({ ...activeFilters, in_stock: e.target.checked ? true : undefined, page: 1 })}
-              className="rounded border-border/40 text-primary focus:ring-primary"
-            />
-            In stock only
-          </label>
-          <label className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer">
-            <input
-              type="checkbox"
-              checked={Boolean(activeFilters.featured)}
-              onChange={(e) => updateFiltersAndNavigate({ ...activeFilters, featured: e.target.checked ? true : undefined, page: 1 })}
-              className="rounded border-border/40 text-primary focus:ring-primary"
-            />
-            Featured only
-          </label>
-        </div>
-      }
+      breadcrumbs={[{ label: "Home", to: "/" }, { label: "Explore" }]}
+      title="Explore Xeno Craft"
+      description="Custom T-shirts, personalised wedding invitations and creative stickers — created for your events, celebrations and ideas."
     >
-      {/* Custom Apparel Spotlight Section (Product Discovery & Commerce) */}
-      <div className="mb-8 relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-card/90 via-card/50 to-primary/10 p-6 sm:p-8 lg:p-10 shadow-lg">
-        <div className="grid gap-8 lg:grid-cols-12 items-center">
-          <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/15 border border-primary/30 px-3.5 py-1 text-xs font-bold text-primary">
+      {/* 13. THREE MAIN CATEGORY CARDS */}
+      <div className="mb-14 grid gap-6 md:grid-cols-3">
+        {threeCategories.map((cat) => (
+          <div
+            key={cat.title}
+            className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]"
+          >
+            <div>
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-zinc-950 mb-5">
+                <img
+                  src={cat.image}
+                  alt={cat.title}
+                  className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 rounded-full bg-black/80 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
+                  {cat.title}
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-white">{cat.title}</h3>
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{cat.copy}</p>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-white/10">
+              {cat.external ? (
+                <a
+                  href="https://www.amazon.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                >
+                  {cat.cta} <ArrowUpRight className="size-3.5" />
+                </a>
+              ) : (
+                <Link
+                  to={cat.link as any}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                >
+                  {cat.cta} <ArrowRight className="size-3.5" />
+                </Link>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* T-Shirt Customisation Studio Banner */}
+      <div className="mb-10 relative overflow-hidden rounded-3xl border border-[#5ef046]/30 bg-gradient-to-br from-card via-black to-[#5ef046]/10 p-6 sm:p-8 shadow-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#5ef046]/15 border border-[#5ef046]/30 px-3 py-1 text-xs font-bold text-[#5ef046]">
               <Sparkles className="size-3.5" /> 3D Live Customisation Studio
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl text-foreground">
-              Customise Your Own <span className="text-gradient">Apparel</span>
+            <h2 className="text-2xl font-extrabold text-white tracking-tight sm:text-3xl">
+              Design Your Own <span className="text-gradient">T-Shirt</span>
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-              Choose your garment, select your variant, add your artwork, configure your customisation and get your final price.
+            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
+              Choose your garment, add your artwork, configure prints and view 3D real-time mockups.
             </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link
-                to="/studio"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-extrabold text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-              >
-                Launch Customiser <ArrowRight className="size-4" />
-              </Link>
-              <button
-                onClick={() => {
-                  const apparelCat = categoryList.find((c: any) =>
-                    ['t-shirts', 'apparel', 'hoodies', 'jerseys'].includes(c.slug?.toLowerCase())
-                  );
-                  handleFilterChange('category', apparelCat?.slug || 't-shirts');
-                }}
-                className="rounded-xl border border-border/60 bg-background/60 px-5 py-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-surface transition-all"
-              >
-                View Apparel Only
-              </button>
-            </div>
           </div>
-          <div className="lg:col-span-4 hidden lg:grid grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-border/40 bg-background/40 p-4 space-y-1">
-              <Shirt className="size-5 text-primary mb-2" />
-              <p className="text-xs font-bold text-foreground">Custom T-Shirts</p>
-              <p className="text-[11px] text-muted-foreground">DTF & Screen Printing</p>
-            </div>
-            <div className="rounded-2xl border border-border/40 bg-background/40 p-4 space-y-1">
-              <Flame className="size-5 text-primary mb-2" />
-              <p className="text-xs font-bold text-foreground">Hoodies & Sweats</p>
-              <p className="text-[11px] text-muted-foreground">360+ GSM Heavyweight</p>
-            </div>
-          </div>
+          <Link
+            to="/studio"
+            className="inline-flex items-center gap-2 rounded-full bg-[#5ef046] px-6 py-3 text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-md shrink-0"
+          >
+            Launch Studio <ArrowRight className="size-4" />
+          </Link>
         </div>
       </div>
 
-      {/* Apparel Quick Filter Chips */}
-      {quickCategories.length > 1 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider shrink-0 mr-1">
-              Quick Filters:
-            </span>
-            {quickCategories.map((chip) => {
-              const isSelected = (activeFilters.category || '') === chip.slug;
-              return (
-                <button
-                  key={chip.slug || 'all'}
-                  onClick={() => handleFilterChange('category', chip.slug)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                    isSelected
-                      ? 'bg-primary text-primary-foreground font-bold shadow-sm'
-                      : 'bg-surface/80 border border-border/50 text-muted-foreground hover:text-foreground hover:border-primary/30'
-                  }`}
-                >
-                  {isSelected && <Check className="size-3" />}
-                  {chip.label}
-                </button>
-              );
-            })}
+      {/* Filter and Catalog Grid */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-white">Custom T-Shirt Catalog</h3>
+            <p className="text-xs text-muted-foreground">Select a garment to start customising</p>
           </div>
         </div>
-      )}
 
-      <FilterBar
-        filters={filterOptions}
-        activeFilters={filterRecord}
-        onFilterChange={handleFilterChange}
-        onClearAll={handleClearAll}
-        searchValue={activeFilters.search || ''}
-        onSearchChange={handleSearchChange}
-      />
+        <FilterBar
+          filters={filterOptions}
+          activeFilters={filterRecord}
+          onFilterChange={handleFilterChange}
+          onClearAll={handleClearAll}
+          searchValue={activeFilters.search || ''}
+          onSearchChange={handleSearchChange}
+        />
 
-      <div className="mt-8">
-        {isLoading ? (
-          <Skeleton count={6} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" />
-        ) : isError ? (
-          <EmptyState
-            icon="alert"
-            title="Failed to load products"
-            description={error?.message || "Please try again"}
-            action={{ label: "Retry", onClick: () => refetch() }}
-          />
-        ) : products.length === 0 ? (
-          <EmptyState
-            icon="package"
-            title="No products found"
-            description="Try adjusting your filters or search terms"
-            action={{ label: "Clear filters", onClick: handleClearAll, variant: "outline" }}
-          />
-        ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product: Product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
-
-        {pagination && pagination.last_page > 1 && (
-          <div className="mt-8">
-            <Pagination
-              currentPage={pagination.current_page}
-              lastPage={pagination.last_page}
-              total={pagination.total}
-              pageSize={pagination.per_page}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePerPageChange}
+        <div className="mt-8">
+          {isLoading ? (
+            <Skeleton count={6} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" />
+          ) : isError ? (
+            <EmptyState
+              icon="alert"
+              title="Failed to load products"
+              description={error?.message || "Please try again"}
+              action={{ label: "Retry", onClick: () => refetch() }}
             />
-          </div>
-        )}
+          ) : products.length === 0 ? (
+            <EmptyState
+              icon="package"
+              title="No products found"
+              description="Try clearing your filters"
+              action={{ label: "Clear filters", onClick: handleClearAll, variant: "outline" }}
+            />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {products.map((product: Product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+
+          {pagination && pagination.last_page > 1 && (
+            <div className="mt-8">
+              <Pagination
+                currentPage={pagination.current_page}
+                lastPage={pagination.last_page}
+                total={pagination.total}
+                pageSize={pagination.per_page}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePerPageChange}
+              />
+            </div>
+          )}
+        </div>
       </div>
     </PageContainer>
   );

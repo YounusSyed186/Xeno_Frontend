@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, X, ChevronDown, ArrowUpRight, ShoppingBag, User, LogOut, Shield } from "lucide-react";
+import { Menu, X, ChevronDown, ArrowRight, ArrowUpRight, ShoppingBag, User, LogOut, Shield, Sparkles } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
@@ -13,14 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useProducts } from "@/hooks/useProducts";
 
-const links = [
-  { label: "Products", to: "/products" },
-  { label: "Design Studio", to: "/studio" },
-  { label: "Bulk Orders", to: "/bulk-orders" },
-  { label: "About", to: "/about" },
-  { label: "Contact", to: "/contact" },
+const primaryLinks = [
+  { label: "Custom T-Shirts", to: "/custom-t-shirts", hasMenu: true },
+  { label: "Wedding Cards", to: "/wedding-cards", hasMenu: false },
+  { label: "Stickers", to: "/stickers", hasMenu: false },
+  { label: "Bulk Orders", to: "/bulk-orders", hasMenu: false },
+  { label: "About", to: "/about", hasMenu: false },
+  { label: "Contact", to: "/contact", hasMenu: false },
 ] as const;
 
 export function SiteNav() {
@@ -31,10 +31,6 @@ export function SiteNav() {
 
   const { itemCount } = useCart();
   const { user, isAuthenticated, isAdmin, logout, openAuthModal } = useAuthContext();
-
-  // Fetch products for mega menu
-  const { data: productsData } = useProducts({ per_page: 20 });
-  const products = productsData?.products || [];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -64,16 +60,22 @@ export function SiteNav() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <ul className="hidden items-center gap-1.5 lg:flex">
-            {links.map((l) => (
-              <li key={l.label} onMouseEnter={() => setMega(l.to === "/products")}>
+          <ul className="hidden items-center gap-1 xl:gap-2 lg:flex">
+            {primaryLinks.map((l) => (
+              <li
+                key={l.label}
+                onMouseEnter={() => {
+                  if (l.hasMenu) setMega(true);
+                  else setMega(false);
+                }}
+              >
                 <Link
                   to={l.to}
                   activeProps={{ className: "text-white font-semibold" }}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs xl:text-sm font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {l.label}
-                  {l.to === "/products" ? <ChevronDown className="size-3.5 opacity-70" aria-hidden="true" /> : null}
+                  {l.hasMenu ? <ChevronDown className="size-3 opacity-70" aria-hidden="true" /> : null}
                 </Link>
               </li>
             ))}
@@ -141,23 +143,14 @@ export function SiteNav() {
               </button>
             )}
 
-            {/* Primary Neon Action Button (hidden on xs screens to prevent navbar overflow) */}
-            {isAuthenticated ? (
-              <Link
-                to="/studio"
-                className="hidden sm:inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap"
-              >
-                Design Studio
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => openAuthModal('register')}
-                className="hidden sm:inline-flex items-center justify-center rounded-full bg-[#5ef046] px-5 py-2 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap cursor-pointer"
-              >
-                Sign Up
-              </button>
-            )}
+            {/* Customise T-Shirt CTA Button */}
+            <Link
+              to="/custom-t-shirts"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-full bg-[#5ef046] px-4.5 py-2 text-xs xl:text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 whitespace-nowrap"
+            >
+              <Sparkles className="size-3.5" />
+              <span>Design Your T-Shirt</span>
+            </Link>
 
             {/* Mobile Menu Toggle */}
             <button
@@ -172,125 +165,128 @@ export function SiteNav() {
           </div>
         </nav>
 
-        {/* Mega menu - now uses real products from API */}
+        {/* Simplified 3-Category Dropdown (Section 3) */}
         <div
           className={cn(
-            "glass-panel mt-2 hidden origin-top rounded-3xl p-6 transition-all duration-300 pointer-events-auto lg:block bg-black/90 border border-white/10 backdrop-blur-xl",
+            "glass-panel mt-2 hidden origin-top rounded-3xl p-6 transition-all duration-300 pointer-events-auto lg:block bg-black/95 border border-white/10 backdrop-blur-2xl shadow-2xl",
             mega ? "scale-100 opacity-100" : "-translate-y-2 scale-[0.99] opacity-0 pointer-events-none",
           )}
           aria-hidden={!mega}
         >
-          <div className="grid gap-8 lg:grid-cols-[repeat(4,1fr)_0.9fr]">
-            {/* Featured Products */}
-            <div key="featured">
-              <h3 className="text-[0.7rem] uppercase tracking-[0.22em] text-zinc-400 font-semibold">Featured Products</h3>
-              <ul className="mt-4 space-y-1">
-                {products.slice(0, 4).map((p: any) => (
-                  <li key={p.id}>
-                    <Link
-                      to="/products/$slug"
-                      params={{ slug: p.slug }}
-                      tabIndex={mega ? 0 : -1}
-                      className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        {p.name}
-                        <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Categories */}
-            <div key="categories">
-              <h3 className="text-[0.7rem] uppercase tracking-[0.22em] text-zinc-400 font-semibold">Categories</h3>
-              <ul className="mt-4 space-y-1">
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Custom T-Shirts */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Custom T-Shirts</h3>
+              </div>
+              <ul className="space-y-1 text-sm text-zinc-300">
                 <li>
-                  <Link to="/products" search={{ category: "t-shirts" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">T-Shirts <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/custom-t-shirts" search={{ type: "classic" } as any} className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Classic T-Shirts
                   </Link>
                 </li>
                 <li>
-                  <Link to="/products" search={{ category: "hoodies" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">Hoodies <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/custom-t-shirts" search={{ type: "oversized" } as any} className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Oversized T-Shirts
                   </Link>
                 </li>
                 <li>
-                  <Link to="/products" search={{ category: "bags" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">Bags <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/custom-t-shirts" search={{ type: "sports" } as any} className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Dry-Fit / Sports T-Shirts
                   </Link>
                 </li>
                 <li>
-                  <Link to="/products" search={{ category: "mugs" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">Mugs <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/custom-t-shirts" search={{ type: "polo" } as any} className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Polo T-Shirts
                   </Link>
                 </li>
               </ul>
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <Link
+                  to="/studio"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                >
+                  Design Your T-Shirt <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
             </div>
 
-            {/* Collections */}
-            <div key="collections">
-              <h3 className="text-[0.7rem] uppercase tracking-[0.22em] text-zinc-400 font-semibold">Collections</h3>
-              <ul className="mt-4 space-y-1">
+            {/* Wedding Cards */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Wedding Cards</h3>
+              </div>
+              <ul className="space-y-1 text-sm text-zinc-300">
                 <li>
-                  <Link to="/products" search={{ collection: "summer-collection" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">Summer Collection <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/wedding-cards" className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Custom Wedding Invitations
                   </Link>
                 </li>
                 <li>
-                  <Link to="/products" search={{ collection: "winter-collection" }} tabIndex={mega ? 0 : -1} className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white">
-                    <span className="flex items-center gap-1.5">Winter Collection <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" /></span>
+                  <Link to="/wedding-cards" className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Luxury & Traditional Cards
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/wedding-cards" className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Digital & Animated Invites
                   </Link>
                 </li>
               </ul>
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <Link
+                  to="/wedding-cards"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                >
+                  Explore Wedding Cards <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
             </div>
 
-            {/* All Products Link */}
-            <div key="all-products">
-              <h3 className="text-[0.7rem] uppercase tracking-[0.22em] text-zinc-400 font-semibold">All Products</h3>
-              <ul className="mt-4 space-y-1">
-                {products.slice(0, 6).map((p: any) => (
-                  <li key={p.id}>
-                    <Link
-                      to="/products/$slug"
-                      params={{ slug: p.slug }}
-                      tabIndex={mega ? 0 : -1}
-                      className="group block rounded-xl px-3 py-2 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        {p.name}
-                        <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100 text-[#5ef046]" aria-hidden="true" />
-                      </span>
-                    </Link>
-                  </li>
-                ))}
+            {/* Stickers */}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Stickers</h3>
+              </div>
+              <ul className="space-y-1 text-sm text-zinc-300">
+                <li>
+                  <Link to="/stickers" className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Creative Sticker Collection
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/stickers" className="block rounded-lg px-2.5 py-1.5 hover:bg-white/10 hover:text-white transition-colors">
+                    Laptop & Bottle Decals
+                  </Link>
+                </li>
+                <li>
+                  <span className="block px-2.5 py-1 text-xs text-zinc-400">
+                    Available exclusively on Amazon
+                  </span>
+                </li>
               </ul>
-            </div>
-
-            {/* CTA */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <h3 className="text-sm font-semibold text-white">Not sure what you need?</h3>
-              <p className="mt-2 text-xs leading-relaxed text-zinc-400">
-                Build a product live in the Design Studio and send it straight to our team.
-              </p>
-              <Link to="/studio" tabIndex={mega ? 0 : -1} className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] px-4 py-2.5 text-xs font-bold text-black hover:bg-[#4de035]">
-                Open Design Studio
-              </Link>
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <Link
+                  to="/stickers"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+                >
+                  Shop on Amazon <ArrowUpRight className="size-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Mobile Navigation */}
         {open ? (
-          <div className="glass-panel mt-2 max-h-[75vh] overflow-y-auto rounded-3xl p-4 pointer-events-auto lg:hidden bg-black/90 border border-white/10 backdrop-blur-xl">
+          <div className="glass-panel mt-2 max-h-[75vh] overflow-y-auto rounded-3xl p-4 pointer-events-auto lg:hidden bg-black/95 border border-white/10 backdrop-blur-2xl">
             <ul className="grid gap-1">
-              {links.map((l) => (
+              {primaryLinks.map((l) => (
                 <li key={l.label}>
                   <Link
                     to={l.to}
                     onClick={() => setOpen(false)}
-                    className="block rounded-2xl px-4 py-3 text-sm text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
+                    className="block rounded-2xl px-4 py-3 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
                   >
                     {l.label}
                   </Link>
@@ -312,16 +308,6 @@ export function SiteNav() {
                     </Link>
                   </li>
                   <li>
-                    <Link
-                      to="/orders"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm text-zinc-200 hover:bg-white/10"
-                    >
-                      <ShoppingBag className="size-4 text-zinc-400" />
-                      <span>My Orders</span>
-                    </Link>
-                  </li>
-                  <li>
                     <button
                       type="button"
                       onClick={() => { setOpen(false); logout(); }}
@@ -333,11 +319,12 @@ export function SiteNav() {
                   </li>
                   <li className="pt-2">
                     <Link
-                      to="/studio"
+                      to="/custom-t-shirts"
                       onClick={() => setOpen(false)}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#5ef046] py-3 text-sm font-extrabold text-black"
                     >
-                      Design Studio
+                      <Sparkles className="size-4" />
+                      Design Your T-Shirt
                     </Link>
                   </li>
                 </>

@@ -1,35 +1,34 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Mail, MapPin, Phone, Instagram, Linkedin, Twitter, MessageCircle, ArrowUp } from "lucide-react";
+import { Mail, MapPin, Phone, Instagram, Linkedin, Twitter, MessageCircle, ArrowUp, ArrowUpRight, Check } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { MagneticButton, MagneticLink } from "./MagneticButton";
 import { Logo } from "./Logo";
-import { useProducts } from "@/hooks/useProducts";
 
 export function FinalCta() {
   return (
-    <section className="grain relative overflow-hidden py-28 lg:py-40">
+    <section className="grain relative overflow-hidden py-24 lg:py-32 border-t border-white/5">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[30rem] w-[46rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[150px]" />
+        <div className="absolute left-1/2 top-1/2 h-[28rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[150px]" />
       </div>
       <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
         <Reveal>
-          <h2 className="text-4xl leading-[1.05] sm:text-6xl lg:text-7xl">
+          <h2 className="text-3xl leading-[1.05] sm:text-5xl lg:text-6xl font-extrabold text-white">
             Ready to create <span className="text-gradient">something amazing?</span>
           </h2>
         </Reveal>
         <Reveal delay={0.1}>
-          <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Share your product, quantity and timeline. You will have a detailed quote and a
-            mockup within 24 hours.
+          <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground">
+            From custom T-shirts to wedding invitations and creative stickers — let's bring your vision to life.
           </p>
         </Reveal>
         <Reveal delay={0.18}>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <MagneticLink to="/bulk-orders" className="px-8 py-4 text-base">
-              Get Free Quote
+          <div className="mt-9 flex flex-wrap justify-center gap-4">
+            <MagneticLink to="/custom-t-shirts" className="px-7 py-3.5 text-sm font-extrabold">
+              Customise T-Shirts
             </MagneticLink>
-            <MagneticLink to="/studio" variant="outline" className="px-8 py-4 text-base">
-              Configure a Product
+            <MagneticLink to="/wedding-cards" variant="outline" className="px-7 py-3.5 text-sm font-bold">
+              Explore Wedding Cards
             </MagneticLink>
           </div>
         </Reveal>
@@ -38,140 +37,141 @@ export function FinalCta() {
   );
 }
 
-const company = [
+const exploreLinks = [
+  { label: "Custom T-Shirts", to: "/custom-t-shirts", external: false },
+  { label: "Wedding Cards", to: "/wedding-cards", external: false },
+  { label: "Stickers on Amazon", to: "/stickers", external: false },
+  { label: "Bulk Orders", to: "/bulk-orders", external: false },
+] as const;
+
+const companyLinks = [
   { label: "About Us", to: "/about" },
-  { label: "Bulk Orders", to: "/bulk-orders" },
   { label: "Contact Us", to: "/contact" },
   { label: "Help & Support", to: "/support" },
 ] as const;
 
-const resources = [
-  { label: "Design Studio", to: "/studio" },
-  { label: "All Products", to: "/products" },
-  { label: "Request a Quote", to: "/bulk-orders" },
-  { label: "Customer Account", to: "/account" },
-] as const;
-
-const DEFAULT_FEATURED = [
-  { name: "Heavyweight Boxy Tee", slug: "oversized-boxy-heavyweight-tee" },
-  { name: "Dry-Fit Athletic Tee", slug: "performance-dry-fit-athletic-tee" },
-  { name: "Corporate Polo Shirt", slug: "pique-knit-corporate-polo-shirt" },
-  { name: "French Terry Sweatshirt", slug: "french-terry-crewneck-sweatshirt" },
-  { name: "Acid Wash Vintage Tee", slug: "acid-wash-vintage-mineral-tee" },
-  { name: "Structured Snapback Cap", slug: "structured-snapback-cap" },
-];
-
 export function SiteFooter() {
-  const { data: productsData } = useProducts({ per_page: 6 });
-  const liveFeatured = productsData?.products && productsData.products.length > 0
-    ? productsData.products.slice(0, 6).map((p: any) => ({ name: p.name, slug: p.slug }))
-    : DEFAULT_FEATURED;
+  const [subscribed, setSubscribed] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email) {
+      setSubscribed(true);
+      setEmail("");
+    }
+  };
 
   return (
-    <footer className="border-t border-border bg-surface/50">
+    <footer className="border-t border-white/10 bg-black/60">
       <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.3fr_2fr]">
+          {/* 25. BRAND & GET IN TOUCH */}
           <div>
             <Link to="/" className="inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
               <Logo size="lg" glow={true} />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Premium custom merchandise, apparel and corporate branding products —
-              designed, printed and packed in-house in Hyderabad.
+              Custom T-shirts, personalised wedding invitations and creative stickers — made for people, events and celebrations.
             </p>
             <ul className="mt-7 space-y-3 text-sm text-muted-foreground">
-              <li className="flex gap-3">
-                <MapPin className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                Xeno Craft Studio, Hyderabad, India
+              <li className="flex gap-3 items-center">
+                <MapPin className="size-4 shrink-0 text-[#5ef046]" aria-hidden="true" />
+                <span>Xeno Craft, Hyderabad, India</span>
               </li>
-              <li className="flex gap-3">
-                <Phone className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                <a href="tel:+914040008888" className="hover:text-foreground">+91 40 4000 8888</a>
+              <li className="flex gap-3 items-center">
+                <Phone className="size-4 shrink-0 text-[#5ef046]" aria-hidden="true" />
+                <a href="tel:+914040008888" className="hover:text-white transition-colors">+91 40 4000 8888</a>
               </li>
-              <li className="flex gap-3">
-                <Mail className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                <a href="mailto:hello@xenocraft.in" className="hover:text-foreground">hello@xenocraft.in</a>
+              <li className="flex gap-3 items-center">
+                <Mail className="size-4 shrink-0 text-[#5ef046]" aria-hidden="true" />
+                <a href="mailto:hello@xenocraft.in" className="hover:text-white transition-colors">hello@xenocraft.in</a>
               </li>
             </ul>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-3">
+          {/* 25. EXPLORE & COMPANY NAVIGATION */}
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-2">
             <div>
-              <h3 className="text-sm uppercase tracking-[0.2em] text-subtle">Products</h3>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Explore</h3>
               <ul className="mt-5 space-y-3">
-                {liveFeatured.map((item: any) => (
-                  <li key={item.slug}>
+                {exploreLinks.map((item) => (
+                  <li key={item.label}>
                     <Link
-                      to="/products/$slug"
-                      params={{ slug: item.slug }}
-                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                      to={item.to as any}
+                      className="text-sm text-muted-foreground transition-colors hover:text-[#5ef046] flex items-center gap-1.5"
                     >
-                      {item.name}
+                      {item.label}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
-            {[
-              { title: "Company", items: company },
-              { title: "Resources", items: resources },
-            ].map((col) => (
-              <div key={col.title}>
-                <h3 className="text-sm uppercase tracking-[0.2em] text-subtle">{col.title}</h3>
-                <ul className="mt-5 space-y-3">
-                  {col.items.map((l) => (
-                    <li key={l.label}>
-                      <Link to={l.to} className="text-sm text-muted-foreground transition-colors hover:text-primary">
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Company</h3>
+              <ul className="mt-5 space-y-3">
+                {companyLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link to={l.to as any} className="text-sm text-muted-foreground transition-colors hover:text-[#5ef046]">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div className="mt-14 grid gap-6 rounded-3xl hairline bg-card p-6 sm:grid-cols-[1.2fr_1fr] sm:items-center sm:p-8">
+        {/* 26. EMAIL SUBSCRIPTION SECTION */}
+        <div className="mt-14 grid gap-6 rounded-3xl border border-white/10 bg-card/70 p-6 sm:grid-cols-[1.2fr_1fr] sm:items-center sm:p-8">
           <div>
-            <h3 className="text-xl">Merch drops & production notes</h3>
+            <h3 className="text-xl font-bold text-white">Stay in the Loop</h3>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Occasional emails on new fabrics, print tech and bulk pricing.
+              New designs, products and updates from Xeno Craft.
             </p>
           </div>
-          <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-            <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-            <input
-              id="newsletter-email"
-              type="email"
-              required
-              placeholder="you@company.com"
-              className="min-h-11 w-full rounded-full hairline bg-background px-5 text-sm text-foreground placeholder:text-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-            <button
-              type="submit"
-              className="min-h-11 shrink-0 rounded-full bg-accent-gradient px-5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              Subscribe
-            </button>
-          </form>
+          {subscribed ? (
+            <div className="flex items-center gap-2 text-sm font-semibold text-[#5ef046]">
+              <Check className="size-4" /> Thank you for subscribing!
+            </div>
+          ) : (
+            <form className="flex gap-2" onSubmit={handleSubscribe}>
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <input
+                id="newsletter-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                className="min-h-11 w-full rounded-full border border-white/10 bg-background px-5 text-sm text-white placeholder:text-zinc-600 focus-visible:outline-none focus-visible:border-[#5ef046]"
+              />
+              <button
+                type="submit"
+                className="min-h-11 shrink-0 rounded-full bg-[#5ef046] px-6 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_15px_rgba(94,240,70,0.4)] cursor-pointer"
+              >
+                Subscribe
+              </button>
+            </form>
+          )}
         </div>
 
-        <div className="mt-12 flex flex-col gap-5 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-subtle">© {new Date().getFullYear()} Xeno Craft. All rights reserved.</p>
+        <div className="mt-12 flex flex-col gap-5 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-zinc-500">© {new Date().getFullYear()} Xeno Craft, Hyderabad. All rights reserved.</p>
           <ul className="flex gap-2">
             {[
-              { Icon: Instagram, label: "Instagram" },
-              { Icon: Linkedin, label: "LinkedIn" },
-              { Icon: Twitter, label: "X" },
-            ].map(({ Icon, label }) => (
+              { Icon: Instagram, label: "Instagram", href: "https://instagram.com" },
+              { Icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com" },
+              { Icon: Twitter, label: "X", href: "https://twitter.com" },
+            ].map(({ Icon, label, href }) => (
               <li key={label}>
                 <a
-                  href="https://instagram.com"
+                  href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full hairline text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                  className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border border-white/10 text-muted-foreground transition-colors hover:border-[#5ef046]/40 hover:text-[#5ef046]"
                 >
                   <Icon className="size-4" aria-hidden="true" />
                 </a>
@@ -191,18 +191,18 @@ export function FloatingActions() {
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label="Back to top"
-        className="pointer-events-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-full glass-panel text-muted-foreground transition-colors hover:text-primary"
+        className="pointer-events-auto inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/15 bg-black/80 text-muted-foreground transition-colors hover:text-[#5ef046] backdrop-blur-md"
       >
         <ArrowUp className="size-4" aria-hidden="true" />
       </button>
       <MagneticButton
-        href="https://wa.me/919000000000"
+        href="https://wa.me/914040008888"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
-        className="pointer-events-auto size-11 !px-0"
+        className="pointer-events-auto size-11 !px-0 bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.5)]"
       >
-        <MessageCircle className="size-5" aria-hidden="true" />
+        <MessageCircle className="size-5 text-black" aria-hidden="true" />
       </MagneticButton>
     </div>
   );

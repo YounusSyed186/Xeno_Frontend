@@ -17,12 +17,15 @@ import { Route as BulkOrdersRouteImport } from './routes/bulk-orders'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CustomTShirtsRouteImport } from './routes/custom-t-shirts'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as StickersRouteImport } from './routes/stickers'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as WeddingCardsRouteImport } from './routes/wedding-cards'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAdminUsersRouteImport } from './routes/admin.admin-users'
@@ -114,6 +117,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomTShirtsRoute = CustomTShirtsRouteImport.update({
+  id: '/custom-t-shirts',
+  path: '/custom-t-shirts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -134,6 +142,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StickersRoute = StickersRouteImport.update({
+  id: '/stickers',
+  path: '/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudioRoute = StudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -142,6 +155,11 @@ const StudioRoute = StudioRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeddingCardsRoute = WeddingCardsRouteImport.update({
+  id: '/wedding-cards',
+  path: '/wedding-cards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WishlistRoute = WishlistRouteImport.update({
@@ -410,12 +428,15 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/custom-t-shirts': typeof CustomTShirtsRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
   '/register': typeof RegisterRoute
+  '/stickers': typeof StickersRoute
   '/studio': typeof StudioRoute
   '/support': typeof SupportRoute
+  '/wedding-cards': typeof WeddingCardsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
@@ -475,12 +496,15 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/custom-t-shirts': typeof CustomTShirtsRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
   '/register': typeof RegisterRoute
+  '/stickers': typeof StickersRoute
   '/studio': typeof StudioRoute
   '/support': typeof SupportRoute
+  '/wedding-cards': typeof WeddingCardsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
@@ -542,12 +566,15 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/custom-t-shirts': typeof CustomTShirtsRoute
   '/login': typeof LoginRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRouteWithChildren
   '/register': typeof RegisterRoute
+  '/stickers': typeof StickersRoute
   '/studio': typeof StudioRoute
   '/support': typeof SupportRoute
+  '/wedding-cards': typeof WeddingCardsRoute
   '/wishlist': typeof WishlistRoute
   '/admin/admin-users': typeof AdminAdminUsersRoute
   '/admin/audit-logs': typeof AdminAuditLogsRoute
@@ -610,12 +637,15 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/custom-t-shirts'
     | '/login'
     | '/notifications'
     | '/orders'
     | '/register'
+    | '/stickers'
     | '/studio'
     | '/support'
+    | '/wedding-cards'
     | '/wishlist'
     | '/admin/admin-users'
     | '/admin/audit-logs'
@@ -675,12 +705,15 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/custom-t-shirts'
     | '/login'
     | '/notifications'
     | '/orders'
     | '/register'
+    | '/stickers'
     | '/studio'
     | '/support'
+    | '/wedding-cards'
     | '/wishlist'
     | '/admin/admin-users'
     | '/admin/audit-logs'
@@ -741,12 +774,15 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/custom-t-shirts'
     | '/login'
     | '/notifications'
     | '/orders'
     | '/register'
+    | '/stickers'
     | '/studio'
     | '/support'
+    | '/wedding-cards'
     | '/wishlist'
     | '/admin/admin-users'
     | '/admin/audit-logs'
@@ -808,12 +844,15 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  CustomTShirtsRoute: typeof CustomTShirtsRoute
   LoginRoute: typeof LoginRoute
   NotificationsRoute: typeof NotificationsRoute
   OrdersRoute: typeof OrdersRouteWithChildren
   RegisterRoute: typeof RegisterRoute
+  StickersRoute: typeof StickersRoute
   StudioRoute: typeof StudioRoute
   SupportRoute: typeof SupportRoute
+  WeddingCardsRoute: typeof WeddingCardsRoute
   WishlistRoute: typeof WishlistRoute
   ProductsSlugRoute: typeof ProductsSlugRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -877,6 +916,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/custom-t-shirts': {
+      id: '/custom-t-shirts'
+      path: '/custom-t-shirts'
+      fullPath: '/custom-t-shirts'
+      preLoaderRoute: typeof CustomTShirtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -905,6 +951,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stickers': {
+      id: '/stickers'
+      path: '/stickers'
+      fullPath: '/stickers'
+      preLoaderRoute: typeof StickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/studio': {
       id: '/studio'
       path: '/studio'
@@ -917,6 +970,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wedding-cards': {
+      id: '/wedding-cards'
+      path: '/wedding-cards'
+      fullPath: '/wedding-cards'
+      preLoaderRoute: typeof WeddingCardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wishlist': {
@@ -1393,12 +1453,15 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  CustomTShirtsRoute: CustomTShirtsRoute,
   LoginRoute: LoginRoute,
   NotificationsRoute: NotificationsRoute,
   OrdersRoute: OrdersRouteWithChildren,
   RegisterRoute: RegisterRoute,
+  StickersRoute: StickersRoute,
   StudioRoute: StudioRoute,
   SupportRoute: SupportRoute,
+  WeddingCardsRoute: WeddingCardsRoute,
   WishlistRoute: WishlistRoute,
   ProductsSlugRoute: ProductsSlugRoute,
   ProductsIndexRoute: ProductsIndexRoute,

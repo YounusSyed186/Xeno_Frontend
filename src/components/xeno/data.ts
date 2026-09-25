@@ -1,98 +1,100 @@
 import tshirt from "@/assets/tshirt.jpg";
 import jersey from "@/assets/jersey.jpg";
-import uniform from "@/assets/uniform.jpg";
 import stickers from "@/assets/stickers.jpg";
-import cap from "@/assets/cap.jpg";
-import welcomekit from "@/assets/welcomekit.jpg";
+import weddingcards from "@/assets/weddingcards.jpg";
 
-export const images = { tshirt, jersey, uniform, stickers, cap, welcomekit };
+export const images = { tshirt, jersey, stickers, weddingcards };
 
 export const categories = [
   {
     title: "Custom T-Shirts",
-    copy: "Combed cotton, oversized & regular fits with DTF, screen and puff print.",
+    copy: "Made for your team, event or idea. Custom T-shirts for corporate events, sports events, college fests, corporate gifting, teams, celebrations and more.",
     image: tshirt,
+    link: "/custom-t-shirts",
+    cta: "Explore Custom T-Shirts",
   },
   {
-    title: "Sports Jerseys",
-    copy: "Sublimated performance fabric built for clubs, tournaments and teams.",
-    image: jersey,
+    title: "Wedding Invitations",
+    copy: "Designed around your celebration. Custom wedding invitations created around your wedding style, theme, colours and details.",
+    image: weddingcards,
+    link: "/wedding-cards",
+    cta: "Explore Wedding Cards",
   },
   {
-    title: "Corporate Uniforms",
-    copy: "Polos, shirts and workwear tailored with embroidered brand identity.",
-    image: uniform,
-  },
-  {
-    title: "Laptop Stickers",
-    copy: "Die-cut vinyl, waterproof and scratch resistant with true-tone print.",
+    title: "Stickers",
+    copy: "Small stickers. Plenty of personality. Explore Xeno Craft's creative sticker collection for laptops, bottles, notebooks and more. Available exclusively on Amazon.",
     image: stickers,
-  },
-  {
-    title: "Custom Caps",
-    copy: "Structured and dad caps with 3D embroidery and woven labels.",
-    image: cap,
-  },
-  {
-    title: "Welcome Kits",
-    copy: "Curated onboarding boxes that make day one unforgettable.",
-    image: welcomekit,
+    link: "/stickers",
+    cta: "Shop on Amazon",
+    external: true,
   },
 ];
 
-export const industries = [
-  "Corporate",
-  "Schools",
-  "Colleges",
-  "Sports Clubs",
-  "Startups",
-  "Restaurants",
-  "Real Estate",
-  "Hospitals",
-  "NGOs",
-  "Technology",
+export const tShirtUseCases = [
+  {
+    title: "Corporate Events",
+    desc: "Custom branded T-shirts for conferences, launches, team events and company activities.",
+  },
+  {
+    title: "Corporate Gifting",
+    desc: "Custom T-shirts for employee gifting, client gifting and promotional requirements.",
+  },
+  {
+    title: "Sports Events & Teams",
+    desc: "Customised T-shirts for tournaments, sporting events, teams and participants.",
+  },
+  {
+    title: "College Fests",
+    desc: "Custom T-shirts for college festivals, clubs, departments and student teams.",
+  },
+  {
+    title: "Events & Celebrations",
+    desc: "Personalised T-shirts for events, trips, reunions, celebrations and group occasions.",
+  },
+  {
+    title: "Brands & Communities",
+    desc: "Custom T-shirts for brands, campaigns, creators, organisations and communities.",
+  },
 ];
 
-export const products = [
+export const tShirtCategories = [
   {
-    name: "Oversized Heavyweight Tee",
-    specs: ["240 GSM combed cotton", "Drop shoulder fit", "DTF / Puff print"],
+    name: "Classic Cotton T-Shirt",
+    desc: "Comfortable everyday T-shirt ready for your custom design.",
+    price: "From ₹349",
+    type: "Classic T-Shirt",
     image: tshirt,
   },
   {
-    name: "Pro Sublimated Jersey",
-    specs: ["Micro-poly dry fit", "Full colour sublimation", "Team name & numbers"],
+    name: "Oversized T-Shirt",
+    desc: "Relaxed oversized fit for custom artwork, graphics and event designs.",
+    price: "From ₹499",
+    type: "Oversized T-Shirt",
+    image: tshirt,
+  },
+  {
+    name: "Dry-Fit / Sports T-Shirt",
+    desc: "Performance T-shirt suitable for sports events, teams and tournaments.",
+    price: "From ₹399",
+    type: "Dry-Fit / Sports T-Shirt",
     image: jersey,
   },
   {
-    name: "Corporate Welcome Kit",
-    specs: ["Rigid magnetic box", "Tee, mug, tote, notebook", "Custom insert foam"],
-    image: welcomekit,
+    name: "Polo T-Shirt",
+    desc: "Custom polo T-shirts for corporate events, organisations and teams.",
+    price: "From ₹449",
+    type: "Polo T-Shirt",
+    image: tshirt,
   },
 ];
 
 export const marqueeItems = [
-  "Bulk Printing",
-  "Oversized Tees",
-  "Hoodies",
-  "Polo T-Shirts",
-  "Vinyl Stickers",
-  "Tote Bags",
-  "Mugs",
-  "Employee Kits",
-  "Merchandise Boxes",
-  "Waterproof Stickers",
-  "Custom Caps",
-  "Corporate Branding",
-];
-
-export const clients = [
-  "NORTHWIND",
-  "AXIOM LABS",
-  "VERTEX FC",
-  "KAIROS",
-  "ORBIT HEALTH",
-  "NIMBUS",
-  "STRATA",
-  "HELIOS",
+  "CUSTOM T-SHIRTS",
+  "CORPORATE EVENTS",
+  "SPORTS EVENTS",
+  "COLLEGE FESTS",
+  "WEDDING INVITATIONS",
+  "STICKERS",
+  "CORPORATE GIFTING",
+  "CUSTOM T-SHIRTS",
 ];
