@@ -246,6 +246,14 @@ function CustomTShirtsPage() {
                 </button>
               ))}
             </div>
+
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-[#5ef046]/40 hover:text-[#5ef046]"
+            >
+              <span>Explore All</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
           </div>
         </div>
 
@@ -282,6 +290,17 @@ function CustomTShirtsPage() {
               </div>
             </Reveal>
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)]"
+          >
+            <Sparkles className="size-4 text-[#5ef046]" />
+            <span>Explore All Catalog Products</span>
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </section>
     </div>

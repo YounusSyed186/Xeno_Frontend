@@ -1,16 +1,27 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Sparkles } from "lucide-react";
 import { Reveal, SectionHeading } from "./Reveal";
 import { categories } from "./data";
 
 export function WhatWeCreate() {
   return (
     <section className="relative mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-      <SectionHeading
-        eyebrow="What We Create"
-        title={<>Made Personal. <span className="text-gradient">Made for You.</span></>}
-        copy="From T-shirts for your next event to invitations for your big day, Xeno Craft creates products designed around your requirements."
-      />
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <SectionHeading
+          eyebrow="What We Create"
+          title={<>Made Personal. <span className="text-gradient">Made for You.</span></>}
+          copy="From T-shirts for your next event to invitations for your big day, Xeno Craft creates products designed around your requirements."
+        />
+        <div className="shrink-0 pb-2 md:pb-0">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-[#5ef046]/40 hover:text-[#5ef046]"
+          >
+            <span>Explore All</span>
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </div>
+      </div>
 
       <div className="mt-14 grid gap-8 lg:grid-cols-3">
         {categories.map((cat, i) => (
@@ -62,6 +73,17 @@ export function WhatWeCreate() {
             </article>
           </Reveal>
         ))}
+      </div>
+
+      <div className="mt-12 flex justify-center">
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)]"
+        >
+          <Sparkles className="size-4 text-[#5ef046] group-hover:text-black" />
+          <span>Explore All Products & Catalog</span>
+          <ArrowRight className="size-4" />
+        </Link>
       </div>
     </section>
   );

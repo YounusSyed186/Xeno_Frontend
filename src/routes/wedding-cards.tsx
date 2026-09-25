@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Sparkles, MessageCircle, Send, Check, Heart, ArrowRight } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/xeno/Reveal";
@@ -151,13 +151,24 @@ function WeddingCardsPage() {
 
       {/* 20. WEDDING CARD GALLERY */}
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24 border-t border-white/10">
-        <SectionHeading
-          eyebrow="Wedding Card Gallery"
-          title={<>Explore Our <span className="text-gradient">Design Concepts</span></>}
-          copy="Each design is customized with your names, wedding theme, bespoke colors and custom wording."
-        />
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <SectionHeading
+            eyebrow="Wedding Card Gallery"
+            title={<>Explore Our <span className="text-gradient">Design Concepts</span></>}
+            copy="Each design is customized with your names, wedding theme, bespoke colors and custom wording."
+          />
+          <div className="shrink-0">
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-[#5ef046]/40 hover:text-[#5ef046]"
+            >
+              <span>Explore All</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+        </div>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {galleryItems.map((item, i) => (
             <Reveal key={item.title} delay={i * 0.08}>
               <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
@@ -189,6 +200,17 @@ function WeddingCardsPage() {
               </div>
             </Reveal>
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)]"
+          >
+            <Sparkles className="size-4 text-[#5ef046]" />
+            <span>Explore All Products & Catalog</span>
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
       </section>
 
