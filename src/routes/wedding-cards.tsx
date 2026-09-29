@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { Sparkles, MessageCircle, Send, Check, Heart, ArrowRight } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Sparkles, MessageCircle, Send, Check, Heart, ArrowRight, ExternalLink, Filter, CheckCircle2 } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/xeno/Reveal";
 import { images } from "@/components/xeno/data";
+import { useProducts } from "@/hooks/useProducts";
+import { Product } from "@/types/product";
 
 const T = "Custom Wedding Cards & Invitations — Made for Your Story | Xeno Craft";
 const D = "Custom wedding invitations designed around your wedding style, theme, colours and celebration. Luxury foil, embossed, modern and digital wedding suites in Hyderabad.";
@@ -21,56 +23,197 @@ export const Route = createFileRoute("/wedding-cards")({
   component: WeddingCardsPage,
 });
 
-const galleryItems = [
+export interface WeddingCardItem {
+  id?: number | undefined;
+  slug: string;
+  title: string;
+  desc: string;
+  image: string;
+  badge: string;
+  price: number;
+  compareAtPrice?: number | undefined;
+  moq: number;
+  isDigital?: boolean | undefined;
+  material?: string | undefined;
+  categorySlug?: string | undefined;
+}
+
+// Authentic production-grade fallback items matching the backend database seed
+const fallbackWeddingProducts: WeddingCardItem[] = [
   {
-    title: "Traditional Elegance",
-    desc: "Intricate gold foil motifs, auspicious emblems and rich matte paper stock.",
-    image: images.weddingcards,
+    id: 1,
+    slug: "royal-heritage-gold-foil-wedding-suite",
+    title: "Royal Heritage Gold Foil Wedding Suite",
+    desc: "350 GSM textured cotton cardstock with 24K hot foil stamped calligraphy, ornate royal borders, and custom monogram wax seal.",
+    image: "https://images.unsplash.com/photo-1607190074257-dd4b7af0309f?w=1000&auto=format&fit=crop&q=80",
     badge: "Gold Foil & Letterpress",
+    price: 180,
+    compareAtPrice: 240,
+    moq: 50,
+    material: "350 GSM Textured Cotton Stock",
+    categorySlug: "traditional",
   },
   {
-    title: "Modern Minimalist",
-    desc: "Clean contemporary typography on luxury textured card with vellum overlays.",
-    image: images.weddingcards,
+    id: 2,
+    slug: "modern-minimalist-vellum-letterpress-suite",
+    title: "Modern Minimalist Vellum & Letterpress Suite",
+    desc: "Crisp architectural typography with blind debossing, translucent vellum jacket, and botanical pressed floral seal.",
+    image: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1000&auto=format&fit=crop&q=80",
     badge: "Minimalist Luxe",
+    price: 165,
+    compareAtPrice: 210,
+    moq: 50,
+    material: "Translucent Vellum & Wax Seal",
+    categorySlug: "modern",
   },
   {
-    title: "Floral & Botanical Suite",
-    desc: "Hand-illustrated botanical designs with delicate embossed borders.",
-    image: images.weddingcards,
-    badge: "Floral & Embossed",
+    id: 3,
+    slug: "deckle-edge-botanical-floral-suite",
+    title: "Handmade Deckle Edge Botanical Floral Suite",
+    desc: "100% artisanal cotton deckled edge paper with soft watercolor floral illustration and delicate gold leaf brushing.",
+    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80",
+    badge: "Handmade Deckle Edge",
+    price: 195,
+    compareAtPrice: 260,
+    moq: 50,
+    material: "Handmade Deckle Edge (300 GSM)",
+    categorySlug: "traditional",
   },
   {
-    title: "Royal Heritage & Velvet",
-    desc: "Opulent velvet touch, deep jewel tones and royal monogram wax seals.",
-    image: images.weddingcards,
-    badge: "Royal Vintage",
+    id: 4,
+    slug: "opulent-velvet-monogram-suite",
+    title: "Opulent Velvet Touch & Monogram Seal Suite",
+    desc: "400 GSM velvet touch cardstock in jewel tones with gold-gilded beveled edges and metal alloy monogram emblem.",
+    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1000&auto=format&fit=crop&q=80",
+    badge: "Royal Velvet Luxe",
+    price: 240,
+    compareAtPrice: 320,
+    moq: 50,
+    material: "400 GSM Royal Velvet Matte",
+    categorySlug: "traditional",
   },
   {
-    title: "Animated Digital E-Invites",
-    desc: "Interactive, mobile-friendly digital invitations for WhatsApp & web sharing.",
-    image: images.weddingcards,
+    id: 5,
+    slug: "frosted-acrylic-gold-foil-invitation",
+    title: "Frosted Acrylic Glass & Metallic Foil Invitation",
+    desc: "2mm heavy-gauge shatterproof frosted acrylic with screen-printed metallic gold calligraphy and custom hardbound folio.",
+    image: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1000&auto=format&fit=crop&q=80",
+    badge: "Frosted Acrylic Glass",
+    price: 280,
+    compareAtPrice: 380,
+    moq: 25,
+    material: "Frosted Acrylic Glass (2mm)",
+    categorySlug: "modern",
+  },
+  {
+    id: 6,
+    slug: "animated-digital-video-wedding-suite",
+    title: "Animated Digital E-Invite & Video Suite",
+    desc: "4K ultra-smooth motion graphics digital wedding invitation with custom music, interactive itinerary, and WhatsApp sharing.",
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1000&auto=format&fit=crop&q=80",
     badge: "Digital & Video",
+    price: 2999,
+    compareAtPrice: 4499,
+    moq: 1,
+    isDigital: true,
+    material: "Ultra-HD Motion Digital Asset",
+    categorySlug: "digital",
   },
   {
-    title: "Destination Wedding Kits",
-    desc: "Matching itinerary cards, luggage tags, welcome notes and ceremony booklets.",
-    image: images.weddingcards,
-    badge: "Complete Suite",
+    id: 7,
+    slug: "destination-wedding-passport-boarding-kit",
+    title: "Destination Wedding Passport & Boarding Pass Kit",
+    desc: "Custom foil-stamped passport booklet, metallic gold boarding pass ceremony ticket, and matching luggage tags.",
+    image: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1000&auto=format&fit=crop&q=80",
+    badge: "Destination Kit",
+    price: 220,
+    compareAtPrice: 290,
+    moq: 50,
+    material: "350 GSM Textured Cotton Stock",
+    categorySlug: "traditional",
   },
 ];
 
+const categoryFilterTabs = [
+  { id: "all", label: "All Suites" },
+  { id: "traditional", label: "Traditional & Foil" },
+  { id: "modern", label: "Modern & Minimalist" },
+  { id: "digital", label: "Digital & Video" },
+];
+
 function WeddingCardsPage() {
+  const [activeTab, setActiveTab] = useState("all");
   const [formSent, setFormSent] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     eventDate: "",
-    approxCount: "",
-    style: "Traditional Elegance",
+    approxCount: "100",
+    style: "Royal Heritage Gold Foil Wedding Suite",
     notes: "",
   });
+
+  // Dynamic Query from backend API
+  const { data: apiResponse, isLoading, isError } = useProducts({
+    category: "wedding-cards",
+    per_page: 50,
+  });
+
+  // Transform dynamic database products or use authentic seeded fallback
+  const allItems: WeddingCardItem[] = useMemo(() => {
+    const products: Product[] = apiResponse?.products || [];
+    if (products.length > 0) {
+      return products.map((p) => {
+        const primaryImg = p.images?.find((img) => img.is_primary)?.url || p.images?.[0]?.url || images.weddingcards;
+        const anyP = p as any;
+        const badge = (Array.isArray(anyP.tags) && anyP.tags[0]?.name) || p.variants?.[0]?.material?.name || "Bespoke Suite";
+        const catSlug = p.category?.slug?.includes("traditional")
+          ? "traditional"
+          : p.category?.slug?.includes("modern")
+          ? "modern"
+          : p.category?.slug?.includes("digital") || p.slug.includes("digital")
+          ? "digital"
+          : "traditional";
+
+        const item: WeddingCardItem = {
+          id: p.id,
+          slug: p.slug,
+          title: p.name,
+          desc: p.short_description || p.description || "Custom wedding invitation suite handcrafted in Hyderabad.",
+          image: primaryImg,
+          badge,
+          price: Number(p.base_price) || 180,
+          compareAtPrice: p.compare_at_price ? Number(p.compare_at_price) : undefined,
+          moq: p.moq || 50,
+          isDigital: p.slug.includes("digital") || p.moq === 1,
+          material: p.variants?.[0]?.material?.name || undefined,
+          categorySlug: catSlug,
+        };
+        return item;
+      });
+    }
+    return fallbackWeddingProducts;
+  }, [apiResponse]);
+
+  // Filter items by selected tab
+  const filteredItems = useMemo(() => {
+    if (activeTab === "all") return allItems;
+    return allItems.filter((item) => item.categorySlug === activeTab);
+  }, [allItems, activeTab]);
+
+  const handleSelectStyle = (item: WeddingCardItem) => {
+    setFormData((prev) => ({
+      ...prev,
+      style: item.title,
+      approxCount: item.isDigital ? "1" : prev.approxCount || String(item.moq),
+    }));
+
+    const el = document.getElementById("enquiry-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +221,12 @@ function WeddingCardsPage() {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hi Xeno Craft! I would like to enquire about Custom Wedding Invitations.\n\nName: ${formData.name || "Customer"}\nEvent Date: ${formData.eventDate || "Upcoming"}\nPreferred Style: ${formData.style}\nDetails: ${formData.notes || "Looking for custom design"}`
+    `Hi Xeno Craft! I would like to enquire about Custom Wedding Invitations.\n\n` +
+      `*Name:* ${formData.name || "Customer"}\n` +
+      `*Preferred Style:* ${formData.style}\n` +
+      `*Event Date:* ${formData.eventDate || "Upcoming"}\n` +
+      `*Quantity:* ${formData.approxCount} units\n` +
+      `*Notes / Custom Requests:* ${formData.notes || "Looking for custom design, colors & quote"}`
   );
 
   return (
@@ -107,7 +255,7 @@ function WeddingCardsPage() {
                 Your wedding is personal. Your invitation should be too.
               </p>
               <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed max-w-xl">
-                We create customised wedding invitations designed around your style, theme, colours and celebration.
+                We craft bespoke wedding invitation suites tailored to your wedding style, color palette, auspicious emblems, and celebration.
               </p>
             </Reveal>
             <Reveal delay={0.2}>
@@ -142,35 +290,53 @@ function WeddingCardsPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="text-xs font-bold text-[#5ef046] uppercase tracking-wider">Custom Bespoke Suite</span>
-                <p className="text-sm font-semibold text-white mt-1">Gold Foil Typography & Premium Textured Stock</p>
+                <p className="text-sm font-semibold text-white mt-1">24K Gold Foil Typography & 350 GSM Textured Stock</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 20. WEDDING CARD GALLERY */}
+      {/* 20. WEDDING CARD DYNAMIC GALLERY */}
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24 border-t border-white/10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <SectionHeading
-            eyebrow="Wedding Card Gallery"
-            title={<>Explore Our <span className="text-gradient">Design Concepts</span></>}
-            copy="Each design is customized with your names, wedding theme, bespoke colors and custom wording."
+            eyebrow="Wedding Card Catalog"
+            title={<>Explore Our <span className="text-gradient">Bespoke Suites</span></>}
+            copy="Handcrafted physical invitations, luxury box suites and interactive digital e-invites tailored to your celebration."
           />
-          <div className="shrink-0">
+          <div className="shrink-0 flex items-center gap-3">
             <Link
               to="/products"
               className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-[#5ef046]/40 hover:text-[#5ef046]"
             >
-              <span>Explore All</span>
+              <span>Explore All Products</span>
               <ArrowRight className="size-3.5" />
             </Link>
           </div>
         </div>
 
+        {/* Category Filters */}
+        <div className="mb-10 flex flex-wrap gap-2">
+          {categoryFilterTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-full px-5 py-2 text-xs font-bold transition-all cursor-pointer ${
+                activeTab === tab.id
+                  ? "bg-[#5ef046] text-black shadow-[0_0_15px_rgba(94,240,70,0.4)]"
+                  : "bg-card border border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Gallery Grid */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {galleryItems.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.08}>
+          {filteredItems.map((item, i) => (
+            <Reveal key={item.slug} delay={i * 0.06}>
               <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
                 <div className="relative aspect-4/3 overflow-hidden bg-zinc-950">
                   <img
@@ -178,23 +344,53 @@ function WeddingCardsPage() {
                     alt={item.title}
                     className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <span className="absolute top-3 left-3 rounded-full bg-black/75 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
+                  <span className="absolute top-3 left-3 rounded-full bg-black/80 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
                     {item.badge}
                   </span>
+                  {item.compareAtPrice && (
+                    <span className="absolute top-3 right-3 rounded-full bg-red-950/80 backdrop-blur-md border border-red-500/30 px-2.5 py-0.5 text-[10px] font-bold text-red-300">
+                      Save ₹{item.compareAtPrice - item.price}
+                    </span>
+                  )}
                 </div>
+
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
-                    <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-xs font-bold text-emerald-400">
+                        {item.isDigital ? "Flat Package" : `From ₹${item.price} / piece`}
+                      </span>
+                      <span className="text-[11px] text-zinc-400 font-medium">
+                        {item.isDigital ? "Instant 4K Asset" : `MOQ: ${item.moq} pcs`}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white leading-snug">{item.title}</h3>
+                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                      {item.desc}
+                    </p>
+                    {item.material && (
+                      <p className="mt-2.5 text-[11px] text-zinc-400 font-medium">
+                        <span className="text-zinc-500">Stock:</span> {item.material}
+                      </p>
+                    )}
                   </div>
-                  <div className="mt-6 pt-4 border-t border-white/10">
-                    <a
-                      href="#enquiry-section"
-                      onClick={() => setFormData({ ...formData, style: item.title })}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
+
+                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleSelectStyle(item)}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline cursor-pointer"
                     >
                       Enquire for this style <ArrowRight className="size-3.5" />
-                    </a>
+                    </button>
+                    <Link
+                      to="/products/$slug"
+                      params={{ slug: item.slug } as any}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition-colors"
+                    >
+                      <span>Specs</span>
+                      <ExternalLink className="size-3" />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -202,7 +398,7 @@ function WeddingCardsPage() {
           ))}
         </div>
 
-        <div className="mt-12 flex justify-center">
+        <div className="mt-14 flex justify-center">
           <Link
             to="/products"
             className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)]"
@@ -225,7 +421,7 @@ function WeddingCardsPage() {
               Tell Us What You <span className="text-gradient">Have in Mind</span>
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Share your wedding details, preferred style, colours, theme and references with us. We'll work with you to create an invitation personalised to your celebration.
+              Share your wedding details, preferred suite style, color theme, and custom requests. Our Hyderabad design studio will work with you to craft an invitation suite that wows your guests.
             </p>
 
             <div className="space-y-4 pt-2">
@@ -274,14 +470,26 @@ function WeddingCardsPage() {
                   </div>
                   <h3 className="text-2xl font-bold text-white">Enquiry Received</h3>
                   <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto">
-                    Thank you! Our wedding invitation specialist will reach out to you within 24 hours with design inspirations and quote details.
+                    Thank you! Our wedding invitation specialist will reach out to you within 24 hours with design inspirations and quote details for <span className="text-white font-medium">{formData.style}</span>.
                   </p>
-                  <button
-                    onClick={() => setFormSent(false)}
-                    className="mt-6 text-xs font-bold text-[#5ef046] hover:underline"
-                  >
-                    Send another enquiry
-                  </button>
+
+                  <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a
+                      href={`https://wa.me/914040008888?text=${whatsappMessage}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#5ef046] px-6 py-3 text-xs font-extrabold text-black hover:bg-[#4de035] transition-all"
+                    >
+                      <MessageCircle className="size-4" />
+                      Forward via WhatsApp
+                    </a>
+                    <button
+                      onClick={() => setFormSent(false)}
+                      className="text-xs font-bold text-zinc-400 hover:text-white px-4 py-3 cursor-pointer"
+                    >
+                      Send another enquiry
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -344,19 +552,18 @@ function WeddingCardsPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
-                        Preferred Style
+                        Preferred Style (Dynamic Catalog)
                       </label>
                       <select
                         value={formData.style}
                         onChange={(e) => setFormData({ ...formData, style: e.target.value })}
                         className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
                       >
-                        <option>Traditional Elegance</option>
-                        <option>Modern Minimalist</option>
-                        <option>Floral & Botanical</option>
-                        <option>Royal Vintage & Foil</option>
-                        <option>Animated Digital E-Invite</option>
-                        <option>Destination Wedding Complete Suite</option>
+                        {allItems.map((item) => (
+                          <option key={item.slug} value={item.title}>
+                            {item.title} ({item.isDigital ? "Digital" : `From ₹${item.price}`})
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
@@ -365,11 +572,11 @@ function WeddingCardsPage() {
                       </label>
                       <input
                         type="number"
-                        min={10}
+                        min={1}
                         max={5000}
                         value={formData.approxCount}
                         onChange={(e) => setFormData({ ...formData, approxCount: e.target.value })}
-                        placeholder="e.g. 200"
+                        placeholder="e.g. 100"
                         className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-[#5ef046] focus:outline-none"
                       />
                     </div>
@@ -394,7 +601,7 @@ function WeddingCardsPage() {
                       className="w-full rounded-full bg-[#5ef046] py-3.5 text-sm font-extrabold text-black transition-all hover:bg-[#4de035] hover:shadow-[0_0_20px_rgba(94,240,70,0.5)] active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Send className="size-4" />
-                      Enquire for Customisation
+                      Submit Wedding Card Enquiry
                     </button>
                   </div>
                 </form>
