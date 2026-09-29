@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
 import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router';
-import { useAdminProducts, useAdminProductMutations, useAdminCategories } from '@/hooks/useAdmin';
+import { useAdminProducts, useAdminProductMutations, useAdminCategories, useAdminCollections } from '@/hooks/useAdmin';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge';
 import { AdminTable, Column } from '@/components/admin/AdminTable';
-import { Plus, Search, Archive, Copy, Edit, Filter, X, RefreshCw } from 'lucide-react';
+import { Plus, Search, Archive, Copy, Edit, Filter, X, RefreshCw, Layers } from 'lucide-react';
 
 export const Route = createFileRoute('/admin/catalog')({
   component: AdminCatalogComponent,
@@ -14,20 +14,26 @@ function AdminCatalogComponent() {
   const navigate = useNavigate();
   const searchObj = useRouterState({ select: (s) => s.location.search }) as any;
   const categoryParam = typeof searchObj?.category === 'string' ? searchObj.category : '';
+  const collectionParam = typeof searchObj?.collection === 'string' ? searchObj.collection : '';
+
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedCollection, setSelectedCollection] = useState(collectionParam);
 
-  // fetch categories for dropdown
+  // fetch categories and collections for dropdowns
   const { data: categoriesData = [], isLoading: catLoading } = useAdminCategories();
+  const { data: collectionsData = [], isLoading: colLoading } = useAdminCollections();
 
   const categories = Array.isArray(categoriesData) ? categoriesData : (categoriesData?.categories || categoriesData?.items || []);
+  const collections = Array.isArray(collectionsData) ? collectionsData : (collectionsData?.collections || collectionsData?.items || []);
 
   const { data, isLoading, refetch } = useAdminProducts({
     search: search || undefined,
     status: status || undefined,
     category_id: selectedCategory || undefined,
+    collection_id: selectedCollection || undefined,
     page,
   });
 
@@ -45,7 +51,32 @@ function AdminCatalogComponent() {
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
-    navigate({ to: '/admin/catalog', search: value ? { category: value } : {} as any });
+    navigate({
+      to: '/admin/catalog',
+      search: {
+        ...(value ? { category: value } : {}),
+        ...(selectedCollection ? { collection: selectedCollection } : {}),
+      } as any,
+    });
+  };
+
+  const handleCollectionChange = (value: string) => {
+    setSelectedCollection(value);
+    navigate({
+      to: '/admin/catalog',
+      search: {
+        ...(selectedCategory ? { category: selectedCategory } : {}),
+        ...(value ? { collection: value } : {}),
+      } as any,
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSelectedCategory('');
+    setSelectedCollection('');
+    setStatus('');
+    setSearch('');
+    navigate({ to: '/admin/catalog', search: {} as any });
   };
 
   const columns: Column<any>[] = [
@@ -78,6 +109,12 @@ function AdminCatalogComponent() {
       ),
     },
     {
+      header: 'Collection',
+      cell: (product) => (
+        <span className="text-xs text-zinc-400 font-medium">{product.collection?.name || '—'}</span>
+      ),
+    },
+    {
       header: 'Base Price',
       cell: (product) => (
         <span className="font-mono font-medium text-foreground">
@@ -96,14 +133,14 @@ function AdminCatalogComponent() {
         <div className="flex items-center justify-end gap-1.5">
           <button
             onClick={() => navigate({ to: `/admin/products/${product.id}` as any })}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer"
             title="Edit Product"
           >
             <Edit className="size-3.5" />
           </button>
           <button
             onClick={() => duplicateProduct(product.id)}
-            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 cursor-pointer"
             title="Duplicate Product"
           >
             <Copy className="size-3.5" />
@@ -111,7 +148,7 @@ function AdminCatalogComponent() {
           {product.status === 'archived' ? (
             <button
               onClick={() => restoreProduct(product.id)}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10 cursor-pointer"
               title="Restore Product"
             >
               <RefreshCw className="size-3.5" />
@@ -119,7 +156,7 @@ function AdminCatalogComponent() {
           ) : (
             <button
               onClick={() => deleteProduct(product.id)}
-              className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
               title="Archive Product"
             >
               <Archive className="size-3.5" />
@@ -134,11 +171,11 @@ function AdminCatalogComponent() {
     <div className="space-y-6">
       <AdminPageHeader
         title="Catalog"
-        description="Browse and manage the product catalog with optional category filtering."
+        description="Browse and manage the product catalog with category and collection filtering."
         actions={
           <button
             onClick={() => navigate({ to: '/admin/products/create' })}
-            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer"
           >
             <Plus className="size-4" /> Add Product
           </button>
@@ -161,7 +198,7 @@ function AdminCatalogComponent() {
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="w-full sm:w-44 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-foreground focus:outline-none"
+          className="w-full sm:w-40 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-foreground focus:outline-none"
         >
           <option value="">All Statuses</option>
           <option value="active">Active</option>
@@ -173,7 +210,7 @@ function AdminCatalogComponent() {
           value={selectedCategory}
           onChange={(e) => handleCategoryChange(e.target.value)}
           disabled={catLoading}
-          className="w-full sm:w-56 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-foreground focus:outline-none"
+          className="w-full sm:w-48 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-foreground focus:outline-none"
         >
           <option value="">All Categories</option>
           {categories.map((cat: any) => (
@@ -183,12 +220,27 @@ function AdminCatalogComponent() {
           ))}
         </select>
 
-        {selectedCategory && (
+        <select
+          value={selectedCollection}
+          onChange={(e) => handleCollectionChange(e.target.value)}
+          disabled={colLoading}
+          className="w-full sm:w-48 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-foreground focus:outline-none"
+        >
+          <option value="">All Collections</option>
+          {collections.map((col: any) => (
+            <option key={col.id} value={String(col.id)}>
+              {col.name}
+            </option>
+          ))}
+        </select>
+
+        {(selectedCategory || selectedCollection || status || search) && (
           <button
-            onClick={() => handleCategoryChange('')}
-            className="flex items-center gap-1 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-muted-foreground hover:text-destructive hover:border-destructive/40"
+            onClick={handleClearFilters}
+            className="flex items-center gap-1 rounded-xl border border-border/40 bg-surface/40 px-3 py-2 text-xs text-muted-foreground hover:text-destructive hover:border-destructive/40 transition-colors shrink-0 cursor-pointer"
+            title="Clear all filters"
           >
-            <X className="size-3.5" /> Clear Category
+            <X className="size-3.5" /> Clear Filters
           </button>
         )}
       </div>
