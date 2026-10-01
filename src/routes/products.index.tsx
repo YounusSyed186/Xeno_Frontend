@@ -244,8 +244,8 @@ function ProductsPage() {
       <div className="border-t border-white/10 pt-8">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-white">Custom T-Shirt Catalog</h3>
-            <p className="text-xs text-muted-foreground">Select a garment to start customising</p>
+            <h3 className="text-lg font-bold text-white">T-Shirt Catalog</h3>
+            <p className="text-xs text-muted-foreground">Select a garment</p>
           </div>
         </div>
 

@@ -75,12 +75,12 @@ export function SiteNav() {
       className={cn("fixed inset-x-0 top-0 z-50 pointer-events-none transition-all duration-500", scrolled ? "py-2" : "py-4")}
     >
       <div
-        className="mx-auto w-full max-w-7xl px-4 sm:px-6 pointer-events-auto"
+        className="mx-auto w-full max-w-7xl px-4 sm:px-6 pointer-events-none"
         onMouseLeave={handleMouseLeave}
       >
         <nav
           aria-label="Main"
-          className="flex items-center justify-between rounded-full bg-black/85 backdrop-blur-xl border border-white/10 px-5 py-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.8)] transition-all duration-500 flex-nowrap"
+          className="pointer-events-auto flex items-center justify-between rounded-full bg-black/85 backdrop-blur-xl border border-white/10 px-5 py-2.5 shadow-[0_10px_35px_rgba(0,0,0,0.8)] transition-all duration-500 flex-nowrap"
         >
           {/* Logo Mark + Title */}
           <Link to="/" className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
@@ -212,8 +212,10 @@ export function SiteNav() {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           className={cn(
-            "glass-panel relative mt-2 hidden origin-top rounded-3xl p-6 transition-all duration-300 pointer-events-auto lg:block bg-black/95 border border-white/10 backdrop-blur-2xl shadow-2xl before:absolute before:-top-6 before:left-0 before:right-0 before:h-8 before:content-['']",
-            mega ? "scale-100 opacity-100 translate-y-0 pointer-events-auto" : "-translate-y-2 scale-[0.99] opacity-0 pointer-events-none",
+            "glass-panel relative mt-2 origin-top rounded-3xl p-6 transition-all duration-300 bg-black/95 border border-white/10 backdrop-blur-2xl shadow-2xl before:absolute before:-top-6 before:left-0 before:right-0 before:h-8 before:content-['']",
+            mega
+              ? "block pointer-events-auto scale-100 opacity-100 translate-y-0"
+              : "hidden pointer-events-none -translate-y-2 scale-[0.99] opacity-0",
           )}
           aria-hidden={!mega}
         >
