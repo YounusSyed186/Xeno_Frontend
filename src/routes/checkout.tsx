@@ -254,19 +254,19 @@ function CheckoutComponent() {
         </div>
       }
     >
-      <div className="grid gap-8 lg:grid-cols-12 items-start">
-        <div className="lg:col-span-8 space-y-8">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
+        <div className="lg:col-span-8 space-y-6 sm:space-y-8">
           {/* Step 1: Shipping Address */}
-          <div className="rounded-3xl border border-border/40 bg-card/60 p-6 sm:p-8 space-y-5 shadow-md backdrop-blur-sm">
+          <div className="rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-7 md:p-8 space-y-5 shadow-md backdrop-blur-sm">
             <div className="flex items-center justify-between border-b border-border/30 pb-4">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2.5">
-                <MapPin className="size-5 text-primary" /> 1. Shipping Address
+              <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                <MapPin className="size-4.5 sm:size-5 text-primary" /> 1. Shipping Address
               </h2>
               {!showAddAddress && (
                 <button
                   type="button"
                   onClick={() => setShowAddAddress(true)}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline cursor-pointer min-h-[36px]"
                 >
                   <Plus className="size-3.5" /> Add New Address
                 </button>
@@ -275,7 +275,7 @@ function CheckoutComponent() {
 
             {showAddAddress ? (
               <form onSubmit={handleCreateAddress} className="space-y-4 pt-2">
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3.5 sm:grid-cols-2">
                   <div>
                     <label className="block text-xs font-semibold text-muted-foreground mb-1.5">Full Name</label>
                     <input
@@ -284,7 +284,7 @@ function CheckoutComponent() {
                       placeholder="Receiver name"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                     />
                   </div>
                   <div>
@@ -295,7 +295,7 @@ function CheckoutComponent() {
                       placeholder="10-digit mobile number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -308,11 +308,11 @@ function CheckoutComponent() {
                     placeholder="Flat / House / Suite, Street Name"
                     value={line1}
                     onChange={(e) => setLine1(e.target.value)}
-                    className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                    className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                   />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-3.5 sm:grid-cols-3">
                   <div>
                     <label className="block text-xs font-semibold text-muted-foreground mb-1.5">City</label>
                     <input
@@ -321,7 +321,7 @@ function CheckoutComponent() {
                       placeholder="City / District"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                     />
                   </div>
                   <div>
@@ -332,7 +332,7 @@ function CheckoutComponent() {
                       placeholder="State"
                       value={state}
                       onChange={(e) => setState(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                     />
                   </div>
                   <div>
@@ -343,7 +343,7 @@ function CheckoutComponent() {
                       placeholder="6-digit PIN"
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
-                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-11"
+                      className="w-full rounded-xl border border-input bg-background/60 px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                     />
                   </div>
                 </div>
@@ -351,14 +351,14 @@ function CheckoutComponent() {
                 <div className="flex gap-3 pt-2">
                   <button
                     type="submit"
-                    className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-sm min-h-10"
+                    className="flex-1 sm:flex-none rounded-xl bg-primary px-6 py-3 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-all shadow-sm min-h-[44px] cursor-pointer"
                   >
                     Save & Use Address
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAddAddress(false)}
-                    className="rounded-xl bg-surface border border-border/60 px-5 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all min-h-10"
+                    className="rounded-xl bg-surface border border-border/60 px-5 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-all min-h-[44px] cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -372,7 +372,7 @@ function CheckoutComponent() {
                     <div
                       key={addr.id}
                       onClick={() => setSelectedAddressId(addr.id)}
-                      className={`cursor-pointer rounded-2xl border p-4 transition-all ${
+                      className={`cursor-pointer rounded-xl sm:rounded-2xl border p-4 transition-all min-h-[44px] ${
                         isSelected
                           ? 'border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm'
                           : 'border-border/40 bg-surface/40 hover:border-border/80'
@@ -398,12 +398,12 @@ function CheckoutComponent() {
           </div>
 
           {/* Step 2: Payment Gateway Selection */}
-          <div className="rounded-3xl border border-border/40 bg-card/60 p-6 sm:p-8 space-y-5 shadow-md backdrop-blur-sm">
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2.5 border-b border-border/30 pb-4">
-              <CreditCard className="size-5 text-primary" /> 2. Select Payment Method
+          <div className="rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-7 md:p-8 space-y-5 shadow-md backdrop-blur-sm">
+            <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2 border-b border-border/30 pb-4">
+              <CreditCard className="size-4.5 sm:size-5 text-primary" /> 2. Select Payment Method
             </h2>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-3">
               {[
                 { id: 'razorpay', label: 'UPI & Instant Gateway', desc: 'Google Pay, PhonePe, Paytm, QR, NetBanking, Cards' },
                 { id: 'stripe', label: 'Credit / Debit Card', desc: 'International Visa, Mastercard, American Express' },
@@ -414,7 +414,7 @@ function CheckoutComponent() {
                   <div
                     key={m.id}
                     onClick={() => setPaymentMethod(m.id as any)}
-                    className={`cursor-pointer rounded-2xl border p-4 transition-all flex flex-col justify-between ${
+                    className={`cursor-pointer rounded-xl sm:rounded-2xl border p-4 transition-all flex flex-col justify-between min-h-[44px] ${
                       isSelected
                         ? 'border-primary bg-primary/10 ring-2 ring-primary/40 shadow-sm'
                         : 'border-border/40 bg-surface/40 hover:border-border/80'
@@ -436,19 +436,19 @@ function CheckoutComponent() {
 
         {/* Order Summary Column */}
         <div className="lg:col-span-4">
-          <div className="space-y-6 rounded-3xl border border-border/40 bg-card/60 p-6 shadow-md backdrop-blur-sm sticky top-28">
-            <h2 className="text-lg font-bold text-foreground">Order Items & Summary</h2>
+          <div className="space-y-5 sm:space-y-6 rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 shadow-md backdrop-blur-sm sticky top-28">
+            <h2 className="text-base sm:text-lg font-bold text-foreground">Order Items & Summary</h2>
 
-            <div className="divide-y divide-border/30 space-y-3 max-h-60 overflow-y-auto pr-1">
+            <div className="divide-y divide-border/30 space-y-2.5 max-h-60 overflow-y-auto pr-1">
               {items.map((item: any) => (
-                <div key={item.id} className="pt-3 flex justify-between text-xs">
-                  <div>
-                    <p className="font-semibold text-foreground">{item.product?.name}</p>
-                    <p className="text-muted-foreground text-[11px]">
+                <div key={item.id} className="pt-2.5 flex justify-between text-xs gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-foreground truncate">{item.product?.name}</p>
+                    <p className="text-muted-foreground text-[11px] truncate">
                       {item.variant ? `${item.variant.color?.name || ''} / ${item.variant.size?.name || ''} • ` : ''}Qty: {item.quantity}
                     </p>
                   </div>
-                  <p className="font-bold text-foreground">₹{Number(item.line_total).toFixed(2)}</p>
+                  <p className="font-bold text-foreground shrink-0">₹{Number(item.line_total).toFixed(2)}</p>
                 </div>
               ))}
             </div>
@@ -476,7 +476,7 @@ function CheckoutComponent() {
               type="button"
               disabled={isSubmitting}
               onClick={handleCheckout}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-md min-h-12"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-md min-h-[48px] cursor-pointer"
             >
               <ShieldCheck className="size-4" />
               {isSubmitting

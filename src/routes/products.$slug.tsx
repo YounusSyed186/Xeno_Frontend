@@ -187,12 +187,13 @@ function ProductPage() {
         ...(p.category ? [{ label: p.category.name, to: `/products?category=${p.category.slug}` }] : []),
         { label: p.name }
       ]}
+      className="pb-28 md:pb-16"
     >
       {/* 2-COLUMN HERO SECTION: GALLERY + BUY BOX */}
-      <div className="grid gap-8 lg:grid-cols-12 items-start">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 items-start">
         {/* LEFT COLUMN: INTERACTIVE GALLERY */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="relative aspect-4/3 sm:aspect-square w-full overflow-hidden rounded-3xl border border-border/40 bg-card/60 shadow-md">
+        <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+          <div className="relative aspect-square sm:aspect-4/3 w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 shadow-md">
             <img
               src={activeImage?.url || '/placeholder.svg'}
               alt={p.name}
@@ -202,37 +203,45 @@ function ProductPage() {
             <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent pointer-events-none" />
 
             {/* Badges on Gallery */}
-            <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap gap-2">
               {p.is_featured && (
-                <StatusBadge status="info" label="Featured" />
+                <StatusBadge status="info" label="Featured" className="text-[10px] sm:text-xs" />
               )}
               <StatusBadge
                 status={inStock ? 'in_stock' : 'out_of_stock'}
                 label={inStock ? 'In Stock' : 'Out of Stock'}
+                className="text-[10px] sm:text-xs"
               />
             </div>
 
             <button
               onClick={toggleWishlist}
-              className={`absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full border transition-all ${
+              className={`absolute top-3 right-3 sm:top-4 sm:right-4 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition-all ${
                 isWishlisted
                   ? 'bg-rose-500/20 border-rose-500/40 text-rose-500'
                   : 'bg-black/60 border-white/15 text-muted-foreground hover:text-white'
               }`}
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
-              <Heart className={`size-4.5 ${isWishlisted ? 'fill-rose-500' : ''}`} />
+              <Heart className={`size-4 sm:size-4.5 ${isWishlisted ? 'fill-rose-500' : ''}`} />
             </button>
+
+            {/* Image index indicator (Mobile) */}
+            {images.length > 1 && (
+              <div className="absolute bottom-3 right-3 rounded-full bg-black/75 backdrop-blur-md px-2.5 py-0.5 text-[10px] font-bold text-white sm:hidden border border-white/15">
+                {selectedImageIndex + 1} / {images.length}
+              </div>
+            )}
           </div>
 
           {/* Thumbnail Gallery Row */}
           {images.length > 1 && (
-            <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
               {images.map((img: any, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIndex(idx)}
-                  className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl border transition-all ${
+                  className={`relative h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl sm:rounded-2xl border transition-all ${
                     selectedImageIndex === idx
                       ? 'border-primary ring-2 ring-primary/40 scale-105'
                       : 'border-border/40 hover:border-primary/40 opacity-70 hover:opacity-100'
@@ -246,19 +255,19 @@ function ProductPage() {
         </div>
 
         {/* RIGHT COLUMN: PRODUCT BUY BOX */}
-        <div className="lg:col-span-5 rounded-3xl border border-border/40 bg-card/60 p-6 sm:p-8 space-y-6 shadow-md backdrop-blur-sm">
+        <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6 shadow-md backdrop-blur-sm">
           {/* Header & Meta */}
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               {p.category && (
-                <span className="font-semibold text-primary uppercase tracking-wider text-[11px]">
+                <span className="font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-[11px]">
                   {p.category.name}
                 </span>
               )}
-              {p.sku && <span className="font-mono text-[11px]">SKU: {p.sku}</span>}
+              {p.sku && <span className="font-mono text-[10px] sm:text-[11px]">SKU: {p.sku}</span>}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground font-display">
               {p.name}
             </h1>
 
@@ -270,7 +279,7 @@ function ProductPage() {
           </div>
 
           {/* Pricing Section */}
-          <div className="rounded-2xl border border-border/30 bg-background/50 p-4">
+          <div className="rounded-xl sm:rounded-2xl border border-border/30 bg-background/50 p-3.5 sm:p-4">
             <div className="flex items-baseline justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
@@ -282,11 +291,11 @@ function ProductPage() {
                   )}
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="font-display text-3xl font-black text-gradient">
+                  <span className="font-display text-2xl sm:text-3xl font-black text-gradient">
                     ₹{unitPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
                   {p.compare_at_price && Number(p.compare_at_price) > unitPrice && (
-                    <span className="text-sm text-muted-foreground line-through">
+                    <span className="text-xs sm:text-sm text-muted-foreground line-through">
                       ₹{Number(p.compare_at_price).toLocaleString('en-IN')}
                     </span>
                   )}
@@ -294,28 +303,28 @@ function ProductPage() {
               </div>
               {tiers.length > 0 ? (
                 <div className="text-right">
-                  <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[11px] font-bold text-primary">
+                  <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] sm:text-[11px] font-bold text-primary">
                     Bulk Discounts Active
                   </span>
                   {moq > 1 && (
-                    <p className="text-[11px] font-semibold text-amber-400 mt-1">
+                    <p className="text-[10px] sm:text-[11px] font-semibold text-amber-400 mt-1">
                       Min. Order: {moq} units
                     </p>
                   )}
                 </div>
               ) : moq > 1 ? (
-                <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-[11px] font-bold text-amber-300">
+                <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-[10px] sm:text-[11px] font-bold text-amber-300">
                   Min. Order: {moq} units
                 </span>
               ) : null}
             </div>
             {nextTier && unitsToNextTier && potentialSavings > 0 ? (
-              <div className="mt-3 rounded-xl bg-primary/10 border border-primary/25 px-3 py-2 text-xs flex items-center justify-between text-primary">
+              <div className="mt-3 rounded-xl bg-primary/10 border border-primary/25 p-2.5 text-[11px] sm:text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-primary">
                 <span>Unlock Next Tier ({nextTier.min_quantity}+ units @ ₹{Number(nextTier.unit_price).toLocaleString('en-IN')}/ea)</span>
                 <span className="font-bold font-mono">+ {unitsToNextTier} more to save ₹{potentialSavings.toFixed(0)}/ea</span>
               </div>
             ) : (
-              <p className="text-[11px] text-muted-foreground mt-2">
+              <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-2">
                 Inclusive of all standard customisation options. GST calculated at checkout.
               </p>
             )}
@@ -323,13 +332,13 @@ function ProductPage() {
 
           {/* Variant Selector: Colors & Sizes */}
           {hasVariants && (
-            <div className="space-y-4 pt-2">
+            <div className="space-y-4 pt-1">
               {colorOptions.length > 0 && (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
                     Colour: <span className="text-foreground capitalize">{currentVariant?.color?.name || 'Selected'}</span>
                   </label>
-                  <div className="flex flex-wrap gap-2.5">
+                  <div className="flex flex-wrap gap-2">
                     {colorOptions.map((c: any) => {
                       const isSelected = currentVariant?.color?.id === c.id;
                       return (
@@ -339,14 +348,14 @@ function ProductPage() {
                             const match = variants.find((v: any) => v.color?.id === c.id && (currentVariant?.size?.id ? v.size?.id === currentVariant.size.id : true)) || variants.find((v: any) => v.color?.id === c.id);
                             if (match) setSelectedVariantId(match.id);
                           }}
-                          className={`group relative flex h-9 items-center gap-2 rounded-xl border px-3 text-xs font-semibold transition-all ${
+                          className={`group relative flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all min-h-[44px] ${
                             isSelected
-                              ? 'border-primary bg-primary/15 text-foreground ring-1 ring-primary'
+                              ? 'border-primary bg-primary/15 text-foreground ring-1 ring-primary font-bold'
                               : 'border-border/40 bg-surface/60 text-muted-foreground hover:border-primary/40 hover:text-foreground'
                           }`}
                         >
-                          <span className="size-3.5 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: c.hex }} />
-                          {c.name}
+                          <span className="size-4 rounded-full border border-white/20 shadow-sm shrink-0" style={{ backgroundColor: c.hex }} />
+                          <span>{c.name}</span>
                         </button>
                       );
                     })}
@@ -369,7 +378,7 @@ function ProductPage() {
                             const match = variants.find((v: any) => v.size?.id === s.id && (currentVariant?.color?.id ? v.color?.id === currentVariant.color.id : true)) || variants.find((v: any) => v.size?.id === s.id);
                             if (match) setSelectedVariantId(match.id);
                           }}
-                          className={`min-w-11 h-9 rounded-xl border px-3 text-xs font-bold transition-all ${
+                          className={`min-w-12 h-11 rounded-xl border px-3.5 text-xs font-bold transition-all flex items-center justify-center ${
                             isSelected
                               ? 'border-primary bg-primary text-primary-foreground shadow-sm'
                               : 'border-border/40 bg-surface/60 text-muted-foreground hover:border-primary/40 hover:text-foreground'
@@ -386,18 +395,18 @@ function ProductPage() {
           )}
 
           {/* Quantity Stepper & Line Total */}
-          <div className="pt-2">
+          <div className="pt-1">
             <div className="flex items-center justify-between mb-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Quantity
               </label>
               {moq > 1 && (
                 <span className="rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                  Minimum order: {moq} units
+                  Min order: {moq} units
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-3 sm:gap-4">
               <div className="flex items-center rounded-xl border border-border/60 bg-surface/60 p-1">
                 <button
                   type="button"
@@ -420,7 +429,7 @@ function ProductPage() {
                   onBlur={() => {
                     if (quantity < moq) setQuantity(moq);
                   }}
-                  className="w-16 text-center bg-transparent text-sm font-bold text-foreground focus:outline-none"
+                  className="w-14 sm:w-16 text-center bg-transparent text-sm font-bold text-foreground focus:outline-none"
                 />
                 <button
                   type="button"
@@ -433,8 +442,8 @@ function ProductPage() {
               </div>
 
               <div className="text-right">
-                <p className="text-xs text-muted-foreground">Estimated Total</p>
-                <p className="text-lg font-bold text-foreground">
+                <p className="text-[11px] sm:text-xs text-muted-foreground">Estimated Total</p>
+                <p className="text-base sm:text-lg font-bold text-foreground">
                   ₹{totalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </p>
               </div>
@@ -499,7 +508,7 @@ function ProductPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={isAdding || (!hasVariants && !inStock) || (hasVariants && !currentVariant)}
-                className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-md min-h-12"
+                className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-[#5ef046] py-3.5 text-center text-sm font-extrabold text-black transition-all hover:bg-[#4de035] disabled:opacity-50 shadow-md min-h-12 cursor-pointer"
               >
                 <ShoppingBag className="size-4.5" />
                 {isAdding ? 'Adding to Cart...' : inStock ? `Add to Cart — ₹${totalPrice.toLocaleString('en-IN')}` : 'Out of Stock'}
@@ -517,16 +526,57 @@ function ProductPage() {
           </div>
 
           {/* Assurance / Trust Chips */}
-          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/30 text-xs text-muted-foreground">
+          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-border/30 text-[11px] sm:text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
               <Truck className="size-4 text-primary shrink-0" />
-              <span>Pan-India Express Delivery</span>
+              <span>Pan-India Delivery</span>
             </div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-primary shrink-0" />
               <span>100% Quality Inspected</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* MOBILE STICKY PURCHASE BAR */}
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-zinc-950/95 border-t border-white/15 p-3.5 backdrop-blur-xl md:hidden pb-[env(safe-area-inset-bottom,0.75rem)] shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+        <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+          <div>
+            <span className="text-[10px] font-semibold text-muted-foreground block leading-none">Total Price</span>
+            <span className="font-display text-lg font-black text-gradient">
+              ₹{totalPrice.toLocaleString('en-IN')}
+            </span>
+          </div>
+
+          {isInCart && cartItem ? (
+            <Link
+              to="/cart"
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary py-3 px-4 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-md min-h-[44px]"
+            >
+              <ShoppingBag className="size-4" />
+              <span>View Cart ({cartItem.quantity})</span>
+              <ArrowRight className="size-3.5" />
+            </Link>
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={isAdding || (!hasVariants && !inStock) || (hasVariants && !currentVariant)}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#5ef046] py-3 px-4 text-xs font-extrabold text-black hover:bg-[#4de035] disabled:opacity-50 shadow-md min-h-[44px] cursor-pointer"
+            >
+              <ShoppingBag className="size-4" />
+              <span>{isAdding ? 'Adding...' : inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+            </button>
+          )}
+
+          <Link
+            to="/studio"
+            search={{ product: p.slug, ...(currentVariant ? { variant: currentVariant.id } : {}) }}
+            className="flex items-center justify-center size-11 rounded-xl border border-primary/40 bg-primary/15 text-primary hover:bg-primary/25 shrink-0"
+            title="3D Studio"
+          >
+            <Sparkles className="size-4" />
+          </Link>
         </div>
       </div>
 

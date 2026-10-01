@@ -167,27 +167,27 @@ function ProductsPage() {
       description="Custom T-shirts, personalised wedding invitations and creative stickers — created for your events, celebrations and ideas."
     >
       {/* 13. THREE MAIN CATEGORY CARDS */}
-      <div className="mb-14 grid gap-6 md:grid-cols-3">
+      <div className="mb-10 sm:mb-14 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3">
         {threeCategories.map((cat) => {
           const CardContent = (
-            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)] cursor-pointer">
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-card p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)] cursor-pointer">
               <div>
-                <div className="relative aspect-video overflow-hidden rounded-2xl bg-zinc-950 mb-5">
+                <div className="relative aspect-video overflow-hidden rounded-xl sm:rounded-2xl bg-zinc-950 mb-4 sm:mb-5">
                   <img
                     src={cat.image}
                     alt={cat.title}
                     className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                  <span className="absolute bottom-3 left-3 rounded-full bg-black/80 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
+                  <span className="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 rounded-full bg-black/80 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-[11px] font-bold text-[#5ef046]">
                     {cat.title}
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-[#5ef046] transition-colors">{cat.title}</h3>
-                <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{cat.copy}</p>
+                <h3 className="text-base sm:text-xl font-bold text-white group-hover:text-[#5ef046] transition-colors">{cat.title}</h3>
+                <p className="mt-1.5 sm:mt-2 text-xs text-muted-foreground leading-relaxed">{cat.copy}</p>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10">
+              <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-white/10">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] group-hover:underline">
                   {cat.cta} {cat.external ? <ArrowUpRight className="size-3.5" /> : <ArrowRight className="size-3.5" />}
                 </span>
@@ -218,13 +218,13 @@ function ProductsPage() {
       </div>
 
       {/* T-Shirt Customisation Studio Banner */}
-      <div className="mb-10 relative overflow-hidden rounded-3xl border border-[#5ef046]/30 bg-gradient-to-br from-card via-black to-[#5ef046]/10 p-6 sm:p-8 shadow-xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="mb-8 sm:mb-10 relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[#5ef046]/30 bg-gradient-to-br from-card via-black to-[#5ef046]/10 p-5 sm:p-8 shadow-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#5ef046]/15 border border-[#5ef046]/30 px-3 py-1 text-xs font-bold text-[#5ef046]">
               <Sparkles className="size-3.5" /> 3D Live Customisation Studio
             </div>
-            <h2 className="text-2xl font-extrabold text-white tracking-tight sm:text-3xl">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
               Design Your Own <span className="text-gradient">T-Shirt</span>
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-xl">
@@ -233,7 +233,7 @@ function ProductsPage() {
           </div>
           <Link
             to="/studio"
-            className="inline-flex items-center gap-2 rounded-full bg-[#5ef046] px-6 py-3 text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-md shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#5ef046] px-6 py-3 text-xs sm:text-sm font-extrabold text-black hover:bg-[#4de035] transition-all shadow-md shrink-0 w-full sm:w-auto min-h-[44px]"
           >
             Launch Studio <ArrowRight className="size-4" />
           </Link>
@@ -241,11 +241,11 @@ function ProductsPage() {
       </div>
 
       {/* Filter and Catalog Grid */}
-      <div className="border-t border-white/10 pt-8">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="border-t border-white/10 pt-6 sm:pt-8">
+        <div className="mb-4 sm:mb-6 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-white">T-Shirt Catalog</h3>
-            <p className="text-xs text-muted-foreground">Select a garment</p>
+            <h3 className="text-base sm:text-lg font-bold text-white">T-Shirt Catalog</h3>
+            <p className="text-xs text-muted-foreground">Select a garment to customize</p>
           </div>
         </div>
 
@@ -258,9 +258,13 @@ function ProductsPage() {
           onSearchChange={handleSearchChange}
         />
 
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           {isLoading ? (
-            <Skeleton count={6} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" />
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div key={n} className="h-64 sm:h-80 rounded-2xl sm:rounded-3xl border border-white/10 bg-card/40 animate-pulse" />
+              ))}
+            </div>
           ) : isError ? (
             <EmptyState
               icon="alert"
@@ -276,7 +280,7 @@ function ProductsPage() {
               action={{ label: "Clear filters", onClick: handleClearAll, variant: "outline" }}
             />
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
               {products.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

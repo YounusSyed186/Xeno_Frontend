@@ -232,23 +232,23 @@ function CustomTShirtsPage() {
 
         {/* PRODUCT CARDS: Real Database Products */}
         {isProductsLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-80 rounded-3xl border border-white/10 bg-card/50 animate-pulse" />
+              <div key={n} className="h-64 sm:h-80 rounded-2xl sm:rounded-3xl border border-white/10 bg-card/50 animate-pulse" />
             ))}
           </div>
         ) : productsList.length === 0 ? (
-          <div className="rounded-3xl border border-white/10 bg-card/40 p-12 text-center">
+          <div className="rounded-3xl border border-white/10 bg-card/40 p-8 sm:p-12 text-center">
             <p className="text-zinc-400 text-sm">No products found for this collection filter.</p>
             <button
               onClick={() => handleCollectionChange("")}
-              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#5ef046] hover:underline"
+              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#5ef046] hover:underline cursor-pointer"
             >
               Show All T-Shirts
             </button>
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {productsList.map((product: any, i: number) => {
               const imgUrl = product.images?.[0]?.url || images.tshirt;
               const price = Math.round(Number(product.base_price || 0));
@@ -256,7 +256,7 @@ function CustomTShirtsPage() {
 
               return (
                 <Reveal key={product.id || product.slug} delay={i * 0.05}>
-                  <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]">
+                  <div className="group flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]">
                     <Link
                       to="/products/$slug"
                       params={{ slug: product.slug }}
@@ -267,47 +267,47 @@ function CustomTShirtsPage() {
                         alt={product.name}
                         className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <span className="absolute top-3 left-3 rounded-full bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-[#5ef046]">
+                      <span className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 rounded-full bg-black/70 backdrop-blur-md border border-white/10 px-2 sm:px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#5ef046]">
                         {badgeLabel}
                       </span>
                     </Link>
                     
-                    <div className="flex flex-1 flex-col justify-between p-5">
+                    <div className="flex flex-1 flex-col justify-between p-3 sm:p-5">
                       <div>
                         <Link
                           to="/products/$slug"
                           params={{ slug: product.slug }}
                           className="block group/title"
                         >
-                          <h3 className="text-base font-bold text-white line-clamp-1 group-hover/title:text-[#5ef046] transition-colors">
+                          <h3 className="text-xs sm:text-base font-bold text-white line-clamp-1 group-hover/title:text-[#5ef046] transition-colors">
                             {product.name}
                           </h3>
                         </Link>
-                        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        <p className="hidden sm:block mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                           {product.short_description || product.description}
                         </p>
                       </div>
 
-                      <div className="mt-5 pt-4 border-t border-white/10 flex flex-col gap-3">
+                      <div className="mt-3 sm:mt-5 pt-2.5 sm:pt-4 border-t border-white/10 flex flex-col gap-2.5 sm:gap-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-extrabold text-white">₹{price}</span>
-                          <span className="text-[10px] uppercase font-bold text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                          <span className="text-xs sm:text-sm font-extrabold text-white">₹{price}</span>
+                          <span className="text-[9px] sm:text-[10px] uppercase font-bold text-zinc-400 bg-white/5 px-1.5 sm:px-2 py-0.5 rounded-full border border-white/10">
                             Customizable
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
                           <Link
                             to="/products/$slug"
                             params={{ slug: product.slug }}
-                            className="flex items-center justify-center rounded-xl border border-white/15 bg-white/5 py-2 text-center text-xs font-semibold text-zinc-200 hover:bg-white/10 hover:text-white transition-all"
+                            className="flex items-center justify-center rounded-xl border border-white/15 bg-white/5 py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-semibold text-zinc-200 hover:bg-white/10 hover:text-white transition-all min-h-[36px]"
                           >
                             Details
                           </Link>
                           <Link
                             to="/studio"
                             search={{ product: product.slug }}
-                            className="flex items-center justify-center gap-1.5 rounded-xl bg-[#5ef046] py-2 text-center text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-sm"
+                            className="flex items-center justify-center gap-1 rounded-xl bg-[#5ef046] py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-sm min-h-[36px]"
                           >
                             <Sparkles className="size-3" /> Customise
                           </Link>
@@ -324,7 +324,7 @@ function CustomTShirtsPage() {
         <div className="mt-12 flex justify-center">
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)]"
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 border border-white/15 px-8 py-3.5 text-xs sm:text-sm font-bold text-white transition-all hover:bg-[#5ef046] hover:text-black hover:border-transparent hover:shadow-[0_0_20px_rgba(94,240,70,0.4)] min-h-[44px]"
           >
             <Sparkles className="size-4 text-[#5ef046]" />
             <span>Explore All Catalog Products</span>

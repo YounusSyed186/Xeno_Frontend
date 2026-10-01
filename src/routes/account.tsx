@@ -281,15 +281,15 @@ function AccountComponent() {
       {/* Main Account Tabs & Detail Panels */}
       <div className="mt-8 grid gap-8 lg:grid-cols-12">
         {/* Navigation Sidebar */}
-        <div className="lg:col-span-3 space-y-2">
-          <div className="glass-panel rounded-3xl p-3 border border-border/40 space-y-1">
+        <div className="lg:col-span-3">
+          <div className="glass-panel rounded-2xl lg:rounded-3xl p-2 lg:p-3 border border-border/40 flex lg:flex-col overflow-x-auto gap-1.5 scrollbar-none pb-2 lg:pb-3">
             {[
-              { id: 'profile', label: 'User Profile & Media', icon: User },
+              { id: 'profile', label: 'Profile & Security', icon: User },
               { id: 'addresses', label: 'Saved Addresses', icon: MapPin },
               { id: 'orders', label: 'Recent Orders', icon: Package },
               { id: 'wishlist', label: 'Wishlist', icon: Heart },
               { id: 'support', label: 'Support Tickets', icon: MessageSquare },
-              { id: 'company', label: 'GST & Corporate Billing', icon: Building2 },
+              { id: 'company', label: 'Corporate & GST', icon: Building2 },
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -297,13 +297,13 @@ function AccountComponent() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`w-full flex items-center gap-2.5 rounded-2xl px-4 py-3 text-xs font-medium transition-all ${
+                  className={`flex shrink-0 lg:w-full items-center gap-2 rounded-xl lg:rounded-2xl px-3.5 py-2.5 lg:px-4 lg:py-3 text-xs font-medium transition-all min-h-[44px] ${
                     activeTab === tab.id
                       ? 'bg-primary text-primary-foreground font-semibold shadow-md'
-                      : 'text-muted-foreground hover:bg-surface hover:text-foreground'
+                      : 'text-muted-foreground hover:bg-surface hover:text-foreground bg-surface/30 lg:bg-transparent'
                   }`}
                 >
-                  <Icon className="size-4" /> {tab.label}
+                  <Icon className="size-4 shrink-0" /> <span className="whitespace-nowrap">{tab.label}</span>
                 </button>
               );
             })}

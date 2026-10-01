@@ -62,28 +62,28 @@ function CartComponent() {
       title="Shopping Cart"
       description={`Review your selected merchandise items (${itemCount} item${itemCount !== 1 ? 's' : ''}) before moving to checkout`}
     >
-      <div className="grid gap-8 lg:grid-cols-12 items-start">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
         {/* Cart Items List */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-3 sm:space-y-4">
           {items.map((item: any) => (
             <div
               key={item.id}
-              className="flex flex-col gap-4 rounded-2xl border border-border/40 bg-card/60 p-5 sm:flex-row sm:items-center sm:justify-between transition-all hover:border-border/60"
+              className="flex flex-col gap-4 rounded-2xl border border-border/40 bg-card/60 p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between transition-all hover:border-border/60"
             >
-              <div className="flex items-center gap-4">
-                <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-surface border border-border/40">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                <div className="size-18 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl bg-surface border border-border/40">
                   <img
                     src={item.product?.images?.[0]?.url || '/placeholder.png'}
                     alt={item.product?.name || 'Product'}
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">
                     {item.product?.name}
                   </h3>
                   {item.variant && (
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
                       Variant: {[item.variant.color?.name, item.variant.size?.name].filter(Boolean).join(' / ')}
                     </p>
                   )}
@@ -92,8 +92,8 @@ function CartComponent() {
                       Customised Item
                     </span>
                   )}
-                  <div className="mt-1 flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground">
+                  <div className="mt-1 flex items-center gap-2 flex-wrap">
+                    <p className="text-xs sm:text-sm font-medium text-foreground">
                       ₹{Number(item.unit_price).toFixed(2)} each
                     </p>
                     {(item.product?.moq || 1) > 1 && (
@@ -105,32 +105,32 @@ function CartComponent() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-6 sm:justify-end">
+              <div className="flex items-center justify-between gap-3 sm:gap-6 pt-2 border-t border-border/20 sm:pt-0 sm:border-t-0 sm:justify-end">
                 {/* Quantity Stepper */}
                 <div className="flex items-center rounded-xl border border-border/60 bg-surface/60 p-0.5">
                   <button
                     type="button"
                     disabled={isUpdating || item.quantity <= (item.product?.moq || 1)}
                     onClick={() => updateItem({ id: item.id, quantity: Math.max(item.product?.moq || 1, item.quantity - 1) })}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     title={item.quantity <= (item.product?.moq || 1) ? `Minimum order quantity is ${item.product?.moq || 1}` : "Decrease quantity"}
                   >
                     <Minus className="size-3.5" />
                   </button>
-                  <span className="px-3 text-xs font-bold text-foreground">{item.quantity}</span>
+                  <span className="px-2.5 sm:px-3 text-xs font-bold text-foreground">{item.quantity}</span>
                   <button
                     type="button"
                     disabled={isUpdating}
                     onClick={() => updateItem({ id: item.id, quantity: item.quantity + 1 })}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-background hover:text-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                     title="Increase quantity"
                   >
                     <Plus className="size-3.5" />
                   </button>
                 </div>
 
-                <div className="text-right min-w-20">
-                  <p className="font-bold text-foreground text-base">
+                <div className="text-right min-w-16">
+                  <p className="font-bold text-foreground text-sm sm:text-base">
                     ₹{Number(item.line_total).toFixed(2)}
                   </p>
                 </div>
@@ -139,7 +139,7 @@ function CartComponent() {
                   type="button"
                   disabled={isRemoving}
                   onClick={() => removeItem(item.id)}
-                  className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="text-muted-foreground hover:text-destructive transition-colors p-2 rounded-lg hover:bg-destructive/10 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
                   title="Remove item"
                 >
                   <Trash2 className="size-4" />
@@ -151,8 +151,8 @@ function CartComponent() {
 
         {/* Order Summary Sidebar */}
         <div className="lg:col-span-4">
-          <div className="space-y-6 rounded-3xl border border-border/40 bg-card/60 p-6 shadow-md backdrop-blur-sm sticky top-28">
-            <h2 className="text-lg font-bold text-foreground">Order Summary</h2>
+          <div className="space-y-5 sm:space-y-6 rounded-2xl sm:rounded-3xl border border-border/40 bg-card/60 p-5 sm:p-6 shadow-md backdrop-blur-sm sticky top-28">
+            <h2 className="text-base sm:text-lg font-bold text-foreground">Order Summary</h2>
 
             {/* Coupon input */}
             <form onSubmit={handleApplyCoupon} className="flex gap-2">
@@ -161,12 +161,12 @@ function CartComponent() {
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 placeholder="PROMO CODE"
-                className="w-full rounded-xl border border-input bg-background/60 px-3.5 py-2.5 text-xs font-semibold uppercase text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-xl border border-input bg-background/60 px-3.5 py-2.5 text-xs font-semibold uppercase text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[42px]"
               />
               <button
                 type="submit"
                 disabled={isApplyingCoupon}
-                className="rounded-xl bg-surface px-4 py-2 text-xs font-bold text-foreground border border-border/60 hover:bg-surface/80 transition-all shrink-0"
+                className="rounded-xl bg-surface px-4 py-2 text-xs font-bold text-foreground border border-border/60 hover:bg-surface/80 transition-all shrink-0 min-h-[42px] cursor-pointer"
               >
                 Apply
               </button>
