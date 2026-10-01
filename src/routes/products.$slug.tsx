@@ -40,7 +40,7 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p, isLoading, isError, error } = useProduct(slug);
   const { data: customizationData } = useCustomizationOptions();
-  const { addItem, isAdding } = useCart();
+  const { addItem, isAdding, items, updateItem, isUpdating, removeItem, isRemoving } = useCart();
   const { items: wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
   const { data: relatedData } = useProducts({
     category: p?.category?.slug || '',
@@ -91,6 +91,16 @@ function ProductPage() {
   const variants = p.variants || [];
   const hasVariants = variants.length > 0;
   const currentVariant = variants.find((v: any) => v.id === selectedVariantId) || variants[0];
+
+  const currentVariantId = currentVariant?.id ?? null;
+  const cartItem = (items || []).find((item: any) => {
+    if (item.product_id !== p.id) return false;
+    if (currentVariantId !== null) {
+      return item.variant_id === currentVariantId;
+    }
+    return !item.variant_id;
+  });
+  const isInCart = Boolean(cartItem);
 
   const inStock = hasVariants
     ? variants.some((v: any) => v.stock_status === 'in_stock')
@@ -433,14 +443,68 @@ function ProductPage() {
 
           {/* DUAL ACTION BUTTONS */}
           <div className="space-y-3 pt-2">
-            <button
-              onClick={handleAddToCart}
-              disabled={isAdding || (!hasVariants && !inStock) || (hasVariants && !currentVariant)}
-              className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-md min-h-12"
-            >
-              <ShoppingBag className="size-4.5" />
-              {isAdding ? 'Adding to Cart...' : inStock ? `Add to Cart — ₹${totalPrice.toLocaleString('en-IN')}` : 'Out of Stock'}
-            </button>
+            {isInCart && cartItem ? (
+              <div className="w-full flex items-center justify-between rounded-xl bg-primary/10 border-2 border-primary/80 p-1.5 min-h-12 shadow-lg shadow-primary/10 transition-all">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (cartItem.quantity <= 1) {
+                        removeItem(cartItem.id, {
+                          onSuccess: () => toast.info('Removed from cart'),
+                        });
+                      } else {
+                        updateItem({ id: cartItem.id, quantity: cartItem.quantity - 1 });
+                      }
+                    }}
+                    disabled={isUpdating || isRemoving}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-bold disabled:opacity-50 active:scale-95 shadow-sm"
+                    title={cartItem.quantity <= 1 ? "Remove from cart" : "Decrease quantity"}
+                  >
+                    <Minus className="size-4 stroke-[2.5]" />
+                  </button>
+
+                  <div className="flex flex-col items-center justify-center px-2 min-w-[3.5rem]">
+                    <span className="text-base font-black text-foreground leading-none">
+                      {cartItem.quantity}
+                    </span>
+                    <span className="text-[10px] font-semibold text-primary uppercase tracking-wider leading-tight mt-0.5">
+                      in cart
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateItem({ id: cartItem.id, quantity: cartItem.quantity + 1 });
+                    }}
+                    disabled={isUpdating || isRemoving}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-bold disabled:opacity-50 active:scale-95 shadow-sm"
+                    title="Increase quantity"
+                  >
+                    <Plus className="size-4 stroke-[2.5]" />
+                  </button>
+                </div>
+
+                <Link
+                  to="/cart"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider hover:bg-primary/90 transition-all active:scale-95 shadow-sm"
+                >
+                  <ShoppingBag className="size-4" />
+                  <span>View Cart</span>
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </div>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                disabled={isAdding || (!hasVariants && !inStock) || (hasVariants && !currentVariant)}
+                className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-primary py-3.5 text-center text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50 shadow-md min-h-12"
+              >
+                <ShoppingBag className="size-4.5" />
+                {isAdding ? 'Adding to Cart...' : inStock ? `Add to Cart — ₹${totalPrice.toLocaleString('en-IN')}` : 'Out of Stock'}
+              </button>
+            )}
 
             <Link
               to="/studio"
