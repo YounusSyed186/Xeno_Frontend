@@ -227,7 +227,8 @@ export function SiteNav() {
                     <h3 className="text-xs uppercase tracking-[0.2em] text-[#5ef046] font-bold">Featured Collections</h3>
                   </div>
                   <Link
-                    to="/custom-t-shirts"
+                    to="/products"
+                    search={{ category: "t-shirts" } as any}
                     className="text-xs text-zinc-400 hover:text-white transition-colors"
                   >
                     View All T-Shirts
@@ -236,7 +237,7 @@ export function SiteNav() {
                 
                 <div className="grid gap-2 sm:grid-cols-2">
                   <Link
-                    to="/custom-t-shirts"
+                    to="/products"
                     search={{ collection: "streetwear-drop" } as any}
                     className="group rounded-xl p-3 hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
                   >
@@ -250,7 +251,7 @@ export function SiteNav() {
                   </Link>
 
                   <Link
-                    to="/custom-t-shirts"
+                    to="/products"
                     search={{ collection: "summer-collection" } as any}
                     className="group rounded-xl p-3 hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
                   >
@@ -264,7 +265,7 @@ export function SiteNav() {
                   </Link>
 
                   <Link
-                    to="/custom-t-shirts"
+                    to="/products"
                     search={{ collection: "corporate-gifting" } as any}
                     className="group rounded-xl p-3 hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
                   >
@@ -278,7 +279,7 @@ export function SiteNav() {
                   </Link>
 
                   <Link
-                    to="/custom-t-shirts"
+                    to="/products"
                     search={{ collection: "winter-collection" } as any}
                     className="group rounded-xl p-3 hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
                   >
@@ -323,7 +324,8 @@ export function SiteNav() {
               
               <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
                 <Link
-                  to="/custom-t-shirts"
+                  to="/products"
+                  search={{ category: "t-shirts" } as any}
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline"
                 >
                   Explore All T-Shirts <ArrowRight className="size-3.5" />

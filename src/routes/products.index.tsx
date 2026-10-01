@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-r
 import { useState, useEffect } from 'react';
 import { PageContainer } from "@/components/ui";
 import { ProductCard, FilterBar, Pagination, EmptyState, Skeleton } from "@/components";
-import { useProducts, useCategories, useColors, useSizes } from "@/hooks/useProducts";
+import { useProducts, useCategories, useColors, useSizes, useCollections } from "@/hooks/useProducts";
 import { Product } from "@/types/product";
 import { Sparkles, ArrowRight, ArrowUpRight, Shirt, Heart, Image as ImageIcon } from "lucide-react";
 import { images } from "@/components/xeno/data";
@@ -13,6 +13,7 @@ const D = "Custom T-shirts, personalised wedding invitations and creative sticke
 export interface ProductCatalogSearch {
   search?: string | undefined;
   category?: string | undefined;
+  collection?: string | undefined;
   color?: string | undefined;
   size?: string | undefined;
   sort?: string | undefined;
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/products/")({
     const q: ProductCatalogSearch = {};
     if (typeof search['search'] === 'string') q.search = search['search'];
     if (typeof search['category'] === 'string') q.category = search['category'];
+    if (typeof search['collection'] === 'string') q.collection = search['collection'];
     if (typeof search['color'] === 'string') q.color = search['color'];
     if (typeof search['size'] === 'string') q.size = search['size'];
     if (typeof search['sort'] === 'string') q.sort = search['sort'];
@@ -92,18 +94,25 @@ function ProductsPage() {
 
   const { data, isLoading, isError, error, refetch } = useProducts(activeFilters as any);
   const { data: categories } = useCategories();
+  const { data: collectionsData } = useCollections();
   const { data: colors } = useColors();
   const { data: sizes } = useSizes();
 
+  const collectionsList = Array.isArray(collectionsData) ? collectionsData : (collectionsData?.data || []);
   const products = data?.products || [];
   const pagination = data?.pagination;
 
-  // Filter options simplified to T-Shirt Types, Sizes, Colors (Section 18)
+  // Filter options: T-Shirt Types, Collections, Sizes, Colors
   const filterOptions = [
     {
       key: 'category',
       label: 'T-Shirt Type',
       options: [{ value: '', label: 'All Types' }, ...(categories?.map((c: any) => ({ value: c.slug, label: c.name })) || [])],
+    },
+    {
+      key: 'collection',
+      label: 'Collection',
+      options: [{ value: '', label: 'All Collections' }, ...(collectionsList.map((c: any) => ({ value: c.slug, label: c.name })) || [])],
     },
     {
       key: 'color',
@@ -146,6 +155,7 @@ function ProductsPage() {
 
   const filterRecord: Record<string, string> = {
     category: activeFilters.category || '',
+    collection: activeFilters.collection || '',
     color: activeFilters.color || '',
     size: activeFilters.size || '',
   };
