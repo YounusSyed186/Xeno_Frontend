@@ -33,49 +33,47 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const hasActiveFilters = Object.keys(activeFilters).length > 0;
 
   return (
-    <div className={`flex flex-col sm:flex-row gap-4 p-4 bg-surface/50 border border-border/40 rounded-2xl ${className}`}>
+    <div className={`flex flex-col sm:flex-row gap-3 p-3.5 bg-surface/60 border border-white/10 rounded-2xl ${className}`}>
       {showSearch && (
-        <div className="relative flex-1 max-w-md sm:max-w-lg">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60" />
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-background border border-border/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full pl-10 pr-4 py-2 text-xs text-white placeholder:text-zinc-500 bg-background/80 border border-white/15 rounded-full focus:outline-none focus:ring-1 focus:ring-[#5ef046] focus:border-[#5ef046] transition-all"
           />
         </div>
       )}
 
-      <div className="flex flex-wrap items-center gap-3">
-        {filters.map((filter) => (
-          <div key={filter.key} className="relative">
-            <select
-              value={activeFilters[filter.key] || ''}
-              onChange={(e) => onFilterChange(filter.key, e.target.value)}
-              className="appearance-none bg-background border border-border/40 rounded-xl px-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[160px] pr-8"
-            >
-              <option value="">All {filter.label}</option>
-              {filter.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/60 pointer-events-none" />
-            {activeFilters[filter.key] && (
-              <button
-                onClick={() => onFilterChange(filter.key, '')}
-                className="absolute right-24 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+      <div className="flex flex-wrap items-center gap-2.5">
+        {filters.map((filter) => {
+          const optionsList = filter.options.filter((opt) => opt.value !== '');
+          return (
+            <div key={filter.key} className="relative">
+              <select
+                value={activeFilters[filter.key] || ''}
+                onChange={(e) => onFilterChange(filter.key, e.target.value)}
+                className="appearance-none bg-background/90 text-white border border-white/15 rounded-full pl-3.5 pr-8 py-2 text-xs font-medium focus:outline-none focus:border-[#5ef046] focus:ring-1 focus:ring-[#5ef046] min-w-[130px] cursor-pointer hover:border-white/30 transition-all"
               >
-                <X className="size-3.5" />
-              </button>
-            )}
-          </div>
-        ))}
+                <option value="" className="bg-zinc-900 text-white">All {filter.label}</option>
+                {optionsList.map((opt) => (
+                  <option key={opt.value} value={opt.value} className="bg-zinc-900 text-white">
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400 pointer-events-none" />
+            </div>
+          );
+        })}
 
         {hasActiveFilters && (
           <button
+            type="button"
             onClick={onClearAll}
-            className="flex items-center gap-1.5 text-sm text-primary hover:underline px-3 py-2"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#5ef046] hover:text-[#4de035] hover:underline px-2.5 py-1.5 transition-colors cursor-pointer"
           >
             <X className="size-3.5" /> Clear all
           </button>
