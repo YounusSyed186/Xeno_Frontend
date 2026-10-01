@@ -16,6 +16,8 @@ export interface AdminTableProps<T> {
   isError?: boolean | undefined;
   errorMessage?: string | undefined;
   emptyText?: string | undefined;
+  emptySubtext?: string | undefined;
+  emptyAction?: { label: string; onClick: () => void } | undefined;
   onRowClick?: ((item: T) => void) | undefined;
   pagination?: {
     currentPage: number;
@@ -94,6 +96,8 @@ export function AdminTable<T extends { id?: string | number }>({
   isError = false,
   errorMessage = 'Failed to load data',
   emptyText = 'No records found.',
+  emptySubtext,
+  emptyAction,
   onRowClick,
   pagination,
   showSearch = false,
@@ -263,9 +267,20 @@ export function AdminTable<T extends { id?: string | number }>({
             ) : safeData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + (rowSelection ? 1 : 0)} className="py-16 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Inbox className="size-8 text-muted-foreground/40" />
-                    <span className="text-xs font-medium text-muted-foreground">{emptyText}</span>
+                  <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto px-4">
+                    <Inbox className="size-9 text-muted-foreground/40 mb-1" />
+                    <span className="text-sm font-semibold text-foreground">{emptyText}</span>
+                    {emptySubtext && (
+                      <span className="text-xs text-muted-foreground text-center mb-2">{emptySubtext}</span>
+                    )}
+                    {emptyAction && (
+                      <button
+                        onClick={emptyAction.onClick}
+                        className="mt-1 px-4 py-2 rounded-xl bg-primary text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                      >
+                        {emptyAction.label}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

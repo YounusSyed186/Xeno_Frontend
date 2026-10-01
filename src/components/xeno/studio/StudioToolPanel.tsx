@@ -64,18 +64,6 @@ export const DESIGN_TEMPLATES: DesignTemplate[] = [
     scale: 0.65,
   },
   {
-    id: "monochrome-wolf",
-    name: "Geometric Beast",
-    category: "Artistic",
-    previewUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
-    tagline: "Bold geometric vector graphic",
-    text: "WOLF OF XENO",
-    fontFamily: "Inter, sans-serif",
-    textColor: "#ffffff",
-    placement: "full_back",
-    scale: 1.3,
-  },
-  {
     id: "tech-mono",
     name: "Spec Blueprint",
     category: "Technical",
@@ -101,18 +89,6 @@ export const SAMPLE_GRAPHICS = [
   {
     name: "Xeno Craft Emblem",
     url: "/logos/Xeno craft Green.png",
-  },
-  {
-    name: "Geometric Wolf",
-    url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Cyber Brand",
-    url: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Minimalist Crest",
-    url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&auto=format&fit=crop&q=80",
   },
 ];
 

@@ -38,102 +38,6 @@ export interface WeddingCardItem {
   categorySlug?: string | undefined;
 }
 
-// Authentic production-grade fallback items matching the backend database seed
-const fallbackWeddingProducts: WeddingCardItem[] = [
-  {
-    id: 1,
-    slug: "royal-heritage-gold-foil-wedding-suite",
-    title: "Royal Heritage Gold Foil Wedding Suite",
-    desc: "350 GSM textured cotton cardstock with 24K hot foil stamped calligraphy, ornate royal borders, and custom monogram wax seal.",
-    image: "https://images.unsplash.com/photo-1607190074257-dd4b7af0309f?w=1000&auto=format&fit=crop&q=80",
-    badge: "Gold Foil & Letterpress",
-    price: 180,
-    compareAtPrice: 240,
-    moq: 50,
-    material: "350 GSM Textured Cotton Stock",
-    categorySlug: "traditional",
-  },
-  {
-    id: 2,
-    slug: "modern-minimalist-vellum-letterpress-suite",
-    title: "Modern Minimalist Vellum & Letterpress Suite",
-    desc: "Crisp architectural typography with blind debossing, translucent vellum jacket, and botanical pressed floral seal.",
-    image: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=1000&auto=format&fit=crop&q=80",
-    badge: "Minimalist Luxe",
-    price: 165,
-    compareAtPrice: 210,
-    moq: 50,
-    material: "Translucent Vellum & Wax Seal",
-    categorySlug: "modern",
-  },
-  {
-    id: 3,
-    slug: "deckle-edge-botanical-floral-suite",
-    title: "Handmade Deckle Edge Botanical Floral Suite",
-    desc: "100% artisanal cotton deckled edge paper with soft watercolor floral illustration and delicate gold leaf brushing.",
-    image: "https://images.unsplash.com/photo-1544717305-2782549b5136?w=1000&auto=format&fit=crop&q=80",
-    badge: "Handmade Deckle Edge",
-    price: 195,
-    compareAtPrice: 260,
-    moq: 50,
-    material: "Handmade Deckle Edge (300 GSM)",
-    categorySlug: "traditional",
-  },
-  {
-    id: 4,
-    slug: "opulent-velvet-monogram-suite",
-    title: "Opulent Velvet Touch & Monogram Seal Suite",
-    desc: "400 GSM velvet touch cardstock in jewel tones with gold-gilded beveled edges and metal alloy monogram emblem.",
-    image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=1000&auto=format&fit=crop&q=80",
-    badge: "Royal Velvet Luxe",
-    price: 240,
-    compareAtPrice: 320,
-    moq: 50,
-    material: "400 GSM Royal Velvet Matte",
-    categorySlug: "traditional",
-  },
-  {
-    id: 5,
-    slug: "frosted-acrylic-gold-foil-invitation",
-    title: "Frosted Acrylic Glass & Metallic Foil Invitation",
-    desc: "2mm heavy-gauge shatterproof frosted acrylic with screen-printed metallic gold calligraphy and custom hardbound folio.",
-    image: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=1000&auto=format&fit=crop&q=80",
-    badge: "Frosted Acrylic Glass",
-    price: 280,
-    compareAtPrice: 380,
-    moq: 25,
-    material: "Frosted Acrylic Glass (2mm)",
-    categorySlug: "modern",
-  },
-  {
-    id: 6,
-    slug: "animated-digital-video-wedding-suite",
-    title: "Animated Digital E-Invite & Video Suite",
-    desc: "4K ultra-smooth motion graphics digital wedding invitation with custom music, interactive itinerary, and WhatsApp sharing.",
-    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1000&auto=format&fit=crop&q=80",
-    badge: "Digital & Video",
-    price: 2999,
-    compareAtPrice: 4499,
-    moq: 1,
-    isDigital: true,
-    material: "Ultra-HD Motion Digital Asset",
-    categorySlug: "digital",
-  },
-  {
-    id: 7,
-    slug: "destination-wedding-passport-boarding-kit",
-    title: "Destination Wedding Passport & Boarding Pass Kit",
-    desc: "Custom foil-stamped passport booklet, metallic gold boarding pass ceremony ticket, and matching luggage tags.",
-    image: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=1000&auto=format&fit=crop&q=80",
-    badge: "Destination Kit",
-    price: 220,
-    compareAtPrice: 290,
-    moq: 50,
-    material: "350 GSM Textured Cotton Stock",
-    categorySlug: "traditional",
-  },
-];
-
 const categoryFilterTabs = [
   { id: "all", label: "All Suites" },
   { id: "traditional", label: "Traditional & Foil" },
@@ -160,7 +64,7 @@ function WeddingCardsPage() {
     per_page: 50,
   });
 
-  // Transform dynamic database products or use authentic seeded fallback
+  // Transform dynamic database products
   const allItems: WeddingCardItem[] = useMemo(() => {
     const products: Product[] = apiResponse?.products || [];
     if (products.length > 0) {
@@ -193,7 +97,7 @@ function WeddingCardsPage() {
         return item;
       });
     }
-    return fallbackWeddingProducts;
+    return [];
   }, [apiResponse]);
 
   // Filter items by selected tab
@@ -334,69 +238,81 @@ function WeddingCardsPage() {
         </div>
 
         {/* Gallery Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredItems.map((item, i) => (
-            <Reveal key={item.slug} delay={i * 0.06}>
-              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
-                <div className="relative aspect-4/3 overflow-hidden bg-zinc-950">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 rounded-full bg-black/80 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
-                    {item.badge}
-                  </span>
-                  {item.compareAtPrice && (
-                    <span className="absolute top-3 right-3 rounded-full bg-red-950/80 backdrop-blur-md border border-red-500/30 px-2.5 py-0.5 text-[10px] font-bold text-red-300">
-                      Save ₹{item.compareAtPrice - item.price}
+        {isLoading && filteredItems.length === 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((idx) => (
+              <div key={idx} className="h-96 rounded-3xl border border-white/10 bg-card/40 animate-pulse" />
+            ))}
+          </div>
+        ) : filteredItems.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-card/40 py-16 px-6 text-center">
+            <p className="text-zinc-400 text-sm">No wedding invitation suites found in this category.</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredItems.map((item, i) => (
+              <Reveal key={item.slug} delay={i * 0.06}>
+                <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
+                  <div className="relative aspect-4/3 overflow-hidden bg-zinc-950">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <span className="absolute top-3 left-3 rounded-full bg-black/80 backdrop-blur-md border border-white/15 px-3 py-1 text-[11px] font-bold text-[#5ef046]">
+                      {item.badge}
                     </span>
-                  )}
-                </div>
-
-                <div className="flex flex-1 flex-col justify-between p-6">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="text-xs font-bold text-emerald-400">
-                        {item.isDigital ? "Flat Package" : `From ₹${item.price} / piece`}
+                    {item.compareAtPrice && (
+                      <span className="absolute top-3 right-3 rounded-full bg-red-950/80 backdrop-blur-md border border-red-500/30 px-2.5 py-0.5 text-[10px] font-bold text-red-300">
+                        Save ₹{item.compareAtPrice - item.price}
                       </span>
-                      <span className="text-[11px] text-zinc-400 font-medium">
-                        {item.isDigital ? "Instant 4K Asset" : `MOQ: ${item.moq} pcs`}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-white leading-snug">{item.title}</h3>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                      {item.desc}
-                    </p>
-                    {item.material && (
-                      <p className="mt-2.5 text-[11px] text-zinc-400 font-medium">
-                        <span className="text-zinc-500">Stock:</span> {item.material}
-                      </p>
                     )}
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleSelectStyle(item)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline cursor-pointer"
-                    >
-                      Enquire for this style <ArrowRight className="size-3.5" />
-                    </button>
-                    <Link
-                      to="/products/$slug"
-                      params={{ slug: item.slug } as any}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition-colors"
-                    >
-                      <span>Specs</span>
-                      <ExternalLink className="size-3" />
-                    </Link>
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="text-xs font-bold text-emerald-400">
+                          {item.isDigital ? "Flat Package" : `From ₹${item.price} / piece`}
+                        </span>
+                        <span className="text-[11px] text-zinc-400 font-medium">
+                          {item.isDigital ? "Instant 4K Asset" : `MOQ: ${item.moq} pcs`}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-white leading-snug">{item.title}</h3>
+                      <p className="mt-2 text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                        {item.desc}
+                      </p>
+                      {item.material && (
+                        <p className="mt-2.5 text-[11px] text-zinc-400 font-medium">
+                          <span className="text-zinc-500">Stock:</span> {item.material}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectStyle(item)}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:underline cursor-pointer"
+                      >
+                        Enquire for this style <ArrowRight className="size-3.5" />
+                      </button>
+                      <Link
+                        to="/products/$slug"
+                        params={{ slug: item.slug } as any}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-white transition-colors"
+                      >
+                        <span>Specs</span>
+                        <ExternalLink className="size-3" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+              </Reveal>
+            ))}
+          </div>
+        )}
 
         <div className="mt-14 flex justify-center">
           <Link

@@ -220,6 +220,14 @@ const authStoreCore = (set: any, get: any) => ({
           isAdmin,
           authModalOpen: false,
         });
+        if (getGuestToken()) {
+          try {
+            console.log('[AuthStore:Register] Merging guest cart...');
+            await cartApi.mergeGuestCart();
+          } catch {
+            // merge fail soft
+          }
+        }
       } else {
         set({ status: 'unauthenticated' });
         throw new Error(res.message || 'Registration failed');

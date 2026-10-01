@@ -38,7 +38,7 @@ export function FinalCta() {
 }
 
 const exploreLinks = [
-  { label: "Custom T-Shirts", to: "/custom-t-shirts", external: false },
+  { label: "T-Shirts", to: "/custom-t-shirts", external: false },
   { label: "Wedding Cards", to: "/wedding-cards", external: false },
   { label: "Stickers on Amazon", to: "/stickers", external: false },
   { label: "Bulk Orders", to: "/bulk-orders", external: false },

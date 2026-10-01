@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useAdminCategories, useAdminBrands, useAdminProductMutations } from '@/hooks/useAdmin';
+import { useAdminCategories, useAdminCollections, useAdminBrands, useAdminProductMutations } from '@/hooks/useAdmin';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { CloudinaryImageUpload } from '@/components/common/CloudinaryImageUpload';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/admin/products/create')({
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/admin/products/create')({
 function AdminProductCreateComponent() {
   const navigate = useNavigate();
   const { data: categories = [] } = useAdminCategories();
+  const { data: collections = [] } = useAdminCollections();
   const { data: brands = [] } = useAdminBrands();
   const { createProduct } = useAdminProductMutations();
 
@@ -21,7 +22,9 @@ function AdminProductCreateComponent() {
   const [description, setDescription] = useState('');
   const [basePrice, setBasePrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [collectionId, setCollectionId] = useState('');
   const [brandId, setBrandId] = useState('');
+  const [externalUrl, setExternalUrl] = useState('');
   const [status, setStatus] = useState('active');
   const [images, setImages] = useState<any[]>([]);
 
@@ -38,7 +41,9 @@ function AdminProductCreateComponent() {
       description,
       base_price: Number(basePrice),
       category_id: categoryId ? Number(categoryId) : null,
+      collection_id: collectionId ? Number(collectionId) : null,
       brand_id: brandId ? Number(brandId) : null,
+      external_url: externalUrl || null,
       status,
       images,
     });
@@ -106,7 +111,7 @@ function AdminProductCreateComponent() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground">Category</label>
               <select
@@ -118,6 +123,22 @@ function AdminProductCreateComponent() {
                 {categories.map((cat: any) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground">Collection</label>
+              <select
+                value={collectionId}
+                onChange={(e) => setCollectionId(e.target.value)}
+                className="w-full rounded-xl border border-border/40 bg-surface/60 px-3 py-2 text-xs text-foreground focus:outline-none"
+              >
+                <option value="">Select Collection</option>
+                {collections.map((col: any) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name}
                   </option>
                 ))}
               </select>
@@ -138,6 +159,22 @@ function AdminProductCreateComponent() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <Link2 className="size-3.5 text-primary" /> External Product Link / Marketplace URL (Optional)
+            </label>
+            <input
+              type="url"
+              placeholder="e.g. https://www.amazon.in/dp/B0CXENO01 or direct store checkout URL"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              className="w-full rounded-xl border border-border/40 bg-surface/60 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              If provided, this product can connect directly to external marketplaces (Amazon, Flipkart) or custom links.
+            </p>
           </div>
 
           <div className="space-y-1.5">

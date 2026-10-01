@@ -49,18 +49,6 @@ const DEFAULT_LOGOS = [
     name: "Xeno Craft Emblem",
     url: "/logos/Xeno craft Green.png",
   },
-  {
-    name: "Geometric Wolf",
-    url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Cyber Brand",
-    url: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=400&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Minimalist Crest",
-    url: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&auto=format&fit=crop&q=80",
-  },
 ];
 
 export function PhotorealisticStage({
@@ -288,7 +276,11 @@ export function PhotorealisticStage({
       img.onerror = () => {
         toast.error("Error generating mockup render download");
       };
-      img.src = currentDisplayImage || "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=1000";
+      if (!currentDisplayImage) {
+        toast.error("No product garment image available to render");
+        return;
+      }
+      img.src = currentDisplayImage;
     } catch (err: any) {
       toast.error("Render capture failed: " + err?.message);
     }

@@ -731,7 +731,7 @@ export const posts: Post[] = [
     date: "2026-02-14",
     read: "8 min",
     excerpt: "How to measure impressions, retention and cost-per-wear on your merch spend.",
-    image: images.cap,
+    image: images.tshirt,
     body: [
       { heading: "Cost per wear", copy: "Divide unit cost by realistic wears over a year. A ₹900 hoodie worn 40 times beats a ₹250 tee worn twice." },
       { heading: "Track it like media", copy: "Rough impressions per wear, multiplied by retention, gives a defensible CPM you can put in a marketing deck." },

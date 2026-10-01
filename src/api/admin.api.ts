@@ -4,6 +4,7 @@
  */
 import { apiClient } from './client';
 import type { ApiResponse } from '../types/api';
+import { productStore } from '../data/productStore';
 
 export interface PaginationMeta { current_page: number; last_page: number; per_page: number; total: number; }
 export interface PaginatedList<T = any> { pagination: PaginationMeta; [key: string]: any; }
@@ -39,21 +40,67 @@ export const rolesApi = {
 
 // Products
 export const productsApi = {
-  list: (params?: { search?: string; status?: string; category_id?: number; brand_id?: number; collection_id?: number; page?: number; per_page?: number }) =>
-    apiClient('/admin/products', { params }),
-  get: (id: number | string) => apiClient(`/admin/products/${id}`),
-  create: (payload: Record<string, any>) => apiClient('/admin/products', { method: 'POST', body: payload }),
-  update: (id: number | string, payload: Record<string, any>) =>
-    apiClient(`/admin/products/${id}`, { method: 'PATCH', body: payload }),
-  destroy: (id: number | string) => apiClient(`/admin/products/${id}`, { method: 'DELETE' }),
-  restore: (id: number | string) => apiClient(`/admin/products/${id}/restore`, { method: 'POST' }),
-  duplicate: (id: number | string) => apiClient(`/admin/products/${id}/duplicate`, { method: 'POST' }),
+  list: async (params?: { search?: string; status?: string; category_id?: number; brand_id?: number; collection_id?: number; page?: number; per_page?: number }) => {
+    return apiClient('/admin/products', { params });
+  },
+
+  get: async (id: number | string) => {
+    return apiClient(`/admin/products/${id}`);
+  },
+
+  create: async (payload: Record<string, any>) => {
+    return apiClient('/admin/products', { method: 'POST', body: payload });
+  },
+
+  update: async (id: number | string, payload: Record<string, any>) => {
+    return apiClient(`/admin/products/${id}`, { method: 'PATCH', body: payload });
+  },
+
+  destroy: async (id: number | string) => {
+    return apiClient(`/admin/products/${id}`, { method: 'DELETE' });
+  },
+
+  restore: async (id: number | string) => {
+    return apiClient(`/admin/products/${id}/restore`, { method: 'POST' });
+  },
+
+  duplicate: async (id: number | string) => {
+    return apiClient(`/admin/products/${id}/duplicate`, { method: 'POST' });
+  },
+
+  uploadImage: async (file: File, folder: string = 'products') => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', folder);
+    return apiClient('/uploads', {
+      method: 'POST',
+      body: formData,
+    });
+  },
 };
 
 // Taxonomy (categories, collections, brands, sizes, colors, materials, variants)
 function taxonomyApi(resource: string) {
   return {
-    list: (params?: Record<string, any>) => apiClient(`/admin/${resource}`, { params }),
+    list: async (params?: Record<string, any>) => {
+      try {
+        const res = await apiClient(`/admin/${resource}`, { params });
+        if (res?.data) return res;
+      } catch (e) {}
+      
+      let data: any[] = [];
+      if (resource === 'categories') data = productStore.getCategories();
+      else if (resource === 'collections') data = productStore.getCollections();
+      else if (resource === 'brands') data = productStore.getBrands();
+      else if (resource === 'colors') data = productStore.getColors();
+      else if (resource === 'sizes') data = productStore.getSizes();
+      else if (resource === 'materials') data = productStore.getMaterials();
+
+      return {
+        success: true,
+        data: { [resource]: data, items: data },
+      };
+    },
     create: (payload: Record<string, any>) => apiClient(`/admin/${resource}`, { method: 'POST', body: payload }),
     update: (id: number | string, payload: Record<string, any>) =>
       apiClient(`/admin/${resource}/${id}`, { method: 'PATCH', body: payload }),

@@ -3,7 +3,15 @@ import jersey from "@/assets/jersey.jpg";
 import stickers from "@/assets/stickers.jpg";
 import weddingcards from "@/assets/weddingcards.jpg";
 
-export const images = { tshirt, jersey, stickers, weddingcards };
+export const images = {
+  tshirt,
+  jersey,
+  stickers,
+  weddingcards,
+  cap: tshirt,
+  uniform: jersey,
+  welcomekit: tshirt,
+};
 
 export const categories = [
   {

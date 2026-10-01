@@ -36,7 +36,7 @@ export function Philosophy() {
         <motion.div style={{ y }} className="relative">
           <div aria-hidden="true" className="absolute -inset-6 rounded-full bg-primary/10 blur-[100px]" />
           <div className="relative overflow-hidden rounded-[2rem] hairline" style={{ boxShadow: "var(--shadow-card)" }}>
-            <img src={images.uniform} alt="Xeno Craft production floor" loading="lazy" width={900} height={1100} className="aspect-4/5 w-full object-cover" />
+            <img src={images.tshirt} alt="Xeno Craft production floor" loading="lazy" width={900} height={1100} className="aspect-4/5 w-full object-cover" />
           </div>
         </motion.div>
       </div>

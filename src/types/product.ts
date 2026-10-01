@@ -93,19 +93,20 @@ export interface Product {
   status: 'active' | 'draft' | 'archived';
   is_featured: boolean;
   moq: number;
-  category_id?: number | null;
-  brand_id?: number | null;
-  collection_id?: number | null;
-  category?: Category;
-  brand?: Brand;
-  collection?: Collection;
-  images?: ProductImage[];
-  variants?: ProductVariant[];
-  price_tiers?: PriceTier[];
-  average_rating?: number;
-  reviews_count?: number;
-  created_at: string;
-  updated_at: string;
+  external_url?: string | null | undefined;
+  category_id?: number | null | undefined;
+  brand_id?: number | null | undefined;
+  collection_id?: number | null | undefined;
+  category?: Category | undefined;
+  brand?: Brand | undefined;
+  collection?: Collection | undefined;
+  images?: ProductImage[] | undefined;
+  variants?: ProductVariant[] | undefined;
+  price_tiers?: PriceTier[] | undefined;
+  average_rating?: number | undefined;
+  reviews_count?: number | undefined;
+  created_at?: string | undefined;
+  updated_at?: string | undefined;
 }
 
 export interface PrintingMethod {

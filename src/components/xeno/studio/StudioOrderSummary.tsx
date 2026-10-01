@@ -76,7 +76,7 @@ export function StudioOrderSummary({
     if (!next) return null;
 
     const unitsNeeded = next.min_quantity - qty;
-    const tierPrice = next.unit_price || next.price || 0;
+    const tierPrice = next.unit_price || (next as any).price || 0;
 
     return {
       minQty: next.min_quantity,

@@ -1,21 +1,22 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Sparkles, Shirt, HeartHandshake, Award, Users, PartyPopper, Flame, Check, SlidersHorizontal, Palette, Ruler } from "lucide-react";
-import { Reveal, SectionHeading } from "@/components/xeno/Reveal";
-import { images, tShirtUseCases, tShirtCategories } from "@/components/xeno/data";
+import { ArrowRight, Sparkles, Shirt } from "lucide-react";
+import { Reveal } from "@/components/xeno/Reveal";
+import { useProducts, useCollections } from "@/hooks/useProducts";
+import { images } from "@/components/xeno/data";
 
 const T = "Custom T-Shirts for Every Occasion — Events, Corporate, College & Sports | Xeno Craft";
 const D = "Personalised custom T-shirts: Classic cotton, oversized streetwear, dry-fit sports jerseys and polo shirts customized in Hyderabad with pan-India delivery.";
 
 interface TShirtSearch {
-  type?: string;
-  size?: string;
-  color?: string;
+  collection?: string | undefined;
+  size?: string | undefined;
+  color?: string | undefined;
 }
 
 export const Route = createFileRoute("/custom-t-shirts")({
   validateSearch: (search: Record<string, unknown>): TShirtSearch => ({
-    type: typeof search["type"] === "string" ? search["type"] : undefined,
+    collection: typeof search["collection"] === "string" ? search["collection"] : undefined,
     size: typeof search["size"] === "string" ? search["size"] : undefined,
     color: typeof search["color"] === "string" ? search["color"] : undefined,
   }),
@@ -32,48 +33,46 @@ export const Route = createFileRoute("/custom-t-shirts")({
   component: CustomTShirtsPage,
 });
 
-const tShirtTypeOptions = [
+const defaultCollectionOptions = [
   { label: "All T-Shirts", value: "" },
-  { label: "Classic T-Shirts", value: "classic" },
-  { label: "Oversized T-Shirts", value: "oversized" },
-  { label: "Dry-Fit / Sports", value: "sports" },
-  { label: "Polo T-Shirts", value: "polo" },
-];
-
-const sizeOptions = ["All Sizes", "S", "M", "L", "XL", "2XL", "3XL"];
-const colorOptions = ["All Colours", "Black", "White", "Navy Blue", "Olive Green", "Maroon", "Heather Grey"];
-
-const useCaseIcons = [
-  Shirt,
-  HeartHandshake,
-  Award,
-  Users,
-  PartyPopper,
-  Flame,
+  { label: "Streetwear Drop", value: "streetwear-drop" },
+  { label: "Summer Collection", value: "summer-collection" },
+  { label: "Corporate Merch", value: "corporate-gifting" },
+  { label: "Winter Collection", value: "winter-collection" },
 ];
 
 function CustomTShirtsPage() {
   const search = useSearch({ from: "/custom-t-shirts" });
   const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState<string>(search.type || "");
-  const [selectedSize, setSelectedSize] = useState<string>(search.size || "");
-  const [selectedColor, setSelectedColor] = useState<string>(search.color || "");
+  const [selectedCollection, setSelectedCollection] = useState<string>(search.collection || "");
 
-  const handleTypeChange = (typeVal: string) => {
-    setSelectedType(typeVal);
+  const { data: collectionsData } = useCollections();
+  const collectionsList = Array.isArray(collectionsData) ? collectionsData : (collectionsData?.data || []);
+
+  const collectionFilterTabs = collectionsList.length > 0
+    ? [
+        { label: "All T-Shirts", value: "" },
+        ...collectionsList
+          .filter((c: any) =>
+            ["streetwear-drop", "summer-collection", "corporate-gifting", "winter-collection"].includes(c.slug)
+          )
+          .map((c: any) => ({ label: c.name, value: c.slug })),
+      ]
+    : defaultCollectionOptions;
+
+  const { data: productsData, isLoading: isProductsLoading } = useProducts({
+    category: "t-shirts",
+    collection: selectedCollection || undefined,
+  });
+
+  const productsList = productsData?.products || [];
+
+  const handleCollectionChange = (colSlug: string) => {
+    setSelectedCollection(colSlug);
     navigate({
-      search: { ...search, type: typeVal || undefined },
+      search: ((prev: any) => ({ ...prev, collection: colSlug || undefined })) as any,
     });
   };
-
-  const filteredCategories = tShirtCategories.filter((item) => {
-    if (!selectedType) return true;
-    if (selectedType === "classic" && item.name.includes("Classic")) return true;
-    if (selectedType === "oversized" && item.name.includes("Oversized")) return true;
-    if (selectedType === "sports" && item.name.includes("Sports")) return true;
-    if (selectedType === "polo" && item.name.includes("Polo")) return true;
-    return false;
-  });
 
   return (
     <div className="pt-28 pb-20 sm:pt-36">
@@ -136,33 +135,7 @@ function CustomTShirtsPage() {
         </div>
       </section>
 
-      {/* 15. USE CASES SECTION */}
-      <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24 border-t border-white/10">
-        <SectionHeading
-          eyebrow="Use Cases"
-          title={<>What Are You <span className="text-gradient">Customising For?</span></>}
-          copy="Tailored apparel solutions engineered specifically for your exact group or occasion."
-        />
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {tShirtUseCases.map((uc, i) => {
-            const IconComp = useCaseIcons[i % useCaseIcons.length];
-            return (
-              <Reveal key={uc.title} delay={i * 0.06}>
-                <div className="group rounded-3xl border border-white/10 bg-card/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-[#5ef046]/40 hover:bg-card">
-                  <div className="size-12 rounded-2xl bg-[#5ef046]/10 flex items-center justify-center text-[#5ef046] mb-5 group-hover:scale-110 transition-transform">
-                    <IconComp className="size-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white">{uc.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{uc.desc}</p>
-                </div>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 16. DESIGN STUDIO SECTION */}
+      {/* 15. DESIGN STUDIO SECTION */}
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24 border-t border-white/10">
         <div className="relative overflow-hidden rounded-[2.5rem] border border-primary/30 bg-gradient-to-br from-card via-zinc-950 to-primary/10 p-8 sm:p-12 lg:p-16 shadow-2xl">
           <div className="grid gap-10 lg:grid-cols-12 items-center">
@@ -215,29 +188,29 @@ function CustomTShirtsPage() {
         </div>
       </section>
 
-      {/* 17, 18, 19. PRODUCT CATEGORIES, FILTERS & CARDS */}
+      {/* 17, 18, 19. PRODUCT CATALOGUE & BACKEND FILTERS */}
       <section className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:py-24 border-t border-white/10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#5ef046]">Catalogue</span>
             <h2 className="mt-2 text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
-              Available <span className="text-gradient">T-Shirt Styles</span>
+              Available <span className="text-gradient">T-Shirt Collection</span>
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Select a style to customize with your logos, prints or graphics.
+              Explore our drops and customize any product with your logos, prints or graphics.
             </p>
           </div>
 
-          {/* 18. SIMPLIFIED FILTERS: T-Shirt Type, Size, Colour */}
+          {/* BACKEND FILTERS: Real Collections */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/80 p-1">
-              {tShirtTypeOptions.map((opt) => (
+              {collectionFilterTabs.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => handleTypeChange(opt.value)}
+                  onClick={() => handleCollectionChange(opt.value)}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                    selectedType === opt.value
+                    selectedCollection === opt.value
                       ? "bg-[#5ef046] text-black shadow-sm"
                       : "text-zinc-400 hover:text-white"
                   }`}
@@ -257,40 +230,96 @@ function CustomTShirtsPage() {
           </div>
         </div>
 
-        {/* 19. PRODUCT CARDS */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredCategories.map((item, i) => (
-            <Reveal key={item.name} delay={i * 0.08}>
-              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]">
-                <div className="relative aspect-square overflow-hidden bg-zinc-950">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span className="absolute top-3 left-3 rounded-full bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-[#5ef046]">
-                    {item.type}
-                  </span>
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{item.name}</h3>
-                    <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-sm font-extrabold text-white">{item.price}</span>
+        {/* PRODUCT CARDS: Real Database Products */}
+        {isProductsLoading ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="h-80 rounded-3xl border border-white/10 bg-card/50 animate-pulse" />
+            ))}
+          </div>
+        ) : productsList.length === 0 ? (
+          <div className="rounded-3xl border border-white/10 bg-card/40 p-12 text-center">
+            <p className="text-zinc-400 text-sm">No products found for this collection filter.</p>
+            <button
+              onClick={() => handleCollectionChange("")}
+              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-[#5ef046] hover:underline"
+            >
+              Show All T-Shirts
+            </button>
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {productsList.map((product: any, i: number) => {
+              const imgUrl = product.images?.[0]?.url || images.tshirt;
+              const price = Math.round(Number(product.base_price || 0));
+              const badgeLabel = product.collection?.name || product.category?.name || "T-Shirt";
+
+              return (
+                <Reveal key={product.id || product.slug} delay={i * 0.05}>
+                  <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-[#5ef046]/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.7)]">
                     <Link
-                      to="/studio"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#5ef046] hover:text-[#4de035] transition-colors"
+                      to="/products/$slug"
+                      params={{ slug: product.slug }}
+                      className="relative aspect-square overflow-hidden bg-zinc-950 block focus-visible:outline-none"
                     >
-                      Customise <ArrowRight className="size-3.5" />
+                      <img
+                        src={imgUrl}
+                        alt={product.name}
+                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <span className="absolute top-3 left-3 rounded-full bg-black/70 backdrop-blur-md border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-[#5ef046]">
+                        {badgeLabel}
+                      </span>
                     </Link>
+                    
+                    <div className="flex flex-1 flex-col justify-between p-5">
+                      <div>
+                        <Link
+                          to="/products/$slug"
+                          params={{ slug: product.slug }}
+                          className="block group/title"
+                        >
+                          <h3 className="text-base font-bold text-white line-clamp-1 group-hover/title:text-[#5ef046] transition-colors">
+                            {product.name}
+                          </h3>
+                        </Link>
+                        <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {product.short_description || product.description}
+                        </p>
+                      </div>
+
+                      <div className="mt-5 pt-4 border-t border-white/10 flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-extrabold text-white">₹{price}</span>
+                          <span className="text-[10px] uppercase font-bold text-zinc-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                            Customizable
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link
+                            to="/products/$slug"
+                            params={{ slug: product.slug }}
+                            className="flex items-center justify-center rounded-xl border border-white/15 bg-white/5 py-2 text-center text-xs font-semibold text-zinc-200 hover:bg-white/10 hover:text-white transition-all"
+                          >
+                            Details
+                          </Link>
+                          <Link
+                            to="/studio"
+                            search={{ product: product.slug }}
+                            className="flex items-center justify-center gap-1.5 rounded-xl bg-[#5ef046] py-2 text-center text-xs font-extrabold text-black hover:bg-[#4de035] transition-all shadow-sm"
+                          >
+                            <Sparkles className="size-3" /> Customise
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-12 flex justify-center">
           <Link
@@ -306,3 +335,4 @@ function CustomTShirtsPage() {
     </div>
   );
 }
+

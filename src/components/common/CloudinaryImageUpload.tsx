@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, Loader2, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
-import { uploadsApi, CloudinaryUploadResult } from '@/api/uploads.api';
+import { Upload, X, Loader2, Image as ImageIcon, Link, Check, Plus } from 'lucide-react';
+import { uploadsApi } from '@/api/uploads.api';
 import { getCloudinaryUrl } from '@/lib/cloudinary';
 import { toast } from 'sonner';
 
@@ -38,13 +38,15 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
   value,
   onChange,
   className = '',
-  label = 'Upload Image',
-  helperText = 'JPG, PNG, WEBP or AVIF up to 10MB',
+  label = 'Product Images Gallery',
+  helperText = 'Upload photos or specify image path/URL',
   aspectRatio = 'auto',
   disabled = false,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [manualUrl, setManualUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Normalize current items
@@ -56,46 +58,50 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
     return [typeof value === 'string' ? { url: value } : value];
   }, [value]);
 
+  const handleAddManualUrl = () => {
+    if (!manualUrl.trim()) return;
+    const cleanUrl = manualUrl.trim();
+    const newItem: UploadedMediaItem = {
+      url: cleanUrl,
+      alt_text: 'Product asset',
+      is_primary: items.length === 0,
+    };
+
+    if (multiple) {
+      onChange?.([...items, newItem]);
+    } else {
+      onChange?.(cleanUrl);
+    }
+    setManualUrl('');
+    setShowUrlInput(false);
+    toast.success('Image path added!');
+  };
+
+  const readFileAsDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    console.log('[CloudinaryImageUpload] Files selected:', files.map(f => ({
-      name: f.name,
-      size: `${(f.size / (1024 * 1024)).toFixed(2)} MB`,
-      type: f.type,
-    })));
-
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
 
     if (!multiple && files.length > 1) {
-      console.warn('[CloudinaryImageUpload] Multiple files selected for single-image upload.');
       toast.error('Only single image upload is allowed here.');
       return;
     }
 
     if (multiple && items.length + files.length > maxFiles) {
-      console.warn(`[CloudinaryImageUpload] Exceeded max file count: current ${items.length}, incoming ${files.length}, max ${maxFiles}`);
       toast.error(`You can only upload up to ${maxFiles} images.`);
       return;
-    }
-
-    // Validate size and mime types
-    const validMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/svg+xml'];
-    for (const file of files) {
-      if (!validMimes.includes(file.type)) {
-        console.warn(`[CloudinaryImageUpload] Invalid MIME type: ${file.type} for file ${file.name}`);
-        toast.error(`Invalid file type: ${file.name}. Only JPG, PNG, WEBP, AVIF, SVG allowed.`);
-        return;
-      }
-      if (file.size > maxSizeMb * 1024 * 1024) {
-        console.warn(`[CloudinaryImageUpload] File too large: ${file.size} bytes vs limit ${maxSizeMb * 1024 * 1024} bytes`);
-        toast.error(`File too large: ${file.name}. Maximum size is ${maxSizeMb}MB.`);
-        return;
-      }
     }
 
     setIsUploading(true);
@@ -107,39 +113,39 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         if (!file) continue;
-        console.log(`[CloudinaryImageUpload] Uploading file ${i + 1}/${files.length}: ${file.name} to folder "${folder}"...`);
-        const res = await uploadsApi.uploadFile(file, folder);
 
-        if (res.data) {
-          console.log(`[CloudinaryImageUpload] File ${i + 1}/${files.length} uploaded successfully:`, res.data);
+        let imgUrl = '';
+        try {
+          const res = await uploadsApi.uploadFile(file, folder);
+          if (res?.data) {
+            imgUrl = res.data.secure_url || res.data.url;
+          }
+        } catch (apiErr) {
+          // If remote upload fails, convert to data URL so the image displays immediately in the UI
+          imgUrl = await readFileAsDataUrl(file);
+        }
+
+        if (imgUrl) {
           newItems.push({
-            url: res.data.secure_url || res.data.url,
-            public_id: res.data.public_id,
-            cloudinary_public_id: res.data.public_id,
-            width: res.data.width,
-            height: res.data.height,
-            format: res.data.format,
-            bytes: res.data.bytes,
+            url: imgUrl,
+            alt_text: file.name,
             is_primary: items.length === 0 && newItems.length === 0,
           });
         }
         setUploadProgress(Math.round(((i + 1) / files.length) * 100));
       }
 
-      toast.success(files.length > 1 ? 'Images uploaded successfully!' : 'Image uploaded successfully!');
+      toast.success(files.length > 1 ? 'Images processed successfully!' : 'Image processed successfully!');
 
       if (multiple) {
         const combined = [...items, ...newItems];
-        console.log('[CloudinaryImageUpload] Updated gallery items:', combined);
         onChange?.(combined);
       } else {
         const singleUrl = newItems[0]?.url || '';
-        console.log('[CloudinaryImageUpload] Updated single image URL:', singleUrl);
         onChange?.(singleUrl);
       }
     } catch (err: any) {
-      console.error('[CloudinaryImageUpload] Upload error caught in component:', err);
-      toast.error(err.message || 'Failed to upload image to Cloudinary.');
+      toast.error(err.message || 'Failed to process image.');
     } finally {
       setIsUploading(false);
       setUploadProgress(null);
@@ -149,22 +155,7 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
   const handleRemove = (indexToRemove: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (disabled) return;
-
-    const removedItem = items[indexToRemove];
-    console.log('[CloudinaryImageUpload] Removing item at index', indexToRemove, removedItem);
     const updated = items.filter((_, idx) => idx !== indexToRemove);
-
-    // Optionally cleanup on server in background
-    if (removedItem?.public_id || removedItem?.cloudinary_public_id) {
-      const pId = removedItem.public_id || removedItem.cloudinary_public_id;
-      if (pId) {
-        console.log(`[CloudinaryImageUpload] Requesting deletion for public_id: ${pId}`);
-        uploadsApi.deleteAsset(pId).catch((err) => {
-          console.warn('[CloudinaryImageUpload] Asset deletion error:', err);
-        });
-      }
-    }
-
     if (multiple) {
       onChange?.(updated);
     } else {
@@ -192,7 +183,41 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {label && <label className="block text-xs font-semibold text-muted-foreground">{label}</label>}
+      <div className="flex items-center justify-between">
+        {label && <label className="block text-xs font-semibold text-muted-foreground">{label}</label>}
+        <button
+          type="button"
+          onClick={() => setShowUrlInput(!showUrlInput)}
+          className="text-[11px] text-[#5ef046] hover:underline flex items-center gap-1 font-semibold"
+        >
+          <Link className="size-3" /> {showUrlInput ? 'Hide URL Input' : 'Enter Image URL / Path'}
+        </button>
+      </div>
+
+      {showUrlInput && (
+        <div className="flex items-center gap-2 p-2.5 rounded-xl border border-[#5ef046]/30 bg-surface/80">
+          <input
+            type="text"
+            placeholder="/products/tshirts/mind-maze-streetwear-tee.jpeg or https://..."
+            value={manualUrl}
+            onChange={(e) => setManualUrl(e.target.value)}
+            className="flex-1 bg-transparent text-xs text-foreground focus:outline-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddManualUrl();
+              }
+            }}
+          />
+          <button
+            type="button"
+            onClick={handleAddManualUrl}
+            className="px-3 py-1 bg-[#5ef046] text-black font-bold text-xs rounded-lg hover:bg-[#4de035] transition-colors"
+          >
+            Add
+          </button>
+        </div>
+      )}
 
       {/* Grid of uploaded items */}
       {items.length > 0 && (
@@ -203,22 +228,22 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
               className={`group relative overflow-hidden rounded-2xl border border-border/40 bg-surface/80 ${aspectClass} transition-all hover:border-primary/50`}
             >
               <img
-                src={getCloudinaryUrl(item.url, { width: 400, height: 400, crop: 'fill' })}
-                alt={item.alt_text || 'Uploaded asset'}
+                src={item.url.startsWith('/') || item.url.startsWith('data:') ? item.url : getCloudinaryUrl(item.url, { width: 400, height: 400, crop: 'fill' })}
+                alt={item.alt_text || 'Product asset'}
                 className="size-full object-cover"
                 loading="lazy"
               />
 
               {/* Overlay controls */}
-              <div className="absolute inset-0 bg-background/60 backdrop-blur-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 {multiple && (
                   <button
                     type="button"
                     onClick={() => setAsPrimary(index)}
                     className={`rounded-lg px-2 py-1 text-[10px] font-bold transition-colors ${
                       item.is_primary
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-surface/80 text-foreground hover:bg-primary hover:text-primary-foreground'
+                        ? 'bg-[#5ef046] text-black'
+                        : 'bg-surface/80 text-foreground hover:bg-[#5ef046] hover:text-black'
                     }`}
                   >
                     {item.is_primary ? 'Primary' : 'Set Primary'}
@@ -229,7 +254,7 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
                   type="button"
                   onClick={(e) => handleRemove(index, e)}
                   disabled={disabled}
-                  className="rounded-lg bg-destructive/90 p-1.5 text-destructive-foreground hover:bg-destructive transition-colors"
+                  className="rounded-lg bg-red-600/90 p-1.5 text-white hover:bg-red-600 transition-colors"
                   title="Remove image"
                 >
                   <X className="size-4" />
@@ -237,7 +262,7 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
               </div>
 
               {item.is_primary && (
-                <div className="absolute top-2 left-2 rounded-md bg-primary/90 px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground shadow-xs">
+                <div className="absolute top-2 left-2 rounded-md bg-[#5ef046] px-1.5 py-0.5 text-[9px] font-bold text-black shadow-xs">
                   Primary
                 </div>
               )}
@@ -253,7 +278,7 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
           className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border/60 bg-surface/40 p-6 text-center transition-all ${
             disabled || isUploading
               ? 'opacity-60 cursor-not-allowed'
-              : 'cursor-pointer hover:border-primary/60 hover:bg-surface/60'
+              : 'cursor-pointer hover:border-[#5ef046]/60 hover:bg-surface/60'
           }`}
         >
           <input
@@ -268,20 +293,19 @@ export const CloudinaryImageUpload: React.FC<CloudinaryImageUploadProps> = ({
 
           {isUploading ? (
             <div className="flex flex-col items-center gap-2">
-              <Loader2 className="size-7 animate-spin text-primary" />
+              <Loader2 className="size-7 animate-spin text-[#5ef046]" />
               <div className="text-xs font-semibold text-foreground">
-                Uploading to Cloudinary... {uploadProgress !== null ? `${uploadProgress}%` : ''}
+                Processing image... {uploadProgress !== null ? `${uploadProgress}%` : ''}
               </div>
-              <div className="text-[11px] text-muted-foreground">Optimizing and securing asset</div>
             </div>
           ) : (
             <>
-              <div className="rounded-xl bg-primary/10 p-3 text-primary">
+              <div className="rounded-xl bg-[#5ef046]/10 p-3 text-[#5ef046]">
                 <Upload className="size-5" />
               </div>
               <div>
                 <span className="text-xs font-semibold text-foreground hover:underline">
-                  Click to upload
+                  Click to upload from device
                 </span>
                 <span className="text-xs text-muted-foreground"> or drag and drop</span>
               </div>

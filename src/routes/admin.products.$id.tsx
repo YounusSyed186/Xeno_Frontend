@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router';
-import { useAdminCategories, useAdminBrands, useAdminProduct, useAdminProductMutations } from '@/hooks/useAdmin';
+import { useAdminCategories, useAdminCollections, useAdminBrands, useAdminProduct, useAdminProductMutations } from '@/hooks/useAdmin';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { AdminStatusBadge } from '@/components/admin/AdminStatusBadge';
 import { CloudinaryImageUpload } from '@/components/common/CloudinaryImageUpload';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/admin/products/$id')({
@@ -17,6 +17,7 @@ function AdminProductDetailComponent() {
   const productId = Number(id);
 
   const { data: categories = [] } = useAdminCategories();
+  const { data: collections = [] } = useAdminCollections();
   const { data: brands = [] } = useAdminBrands();
   const { data: product, isLoading, error } = useAdminProduct(productId);
   const { updateProduct } = useAdminProductMutations();
@@ -26,7 +27,9 @@ function AdminProductDetailComponent() {
   const [description, setDescription] = useState('');
   const [basePrice, setBasePrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [collectionId, setCollectionId] = useState('');
   const [brandId, setBrandId] = useState('');
+  const [externalUrl, setExternalUrl] = useState('');
   const [status, setStatus] = useState('active');
   const [images, setImages] = useState<any[]>([]);
 
@@ -37,7 +40,9 @@ function AdminProductDetailComponent() {
       setDescription(product.description || '');
       setBasePrice(product.base_price ? String(product.base_price) : '');
       setCategoryId(product.category_id ? String(product.category_id) : '');
+      setCollectionId(product.collection_id ? String(product.collection_id) : '');
       setBrandId(product.brand_id ? String(product.brand_id) : '');
+      setExternalUrl(product.external_url || '');
       setStatus(product.status || 'active');
       setImages(product.images || []);
     }
@@ -53,7 +58,9 @@ function AdminProductDetailComponent() {
         description,
         base_price: Number(basePrice),
         category_id: categoryId ? Number(categoryId) : null,
+        collection_id: collectionId ? Number(collectionId) : null,
         brand_id: brandId ? Number(brandId) : null,
+        external_url: externalUrl || null,
         status,
         images,
       },
@@ -132,7 +139,7 @@ function AdminProductDetailComponent() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground">Category</label>
               <select
@@ -144,6 +151,22 @@ function AdminProductDetailComponent() {
                 {categories.map((cat: any) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-muted-foreground">Collection</label>
+              <select
+                value={collectionId}
+                onChange={(e) => setCollectionId(e.target.value)}
+                className="w-full rounded-xl border border-border/40 bg-surface/60 px-3 py-2 text-xs text-foreground focus:outline-none"
+              >
+                <option value="">Select Collection</option>
+                {collections.map((col: any) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name}
                   </option>
                 ))}
               </select>
@@ -164,6 +187,22 @@ function AdminProductDetailComponent() {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+              <Link2 className="size-3.5 text-primary" /> External Product Link / Marketplace URL (Optional)
+            </label>
+            <input
+              type="url"
+              placeholder="e.g. https://www.amazon.in/dp/B0CXENO01 or direct store checkout URL"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              className="w-full rounded-xl border border-border/40 bg-surface/60 px-3 py-2 text-xs text-foreground focus:outline-none focus:border-primary"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              If provided, this product can connect directly to external marketplaces (Amazon, Flipkart) or custom links.
+            </p>
           </div>
 
           <div className="space-y-1.5">

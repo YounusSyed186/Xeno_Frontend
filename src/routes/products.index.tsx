@@ -249,15 +249,15 @@ function ProductsPage() {
           ) : isError ? (
             <EmptyState
               icon="alert"
-              title="Failed to load products"
-              description={error?.message || "Please try again"}
+              title="Unable to load products."
+              description="Please check your connection and try again."
               action={{ label: "Retry", onClick: () => refetch() }}
             />
           ) : products.length === 0 ? (
             <EmptyState
               icon="package"
-              title="No products found"
-              description="Try clearing your filters"
+              title="No products available right now."
+              description="New custom merchandise collections will be arriving shortly."
               action={{ label: "Clear filters", onClick: handleClearAll, variant: "outline" }}
             />
           ) : (

@@ -235,7 +235,12 @@ function AdminProductsIndexComponent() {
         columns={columns}
         data={products}
         isLoading={isLoading}
-        emptyText="No products found in catalog."
+        emptyText="No products yet."
+        emptySubtext="Create your first product to start building your Xeno Craft catalog."
+        emptyAction={{
+          label: "+ Create Product",
+          onClick: () => navigate({ to: '/admin/products/create' }),
+        }}
         pagination={pagination}
       />
     </div>

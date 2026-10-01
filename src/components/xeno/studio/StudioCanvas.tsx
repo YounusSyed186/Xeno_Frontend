@@ -264,7 +264,11 @@ export function StudioCanvas({
       img.onerror = () => {
         toast.error("Error generating mockup render download");
       };
-      img.src = currentDisplayImage || "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=1000";
+      if (!currentDisplayImage) {
+        toast.error("No product garment image available to render");
+        return;
+      }
+      img.src = currentDisplayImage;
     } catch (err: any) {
       toast.error("Render capture failed: " + err?.message);
     }

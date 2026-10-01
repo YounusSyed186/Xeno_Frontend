@@ -109,7 +109,7 @@ function Index() {
           <div className="lg:col-span-6">
             <div className="grid gap-4 sm:grid-cols-2">
               {tShirtUseCases.map((uc, i) => {
-                const IconComponent = useCaseIcons[i % useCaseIcons.length];
+                const IconComponent = useCaseIcons[i % useCaseIcons.length] ?? Shirt;
                 return (
                   <Reveal key={uc.title} delay={i * 0.05}>
                     <div className="rounded-2xl border border-white/10 bg-card/60 p-5 hover:border-[#5ef046]/40 transition-all">
