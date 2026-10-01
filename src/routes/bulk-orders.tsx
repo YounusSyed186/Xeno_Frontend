@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Sparkles, Check, Upload, Send, Shirt, Users, Building, GraduationCap, Trophy, PartyPopper } from "lucide-react";
+import { Sparkles, Check, Upload, Send, Shirt, Users, Building, GraduationCap, Trophy, PartyPopper, ChevronDown } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/xeno/Reveal";
 
 const T = "Bulk Custom T-Shirts for Events, Teams & Organisations | Xeno Craft";
@@ -245,18 +245,21 @@ function BulkPage() {
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
                     Requirement / Event Type
                   </label>
-                  <select
-                    value={formData.eventType}
-                    onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
-                    className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
-                  >
-                    <option>Corporate Events</option>
-                    <option>Corporate Gifting</option>
-                    <option>College Fests & Batch Tees</option>
-                    <option>Sports Events & Tournaments</option>
-                    <option>Events & Celebrations</option>
-                    <option>Brands & Communities</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={formData.eventType}
+                      onChange={(e) => setFormData({ ...formData, eventType: e.target.value })}
+                      className="w-full appearance-none rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 pr-11 text-sm text-white focus:border-[#5ef046] focus:outline-none cursor-pointer transition-all hover:border-white/25"
+                    >
+                      <option className="bg-zinc-900 text-white py-2">Corporate Events</option>
+                      <option className="bg-zinc-900 text-white py-2">Corporate Gifting</option>
+                      <option className="bg-zinc-900 text-white py-2">College Fests & Batch Tees</option>
+                      <option className="bg-zinc-900 text-white py-2">Sports Events & Tournaments</option>
+                      <option className="bg-zinc-900 text-white py-2">Events & Celebrations</option>
+                      <option className="bg-zinc-900 text-white py-2">Brands & Communities</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
@@ -270,7 +273,7 @@ function BulkPage() {
                     value={formData.quantity}
                     onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                     placeholder="e.g. 150"
-                    className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-[#5ef046] focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 text-sm text-white placeholder:text-zinc-600 focus:border-[#5ef046] focus:outline-none"
                   />
                 </div>
               </div>
@@ -280,32 +283,38 @@ function BulkPage() {
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
                     T-Shirt Type
                   </label>
-                  <select
-                    value={formData.tshirtType}
-                    onChange={(e) => setFormData({ ...formData, tshirtType: e.target.value })}
-                    className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
-                  >
-                    <option>Classic Cotton T-Shirt</option>
-                    <option>Oversized Heavyweight T-Shirt</option>
-                    <option>Dry-Fit / Sports Jersey T-Shirt</option>
-                    <option>Polo T-Shirt</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={formData.tshirtType}
+                      onChange={(e) => setFormData({ ...formData, tshirtType: e.target.value })}
+                      className="w-full appearance-none rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 pr-11 text-sm text-white focus:border-[#5ef046] focus:outline-none cursor-pointer transition-all hover:border-white/25"
+                    >
+                      <option className="bg-zinc-900 text-white py-2">Classic Cotton T-Shirt</option>
+                      <option className="bg-zinc-900 text-white py-2">Oversized Heavyweight T-Shirt</option>
+                      <option className="bg-zinc-900 text-white py-2">Dry-Fit / Sports Jersey T-Shirt</option>
+                      <option className="bg-zinc-900 text-white py-2">Polo T-Shirt</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
                     Customisation Requirement
                   </label>
-                  <select
-                    value={formData.customizationReq}
-                    onChange={(e) => setFormData({ ...formData, customizationReq: e.target.value })}
-                    className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
-                  >
-                    <option>Front Print Only</option>
-                    <option>Front + Back Print</option>
-                    <option>Chest Embroidery</option>
-                    <option>All-Over Sublimation</option>
-                    <option>Need Design Assistance</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={formData.customizationReq}
+                      onChange={(e) => setFormData({ ...formData, customizationReq: e.target.value })}
+                      className="w-full appearance-none rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 pr-11 text-sm text-white focus:border-[#5ef046] focus:outline-none cursor-pointer transition-all hover:border-white/25"
+                    >
+                      <option className="bg-zinc-900 text-white py-2">Front Print Only</option>
+                      <option className="bg-zinc-900 text-white py-2">Front + Back Print</option>
+                      <option className="bg-zinc-900 text-white py-2">Chest Embroidery</option>
+                      <option className="bg-zinc-900 text-white py-2">All-Over Sublimation</option>
+                      <option className="bg-zinc-900 text-white py-2">Need Design Assistance</option>
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 

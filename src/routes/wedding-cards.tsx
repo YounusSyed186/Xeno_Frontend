@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { Sparkles, MessageCircle, Send, Check, Heart, ArrowRight, ExternalLink, Filter, CheckCircle2 } from "lucide-react";
+import { Sparkles, MessageCircle, Send, Check, Heart, ArrowRight, ExternalLink, Filter, CheckCircle2, ChevronDown } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/xeno/Reveal";
 import { images } from "@/components/xeno/data";
 import { useProducts } from "@/hooks/useProducts";
@@ -470,17 +470,20 @@ function WeddingCardsPage() {
                       <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
                         Preferred Style (Dynamic Catalog)
                       </label>
-                      <select
-                        value={formData.style}
-                        onChange={(e) => setFormData({ ...formData, style: e.target.value })}
-                        className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
-                      >
-                        {allItems.map((item) => (
-                          <option key={item.slug} value={item.title}>
-                            {item.title} ({item.isDigital ? "Digital" : `From ₹${item.price}`})
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={formData.style}
+                          onChange={(e) => setFormData({ ...formData, style: e.target.value })}
+                          className="w-full appearance-none rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 pr-11 text-sm text-white focus:border-[#5ef046] focus:outline-none cursor-pointer transition-all hover:border-white/25"
+                        >
+                          {allItems.map((item) => (
+                            <option key={item.slug} value={item.title} className="bg-zinc-900 text-white py-2">
+                              {item.title} ({item.isDigital ? "Digital" : `From ₹${item.price}`})
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">

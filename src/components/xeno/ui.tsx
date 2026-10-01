@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Plus, ChevronRight, Upload, Check } from "lucide-react";
+import { Plus, ChevronRight, Upload, Check, ChevronDown } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { MagneticLink } from "./MagneticButton";
 import { cn } from "@/lib/utils";
@@ -263,13 +263,16 @@ export function QuoteForm({ product, compact }: { product?: string; compact?: bo
           </div>
           <div>
             <label htmlFor="q-budget" className="text-xs uppercase tracking-[0.16em] text-subtle">Budget range</label>
-            <select id="q-budget" name="q-budget" className={cn(field, "mt-2")} defaultValue="">
-              <option value="" disabled>Select a range</option>
-              <option>Under ₹50,000</option>
-              <option>₹50,000 – ₹2,00,000</option>
-              <option>₹2,00,000 – ₹10,00,000</option>
-              <option>₹10,00,000+</option>
-            </select>
+            <div className="relative mt-2">
+              <select id="q-budget" name="q-budget" className={cn(field, "appearance-none pr-10 cursor-pointer")} defaultValue="">
+                <option value="" disabled className="bg-zinc-900 text-white">Select a range</option>
+                <option className="bg-zinc-900 text-white">Under ₹50,000</option>
+                <option className="bg-zinc-900 text-white">₹50,000 – ₹2,00,000</option>
+                <option className="bg-zinc-900 text-white">₹2,00,000 – ₹10,00,000</option>
+                <option className="bg-zinc-900 text-white">₹10,00,000+</option>
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+            </div>
           </div>
           <div>
             <label htmlFor="q-deadline" className="text-xs uppercase tracking-[0.16em] text-subtle">Deadline</label>

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, MapPin, Phone, Clock, MessageCircle, Send, Check } from "lucide-react";
+import { Mail, MapPin, Phone, Clock, MessageCircle, Send, Check, ChevronDown } from "lucide-react";
 import { PageHero, Section } from "@/components/xeno/ui";
 import { Reveal } from "@/components/xeno/Reveal";
 
@@ -179,17 +179,20 @@ function ContactPage() {
                       <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block mb-1.5">
                         Enquiry Type *
                       </label>
-                      <select
-                        value={formData.enquiryType}
-                        onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value })}
-                        className="w-full rounded-2xl border border-white/10 bg-background px-4 py-3 text-sm text-white focus:border-[#5ef046] focus:outline-none"
-                      >
-                        {enquiryOptions.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={formData.enquiryType}
+                          onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value })}
+                          className="w-full appearance-none rounded-2xl border border-white/10 bg-background px-4.5 py-3.5 pr-11 text-sm text-white focus:border-[#5ef046] focus:outline-none cursor-pointer transition-all hover:border-white/25"
+                        >
+                          {enquiryOptions.map((opt) => (
+                            <option key={opt} value={opt} className="bg-zinc-900 text-white py-2">
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
 
